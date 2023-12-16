@@ -23,8 +23,8 @@ class ScoreBoard {
 
   public static void help() {
     System.out.println("Commands:");
-    System.out.println("  \"h\" for help");
-    System.out.println("  \"q\" to quit");
+    System.out.println("  \"h\" or \"?\" for help");
+    System.out.println("  \"q\" or \"ctrl-d\" or \"ctrl-z\" to quit");
     System.out.println("  \"r\" to reset scores");
     System.out.println("  \"s\" to switch input style (one or two numbers)");
   }
@@ -32,11 +32,13 @@ class ScoreBoard {
   public static void score(BigInteger a, BigInteger b) {
     int aWidth = Math.max(minWidth, a.toString().length());
     int bWidth = Math.max(minWidth, b.toString().length());
+
     System.out.println( "=".repeat(4 + 
           aName.length() + 
           bName.length() + 
           aWidth +
           bWidth ));
+    
     System.out.printf(scoreTotFormat, aName, a, bName, b);
     System.out.print("  " + prompt);
   }
@@ -80,12 +82,13 @@ class ScoreBoard {
         try { // handles case when stdin is closed with ctrl-d or ctrl-z
           s = scan.nextLine();
         } catch (Exception e) {
+          System.out.println();
           System.exit(0);
         }
 
         if (s.trim().length() > 0) {
           switch (s.trim().charAt(0)) {
-            case 'h': help();
+            case 'h','?': help();
                       score(a, b);
                       continue;
             case 'q': System.exit(0);
