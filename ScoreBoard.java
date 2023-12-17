@@ -122,7 +122,11 @@ class ScoreBoard {
                 addB = new BigInteger(matcher.group(2));
               } else {
                 addA = new BigInteger(matcher.group(2));
-                addB = new BigInteger(matcher.group(4));
+                if (matcher.group(4).length() > 0) {
+                  addB = new BigInteger(matcher.group(4));
+                } else {
+                  addB = new BigInteger("0");
+                }
               }
             } catch (NumberFormatException e) {
               System.out.print("Invalid number, ");
