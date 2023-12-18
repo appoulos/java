@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>JS test</title>
+</head>
+<body style="text-align:left;" id="body"  onload='clearForm()'>
+    <h4 style="color:green;">
+        Score Board
+    </h4>
+    Team A: <span id='outA'></span><br/>
+    Team B: <span id='outB'></span>
+    <br/>
+    Enter some text: <input id='in1' type="text" name="txt" value="Hello" onchange="myFunction(this.value)">
+    <div id='err1'></div>
+    <div id='outLog'></div>
+    <div id='outDebug'></div>
+    <script>
+let outA = document.getElementById("outA");
+let outB = document.getElementById("outB");
+let outDebug = document.getElementById("outDebug");
+let outLog = document.getElementById("outLog");
+let in1 = document.getElementById("in1");
+let err1 = document.getElementById("err1");
+let scoreA = 0;
+let scoreB = 0;
+// let log;
+
+function clearForm() {
+  outA.innerHTML = 0;
+  outB.innerHTML = 0;
+  err1.innerHTML = "";
+  outLog.innerHTML = "";
+  outDebug.innerHTML = "";
+  in1.value = "";
+  in1.focus();
+}
+
+function myFunction(val) {
+  // if (val == "u") { // undo
+  if (val == "r") {
+    scoreA = 0;
+    scoreB = 0;
+    err1.innerHTML = "";
+    outLog.innerHTML = "";
+  } else {
+    let pI = /(\s*)([-0-9]*)(\s*)([-0-9]*)/.exec(val).slice(1);
+    // outDebug.innerHTML = pI;
+    if (pI[1] == "" && pI[3] == "") { //} == null) {
+      err1.innerHTML = "Invalid number!, no change";
+      in1.value = "";
+      in1.focus();
+      return;
+    }
+    if (pI[0] == "") { // begins with number
+      scoreA += 1*pI[1];
+      scoreB += 1*pI[3];
+      outLog.innerHTML = 1*pI[1] + ", " + 1*pI[3] + "<br/>" + outLog.innerHTML;
+    } else {
+      scoreB += 1*pI[1];
+      outLog.innerHTML = "0, " + 1*pI[1] + "<br/>" + outLog.innerHTML;
+    }
+  }
+  outA.innerHTML = scoreA;
+  outB.innerHTML = scoreB;
+  in1.value = "";
+  err1.innerHTML = "";
+  in1.focus();
+}
+    </script>
+</body>
+</html>
