@@ -1,43 +1,162 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>JS test</title>
+    <title>Scoreboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 </head>
 <body style="text-align:left;" id="body"  onload='clearForm()'>
-    <h4 style="color:green;">
-        Score Board
-    </h4>
-    Team A: <span id='outA'></span><br/>
-    Team B: <span id='outB'></span>
+    <h5 style="color:green;">
+        Scoreboard
+    </h5>
+    Keyboard speed input:<br/>
+    <input id='in1' type="text" name="txt1" value="" onchange="processInput(this.value)">
+    <table>
+      <tr>
+        <td><span style="background: purple; font-size: 20px; font-weight: bold;">Purple</span></td>
+        <td><span style="background: orange; font-size: 20px; font-weight: bold;">Orange</span></td>
+        <!-- <td><span id='leaderTh' style="font-size: 20px; font-weight: bold;">Leader</span></td> -->
+      </tr>
+      <tr>
+        <td><span id='outA'></span></td>
+        <td><span id='outB'></span></td>
+        <!-- <td><span id='leader'></span></td> -->
+      </tr>
+    </table>
+    <input id='in2' type="text" name="txt2" value="">
+    <!-- <div style="font-size: 60px;"> -->
+    <table width=80%>
+      <tr>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('7')">7</button></td>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('8')">8</button></td>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('9')">9</button></td>
+      </tr>
+      <tr>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('4')">4</button></td>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('5')">5</button></td>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('6')">6</button></td>
+      </tr>
+      <tr>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('1')">1</button></td>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('2')">2</button></td>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('3')">3</button></td>
+      </tr>
+      <tr>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('-')">-</button></td>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('0')">0</button></td>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('<')">&lt;</button></td>
+      </tr>
+      <tr>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="add('A')">+</button></td>
+        <td>&nbsp;</td>
+        <td height=60px><button style="width:80%; height: 100%;" onclick="add('B')">+</button></td>
+      </tr>
+    </table>
+    <!-- </div> -->
+    Leader: <span id='leader'></span>
     <br/>
-    Enter some text: <input id='in1' type="text" name="txt" value="Hello" onchange="myFunction(this.value)">
+    <button onclick="clearForm()">Clear</button>
+    <br/>
     <div id='err1'></div>
     <div id='outLog'></div>
     <div id='outDebug'></div>
+    <div>Help:<br/>
+      Keyboard speed input: Enter one or two numbers separated by space and press return.<br/>
+      To add only to b's score enter a space and only one number.
+      "r", "/", or "R" to reset
+    </div>
     <script>
 let outA = document.getElementById("outA");
 let outB = document.getElementById("outB");
 let outDebug = document.getElementById("outDebug");
 let outLog = document.getElementById("outLog");
 let in1 = document.getElementById("in1");
+let in2 = document.getElementById("in2");
 let err1 = document.getElementById("err1");
+let leader = document.getElementById("leader");
 let scoreA = 0;
 let scoreB = 0;
 // let log;
 
+function enter(val) {
+  if (val == "0") {
+    if (in2.value == "-" || in2.value == "") {
+      return;
+    }
+  }
+  if (val == "-") {
+    if (in2.value.length == 0) {
+      in2.value = "-";
+      return;
+    }
+    if (in2.value.substring(0, 1) == "-") {
+      in2.value = in2.value.substring(1, in2.value.length);
+      return;
+    }
+    in2.value = "-" + in2.value;
+    return;
+  }
+  if (val == "<") {
+    in2.value = in2.value.substring(0, in2.value.length - 1);
+    return;
+  }
+  in2.value += val;
+}
+
 function clearForm() {
+  scoreA = 0;
+  scoreB = 0;
   outA.innerHTML = 0;
   outB.innerHTML = 0;
   err1.innerHTML = "";
   outLog.innerHTML = "";
   outDebug.innerHTML = "";
   in1.value = "";
-  in1.focus();
+  in2.value = "";
+  leader.innerHTML = "";
+  // in1.focus();
+}
+ 
+function updateLeader() {
+  if (scoreA == scoreB) {
+    leader.innerHTML = "";
+  } else if (scoreA > scoreB) {
+    leader.innerHTML = "<span style=\"background: purple;\">Purple</span> by " + (scoreA - scoreB);
+  } else {
+    leader.innerHTML = "<span style=\"background: orange;\">Orange</span> by " + (scoreB - scoreA);
+
+  }
 }
 
-function myFunction(val) {
+function add(team) { 
+  if (in2.value == "" ) {
+    return;
+  }
+  let tmp = Math.floor(1*in2.value);
+  if (Number.isInteger(tmp)) {
+    if (team == "A") {
+      scoreA += tmp;
+      outLog.innerHTML = tmp + ", 0<br/>" + outLog.innerHTML;
+    } else {
+      scoreB += tmp;
+      outLog.innerHTML = "0, " + tmp + "<br/>" + outLog.innerHTML;
+    }
+  } else {
+    err1.innerHTML = "Invalid number!, no change";
+    in1.value = "";
+    in1.focus();
+    return;
+  }
+  outA.innerHTML = scoreA;
+  outB.innerHTML = scoreB;
+  in2.value = "";
+  err1.innerHTML = "";
+  updateLeader();
+  // in2.focus();
+}
+
+function processInput(val) {
   // if (val == "u") { // undo
-  if (val == "r") {
+  if (val == "r" || val == "R" || val == "/") {
     scoreA = 0;
     scoreB = 0;
     err1.innerHTML = "";
@@ -64,6 +183,7 @@ function myFunction(val) {
   outB.innerHTML = scoreB;
   in1.value = "";
   err1.innerHTML = "";
+  updateLeader();
   in1.focus();
 }
     </script>
