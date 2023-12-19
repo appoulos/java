@@ -44,7 +44,7 @@ function myFunction(val) {
     outLog.innerHTML = "";
   } else {
     let pI = /(\s*)(-{0,1}[0-9]+)(\s*)(-{0,1}[0-9]*)/.exec(val).slice(1);
-    outDebug.innerHTML = pI;
+    // outDebug.innerHTML = pI;
     if (pI[1] == "" && pI[3] == "" || pI[3] == "-") { //} == null) {
       err1.innerHTML = "Invalid number!, no change";
       in1.value = "";
