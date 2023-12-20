@@ -1,14 +1,49 @@
 <!DOCTYPE HTML>
 <html>
-<head>
-    <title>Scoreboard</title>
+<!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="icon" type="image/svg+xml" href="miniserve-icon.svg">
+      <link rel="stylesheet" href="miniserve-style.css">
+      <title>Scoreboard</title>
+    </head>
+    <body class="default_theme_monokai default_theme_dark_monokai" id="drop-container" onload="clearForm()">
+      <script>
+      // read theme from local storage and apply it to body
+      const body = document.body;
+      var theme = localStorage.getItem('theme');
+
+      if (theme != null && theme != 'default') {
+        body.classList.add('theme_' + theme);
+      }
+
+      // updates the color scheme by replacing the appropriate class
+      // on body and saving the new theme to local storage
+      function updateColorScheme(name) {
+        body.classList.remove.apply(body.classList, Array.from(body.classList).filter(v=>v.startsWith("theme_")));
+
+        if (name != "default") {
+          body.classList.add('theme_' + name);
+        }
+
+        localStorage.setItem('theme', name);
+      }
+      </script>
+      <div class="toolbar_box_group"></div><nav><div><p>Change theme...</p><ul class="theme"><li class="theme_default"><a href="javascript:updateColorScheme(&quot;default&quot;)" title="Switch to Default (light/dark) theme">Default (light/dark)</a></li><li class="theme_squirrel"><a href="javascript:updateColorScheme(&quot;squirrel&quot;)" title="Switch to Squirrel (light) theme">Squirrel (light)</a></li><li class="theme_archlinux"><a href="javascript:updateColorScheme(&quot;archlinux&quot;)" title="Switch to Arch Linux (dark) theme">Arch Linux (dark)</a></li><li class="theme_zenburn"><a href="javascript:updateColorScheme(&quot;zenburn&quot;)" title="Switch to Zenburn (dark) theme">Zenburn (dark)</a></li><li class="theme_monokai"><a href="javascript:updateColorScheme(&quot;monokai&quot;)" title="Switch to Monokai (dark) theme">Monokai (dark)</a></li></ul></div></nav>
+      <div class="container">
+        <span id="top"></span>
+        <h1 class="title" dir="ltr">
+          <span><bdi>Scoreboard</bdi></span>
+        </h1>
     <!-- from: https://www.instructables.com/Make-your-HTML-Website-suitable-for-Mobile-Devices/-->
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-</head>
-<body style="text-align:left;" id="body"  onload='clearForm()'>
-    <h5 style="color:green;">
-        Scoreboard
-    </h5>
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1" /> -->
+    <!--     <body style="text-align:left;" id="body"  onload='clearForm()'> -->
+    <!-- <h5 style="color:green;"> -->
+    <!--     Scoreboard -->
+    <!-- </h5> -->
     Keyboard speed input:<br/>
     <input id='in1' type="text" name="txt1" value="" onchange="processInput(this.value)">
     <table>

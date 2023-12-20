@@ -1,0 +1,25 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/svg+xml" href="/f9f8447d3a"><link rel="stylesheet" href="/9de5b1b074"><title>steveserver</title></head><body class="default_theme_monokai default_theme_dark_monokai" id="drop-container">
+                    <script>
+                        // read theme from local storage and apply it to body
+                        const body = document.body;
+                        var theme = localStorage.getItem('theme');
+
+                        if (theme != null && theme != 'default') {
+                            body.classList.add('theme_' + theme);
+                        }
+
+                        // updates the color scheme by replacing the appropriate class
+                        // on body and saving the new theme to local storage
+                        function updateColorScheme(name) {
+                            body.classList.remove.apply(body.classList, Array.from(body.classList).filter(v=>v.startsWith("theme_")));
+
+                            if (name != "default") {
+                                body.classList.add('theme_' + name);
+                            }
+
+                            localStorage.setItem('theme', name);
+                        }
+                    </script>
+                    <div class="toolbar_box_group"></div><nav><div><p>Change theme...</p><ul class="theme"><li class="theme_default"><a href="javascript:updateColorScheme(&quot;default&quot;)" title="Switch to Default (light/dark) theme">Default (light/dark)</a></li><li class="theme_squirrel"><a href="javascript:updateColorScheme(&quot;squirrel&quot;)" title="Switch to Squirrel (light) theme">Squirrel (light)</a></li><li class="theme_archlinux"><a href="javascript:updateColorScheme(&quot;archlinux&quot;)" title="Switch to Arch Linux (dark) theme">Arch Linux (dark)</a></li><li class="theme_zenburn"><a href="javascript:updateColorScheme(&quot;zenburn&quot;)" title="Switch to Zenburn (dark) theme">Zenburn (dark)</a></li><li class="theme_monokai"><a href="javascript:updateColorScheme(&quot;monokai&quot;)" title="Switch to Monokai (dark) theme">Monokai (dark)</a></li></ul></div></nav><div class="container"><span id="top"></span><h1 class="title" dir="ltr"><span><bdi>steveserver</bdi></span>/</h1><div class="toolbar">
+
+                    <div class="download"><a href="?download=zip">Download .zip</a></div><div class="toolbar_box_group"></div></div><table><thead><th class="name"><span class=""><span class="chevron">▴</span><a href="?sort=name&amp;order=asc" title="Sort by name in ascending order">Name</a></span></th><th class="size"><span class=""><span class="chevron">▴</span><a href="?sort=size&amp;order=asc" title="Sort by size in ascending order">Size</a></span></th><th class="date"><span class=""><span class="chevron">▴</span><a href="?sort=date&amp;order=asc" title="Sort by date in ascending order">Last modification</a></span></th></thead><tbody><tr><td><p><a class="file" href="/scoreboard.html">scoreboard.html</a><span class="mobile-info size">6.5 KB</span></p></td><td class="size-cell">6.5 KB</td><td class="date-cell"><span>2023-12-20 05:15:59 +00:00 </span><span class="history">11 hours ago</span></td></tr></tbody></table><a class="back" href="#top">⇪</a><div class="footer"></div></div></body></html>
