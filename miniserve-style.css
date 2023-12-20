@@ -261,6 +261,11 @@ td.date-cell {
   justify-content: space-between;
 }
 
+td.keypad {
+  text-align: center;
+  vertical-align: center;
+}
+
 .history {
   color: var(--date_text_color);
 }
