@@ -8,6 +8,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <link rel="icon" type="image/svg+xml" href="miniserve-icon.svg">
       <link rel="stylesheet" href="miniserve-style.css">
+      <link rel="stylesheet" href="https://unpkg.com/keyboard-css@1.2.4/dist/css/main.min.css" />
       <title>Scoreboard</title>
     </head>
     <body class="default_theme_monokai default_theme_dark_monokai" id="drop-container" onload="clearForm()">
@@ -66,29 +67,29 @@
     <!-- <div style="font-size: 60px;"> -->
     <table width=80%>
       <tr>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('7')">7</button></td>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('8')">8</button></td>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('9')">9</button></td>
+        <td height=60px><button class="kbc-button" onclick="enter('7')">7</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="enter('8')">8</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="enter('9')">9</button></td>
       </tr>
       <tr>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('4')">4</button></td>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('5')">5</button></td>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('6')">6</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="enter('4')">4</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="enter('5')">5</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="enter('6')">6</button></td>
       </tr>
       <tr>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('1')">1</button></td>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('2')">2</button></td>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('3')">3</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="enter('1')">1</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="enter('2')">2</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="enter('3')">3</button></td>
       </tr>
       <tr>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('-')">-</button></td>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('0')">0</button></td>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('<')">&lt;</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="enter('-')">-</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="enter('0')">0</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="enter('<')">&lt;</button></td>
       </tr>
       <tr>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="add('A')">&nbsp;&nbsp;+&nbsp;&nbsp;</button></td>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="enter('100')">100</button></td>
-        <td height=60px><button style="width:80%; height: 100%;" onclick="add('B')">&nbsp;&nbsp;+&nbsp;&nbsp;</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="add('A')">&nbsp;&nbsp;+&nbsp;&nbsp;</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="enter('100')">100</button></td>
+        <td height=60px><button class="kbc-button" style="width:80%; height: 100%;" onclick="add('B')">&nbsp;&nbsp;+&nbsp;&nbsp;</button></td>
       </tr>
     </table>
     <!-- </div> -->
