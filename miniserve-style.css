@@ -463,8 +463,8 @@ th span.active span {
   h1 {
     font-size: 1.4em;
   }
-  td:not(:nth-child(1)),
-th:not(:nth-child(1)) {
+  /* td:not(:nth-child(1)), */
+  th:not(:nth-child(1)) {
     display: none;
   }
   .mobile-info {
