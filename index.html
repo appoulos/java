@@ -3,9 +3,12 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- from: https://www.instructables.com/Make-your-HTML-Website-suitable-for-Mobile-Devices/-->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/svg+xml" href="miniserve-icon.svg">
+    <!-- miniserve web server themes -->
     <link rel="stylesheet" href="miniserve-style.css">
+    <!-- github shhdharmen keyboard-css neat buttons -->
     <link rel="stylesheet" href="main.min.css" />
     <title>Scoreboard</title>
   </head>
@@ -34,15 +37,7 @@
     <div class="toolbar_box_group"></div><nav><div><p>Change theme...</p><ul class="theme"><li class="theme_default"><a href="javascript:updateColorScheme(&quot;default&quot;)" title="Switch to Default (light/dark) theme">Default (light/dark)</a></li><li class="theme_squirrel"><a href="javascript:updateColorScheme(&quot;squirrel&quot;)" title="Switch to Squirrel (light) theme">Squirrel (light)</a></li><li class="theme_archlinux"><a href="javascript:updateColorScheme(&quot;archlinux&quot;)" title="Switch to Arch Linux (dark) theme">Arch Linux (dark)</a></li><li class="theme_zenburn"><a href="javascript:updateColorScheme(&quot;zenburn&quot;)" title="Switch to Zenburn (dark) theme">Zenburn (dark)</a></li><li class="theme_monokai"><a href="javascript:updateColorScheme(&quot;monokai&quot;)" title="Switch to Monokai (dark) theme">Monokai (dark)</a></li></ul></div></nav>
     <div class="container">
       <span id="top"></span>
-      <!-- <h1 class="title" dir="ltr"> -->
       <div><b>Scoreboard</b></div>
-      <!-- </h1> -->
-      <!-- from: https://www.instructables.com/Make-your-HTML-Website-suitable-for-Mobile-Devices/-->
-      <!-- <meta name="viewport" content="width=device-width, initial-scale=1" /> -->
-      <!--     <body style="text-align:left;" id="body"  onload='clearForm()'> -->
-      <!-- <h5 style="color:green;"> -->
-      <!--     Scoreboard -->
-      <!-- </h5> -->
       <!-- Keyboard speed input:<br/> -->
       <!-- <input id='in1' type="text" name="txt1" value="" onchange="processInput(this.value)"> -->
       <!-- <input type="button" value="PLAY" onclick="play()"> -->
@@ -54,20 +49,16 @@
         <tr>
           <td><span style="background: purple; font-size: 20px; font-weight: bold;">Purple</span></td>
           <td><span style="background: orange; font-size: 20px; font-weight: bold;">Orange</span></td>
-          <!-- <td><span id='leaderTh' style="font-size: 20px; font-weight: bold;">Leader</span></td> -->
         </tr>
         <tr>
           <td><span id='outA' style="font-size: 20px;"></span></td>
           <td><span id='outB' style="font-size: 20px;"></span></td>
-          <!-- <td><span id='leader'></span></td> -->
         </tr>
       </table>
-      <!-- <input id='in2' type="text" name="txt2" value=""> -->
       <div>Input:
         <span id='in2' style="font-size: 20px;"></span>
         &nbsp;
       </div>
-      <!-- <div style="font-size: 60px;"> -->
       <table class="keypad">
         <tr>
           <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="7" onclick="enter('7')">7</button></td>
@@ -105,7 +96,6 @@
           </td>
         </tr>
       </table>
-      <!-- </div> -->
       <br/>
       <div id='err1'></div>
       <div id='outDebug'></div>
@@ -130,8 +120,8 @@ let err1 = document.getElementById("err1");
 let leader = document.getElementById("leader");
 let scoreA = 0;
 let scoreB = 0;
-// let log;
-var audio = document.getElementById("audio");
+// var audio = document.getElementById("audio");
+
 document.addEventListener('keydown', (ev) => {
   const key = ev.key;
   if (key === "Backspace") {
@@ -161,8 +151,6 @@ document.addEventListener('keyup', (ev) => {
     element.classList.remove('active');
   }
 });
-
-
 
 function enter(val) {
   if (val == "100") {
@@ -210,9 +198,9 @@ function clearForm() {
   outLogA.innerHTML = "";
   outLogB.innerHTML = "";
   outDebug.innerHTML = "";
-  // in1.value = "";
   in2.innerHTML = "";
   leader.innerHTML = "";
+  // in1.value = "";
   // in1.focus();
 }
 
@@ -251,45 +239,44 @@ function add(team) {
   in2.innerHTML = "";
   err1.innerHTML = "";
   updateLeader();
-  // in2.focus();
 }
 
-function processInput(val) {
-  // if (val == "u") { // undo
-  if (val == "r" || val == "R" || val == "/") {
-    scoreA = 0;
-    scoreB = 0;
-    err1.innerHTML = "";
-    outLogA.innerHTML = "";
-    outLogB.innerHTML = "";
-  } else {
-    let pI = /(\s*)(-{0,1}[0-9]+)(\s*)(-{0,1}[0-9]*)/.exec(val).slice(1);
-    // outDebug.innerHTML = pI;
-    if (pI[1] == "" && pI[3] == "" || pI[3] == "-") { //} == null) {
-      err1.innerHTML = "Invalid number!, no change";
-      in1.value = "";
-      in1.focus();
-      return;
-    }
-    if (pI[0] == "") { // begins with number
-      scoreA += 1*pI[1];
-      scoreB += 1*pI[3];
-      outLogA.innerHTML = 1 * pI[1] + "<br/>" + outLogA.innerHTML;
-      outLogB.innerHTML = 1 * pI[3] + "<br/>" + outLogB.innerHTML;
-      // outLog.innerHTML = 1*pI[1] + ", " + 1*pI[3] + "<br/>" + outLog.innerHTML;
-    } else {
-      scoreB += 1*pI[1];
-      outLogB.innerHTML = 1 * pI[3] + "<br/>" + outLogB.innerHTML;
-      // outLog.innerHTML = "0, " + 1*pI[1] + "<br/>" + outLog.innerHTML;
-    }
-  }
-  outA.innerHTML = scoreA;
-  outB.innerHTML = scoreB;
-  in1.value = "";
-  err1.innerHTML = "";
-  updateLeader();
-  in1.focus();
-}
+// function processInput(val) {
+//   // if (val == "u") { // undo
+//   if (val == "r" || val == "R" || val == "/") {
+//     scoreA = 0;
+//     scoreB = 0;
+//     err1.innerHTML = "";
+//     outLogA.innerHTML = "";
+//     outLogB.innerHTML = "";
+//   } else {
+//     let pI = /(\s*)(-{0,1}[0-9]+)(\s*)(-{0,1}[0-9]*)/.exec(val).slice(1);
+//     // outDebug.innerHTML = pI;
+//     if (pI[1] == "" && pI[3] == "" || pI[3] == "-") { //} == null) {
+//       err1.innerHTML = "Invalid number!, no change";
+//       in1.value = "";
+//       in1.focus();
+//       return;
+//     }
+//     if (pI[0] == "") { // begins with number
+//       scoreA += 1*pI[1];
+//       scoreB += 1*pI[3];
+//       outLogA.innerHTML = 1 * pI[1] + "<br/>" + outLogA.innerHTML;
+//       outLogB.innerHTML = 1 * pI[3] + "<br/>" + outLogB.innerHTML;
+//       // outLog.innerHTML = 1*pI[1] + ", " + 1*pI[3] + "<br/>" + outLog.innerHTML;
+//     } else {
+//       scoreB += 1*pI[1];
+//       outLogB.innerHTML = 1 * pI[3] + "<br/>" + outLogB.innerHTML;
+//       // outLog.innerHTML = "0, " + 1*pI[1] + "<br/>" + outLog.innerHTML;
+//     }
+//   }
+//   outA.innerHTML = scoreA;
+//   outB.innerHTML = scoreB;
+//   in1.value = "";
+//   err1.innerHTML = "";
+//   updateLeader();
+//   in1.focus();
+// }
 </script>
   </body>
 </html>
