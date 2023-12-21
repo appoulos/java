@@ -96,11 +96,20 @@
         <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="H" onclick="enter('100')">100</button></td>
         <td class="keypad"><button style="background:orange" class="kbc-button kbc-button-lg" data-keyboard-key="O" onclick="add('B')">&nbsp;&nbsp;+&nbsp;&nbsp;</button></td>
       </tr>
+      <tr>
+        <td style="vertical-align: top;">
+          <div id='outLogA'></div>
+        </td>
+        <td>
+        </td>
+        <td style="vertical-align: top;">
+          <div id='outLogB'></div>
+        </td>
+      </tr>
     </table>
     <!-- </div> -->
     <br/>
     <div id='err1'></div>
-    <div id='outLog'></div>
     <div id='outDebug'></div>
     <div>Keyboard help:<br/>
           c: (C)lear scores
@@ -115,7 +124,8 @@
 let outA = document.getElementById("outA");
 let outB = document.getElementById("outB");
 let outDebug = document.getElementById("outDebug");
-let outLog = document.getElementById("outLog");
+let outLogA = document.getElementById("outLogA");
+let outLogB = document.getElementById("outLogB");
 let in1 = document.getElementById("in1");
 let in2 = document.getElementById("in2");
 let err1 = document.getElementById("err1");
@@ -187,7 +197,8 @@ function clearForm() {
   outA.innerHTML = 0;
   outB.innerHTML = 0;
   err1.innerHTML = "";
-  outLog.innerHTML = "";
+  outLogA.innerHTML = "";
+  outLogB.innerHTML = "";
   outDebug.innerHTML = "";
   // in1.value = "";
   in2.innerHTML = "";
@@ -214,10 +225,10 @@ function add(team) {
   if (Number.isInteger(tmp)) {
     if (team == "A") {
       scoreA += tmp;
-      outLog.innerHTML = tmp + ", 0<br/>" + outLog.innerHTML;
+      outLogA.innerHTML = tmp + "<br/>" + outLogA.innerHTML;
     } else {
       scoreB += tmp;
-      outLog.innerHTML = "0, " + tmp + "<br/>" + outLog.innerHTML;
+      outLogB.innerHTML = tmp + "<br/>" + outLogB.innerHTML;
     }
   } else {
     err1.innerHTML = "Invalid number!, no change";
@@ -239,7 +250,8 @@ function processInput(val) {
     scoreA = 0;
     scoreB = 0;
     err1.innerHTML = "";
-    outLog.innerHTML = "";
+    outLogA.innerHTML = "";
+    outLogB.innerHTML = "";
   } else {
     let pI = /(\s*)(-{0,1}[0-9]+)(\s*)(-{0,1}[0-9]*)/.exec(val).slice(1);
     // outDebug.innerHTML = pI;
@@ -252,10 +264,13 @@ function processInput(val) {
     if (pI[0] == "") { // begins with number
       scoreA += 1*pI[1];
       scoreB += 1*pI[3];
-      outLog.innerHTML = 1*pI[1] + ", " + 1*pI[3] + "<br/>" + outLog.innerHTML;
+      outLogA.innerHTML = 1 * pI[1] + "<br/>" + outLogA.innerHTML;
+      outLogB.innerHTML = 1 * pI[3] + "<br/>" + outLogB.innerHTML;
+      // outLog.innerHTML = 1*pI[1] + ", " + 1*pI[3] + "<br/>" + outLog.innerHTML;
     } else {
       scoreB += 1*pI[1];
-      outLog.innerHTML = "0, " + 1*pI[1] + "<br/>" + outLog.innerHTML;
+      outLogB.innerHTML = 1 * pI[3] + "<br/>" + outLogB.innerHTML;
+      // outLog.innerHTML = "0, " + 1*pI[1] + "<br/>" + outLog.innerHTML;
     }
   }
   outA.innerHTML = scoreA;
