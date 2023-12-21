@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" type="image/svg+xml" href="miniserve-icon.svg">
+    <link rel="stylesheet" href="miniserve-style.css">
+    <link rel="stylesheet" href="main.min.css" />
+    <title>Scoreboard</title>
+  </head>
+  <body class="default_theme_monokai default_theme_dark_monokai" id="drop-container" onload="clearForm()">
+    <script>
+    // read theme from local storage and apply it to body
+    const body = document.body;
+    var theme = localStorage.getItem('theme');
+
+    if (theme != null && theme != 'default') {
+      body.classList.add('theme_' + theme);
+    }
+
+    // updates the color scheme by replacing the appropriate class
+    // on body and saving the new theme to local storage
+    function updateColorScheme(name) {
+      body.classList.remove.apply(body.classList, Array.from(body.classList).filter(v=>v.startsWith("theme_")));
+
+      if (name != "default") {
+        body.classList.add('theme_' + name);
+      }
+
+      localStorage.setItem('theme', name);
+    }
+    </script>
+    <div class="toolbar_box_group"></div><nav><div><p>Change theme...</p><ul class="theme"><li class="theme_default"><a href="javascript:updateColorScheme(&quot;default&quot;)" title="Switch to Default (light/dark) theme">Default (light/dark)</a></li><li class="theme_squirrel"><a href="javascript:updateColorScheme(&quot;squirrel&quot;)" title="Switch to Squirrel (light) theme">Squirrel (light)</a></li><li class="theme_archlinux"><a href="javascript:updateColorScheme(&quot;archlinux&quot;)" title="Switch to Arch Linux (dark) theme">Arch Linux (dark)</a></li><li class="theme_zenburn"><a href="javascript:updateColorScheme(&quot;zenburn&quot;)" title="Switch to Zenburn (dark) theme">Zenburn (dark)</a></li><li class="theme_monokai"><a href="javascript:updateColorScheme(&quot;monokai&quot;)" title="Switch to Monokai (dark) theme">Monokai (dark)</a></li></ul></div></nav>
+    <div class="container">
+      <span id="top"></span>
+      <!-- <h1 class="title" dir="ltr"> -->
+      <div><b>Scoreboard</b></div>
+      <!-- </h1> -->
+      <!-- from: https://www.instructables.com/Make-your-HTML-Website-suitable-for-Mobile-Devices/-->
+      <!-- <meta name="viewport" content="width=device-width, initial-scale=1" /> -->
+      <!--     <body style="text-align:left;" id="body"  onload='clearForm()'> -->
+      <!-- <h5 style="color:green;"> -->
+      <!--     Scoreboard -->
+      <!-- </h5> -->
+      <!-- Keyboard speed input:<br/> -->
+      <!-- <input id='in1' type="text" name="txt1" value="" onchange="processInput(this.value)"> -->
+      <!-- <input type="button" value="PLAY" onclick="play()"> -->
+      <!-- <audio id="audio" src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3"></audio> -->
+      <!-- <audio id="audio" src="mixkit-interface-click-1126.mp3"></audio> -->
+      <button class="kbc-button kbc-button-dark kbc-button-sm" onclick="clearForm()" data-keyboard-key="C">Clear scores</button>
+      Leader: <span id='leader' style="font-size: 20px;"></span>
+      <table>
+        <tr>
+          <td><span style="background: purple; font-size: 20px; font-weight: bold;">Purple</span></td>
+          <td><span style="background: orange; font-size: 20px; font-weight: bold;">Orange</span></td>
+          <!-- <td><span id='leaderTh' style="font-size: 20px; font-weight: bold;">Leader</span></td> -->
+        </tr>
+        <tr>
+          <td><span id='outA' style="font-size: 20px;"></span></td>
+          <td><span id='outB' style="font-size: 20px;"></span></td>
+          <!-- <td><span id='leader'></span></td> -->
+        </tr>
+      </table>
+      <!-- <input id='in2' type="text" name="txt2" value=""> -->
+      <div>Input:
+        <span id='in2' style="font-size: 20px;"></span>
+        &nbsp;
+      </div>
+      <!-- <div style="font-size: 60px;"> -->
+      <table class="keypad">
+        <tr>
+          <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="7" onclick="enter('7')">7</button></td>
+          <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="8" onclick="enter('8')">8</button></td>
+          <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="9" onclick="enter('9')">9</button></td>
+        </tr>
+        <tr>
+          <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="4" onclick="enter('4')">4</button></td>
+          <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="5" onclick="enter('5')">5</button></td>
+          <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="6" onclick="enter('6')">6</button></td>
+        </tr>
+        <tr>
+          <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="1" onclick="enter('1')">1</button></td>
+          <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="2" onclick="enter('2')">2</button></td>
+          <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="3" onclick="enter('3')">3</button></td>
+        </tr>
+        <tr>
+          <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="-" onclick="enter('-')">-</button></td>
+          <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="0" onclick="enter('0')">0</button></td>
+          <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="B" onclick="enter('<')">&lt;</button></td>
+        </tr>
+        <tr>
+          <td class="keypad"><button style="background: purple;" class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="P" onclick="add('A')">&nbsp;&nbsp;+&nbsp;&nbsp;</button></td>
+          <td class="keypad"><button class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="H" onclick="enter('100')">100</button></td>
+          <td class="keypad"><button style="background:orange" class="kbc-button kbc-button-dark kbc-button-lg" data-keyboard-key="O" onclick="add('B')">&nbsp;&nbsp;+&nbsp;&nbsp;</button></td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top">
+            <div style="text-align: center" id='outLogA'></div>
+          </td>
+          <td>
+          </td>
+          <td style="vertical-align: top">
+            <div style="text-align: center" id='outLogB'></div>
+          </td>
+        </tr>
+      </table>
+      <!-- </div> -->
+      <br/>
+      <div id='err1'></div>
+      <div id='outDebug'></div>
+      <div>Keyboard help:<br/>
+        c: (C)lear scores<br/>
+        h: add one (H)undred<br/>
+        o: add score to (O)range<br/>
+        p: add score to (P)urple<br/>
+        <!-- Keyboard speed input: Enter one or two numbers separated by space and press return.<br/> -->
+        <!--     To add only to b's score enter a space and only one number.<br/> -->
+        <!--     "r", "/", or "R" to reset -->
+      </div>
+      <script>
+let outA = document.getElementById("outA");
+let outB = document.getElementById("outB");
+let outDebug = document.getElementById("outDebug");
+let outLogA = document.getElementById("outLogA");
+let outLogB = document.getElementById("outLogB");
+let in1 = document.getElementById("in1");
+let in2 = document.getElementById("in2");
+let err1 = document.getElementById("err1");
+let leader = document.getElementById("leader");
+let scoreA = 0;
+let scoreB = 0;
+// let log;
+var audio = document.getElementById("audio");
+document.addEventListener('keydown', (ev) => {
+  const key = ev.key;
+  if (key === "Backspace") {
+    enter('<');
+    return;
+  }
+  const element = document.querySelector(
+    '[data-keyboard-key="' + key.toUpperCase() + '"]'
+  );
+  if (element != null) {
+    element.classList.add('active');
+    // audio.play();
+    element.onclick();
+  }
+});
+
+document.addEventListener('keyup', (ev) => {
+  const key = ev.key;
+  const element = document.querySelector(
+    '[data-keyboard-key="' + key.toUpperCase() + '"]'
+  );
+  if (element != null) {
+    element.classList.remove('active');
+  }
+});
+
+
+
+function enter(val) {
+  if (val == "100") {
+    let tmp = Math.floor(1*in2.innerHTML);
+    if (Number.isInteger(tmp)) {
+      in2.innerHTML = 100 + tmp; // 1 * in2.innerHTML;
+      return;
+    }
+    in2.innerHTML = 100;
+    return;
+  }
+  if (val == "0") {
+    if (in2.innerHTML == "-" || in2.innerHTML == "") {
+      return;
+    }
+  }
+  if (val == "-") {
+    if (in2.innerHTML.length == 0) {
+      in2.innerHTML = "-";
+      return;
+    }
+    if (in2.innerHTML.substring(0, 1) == "-") {
+      in2.innerHTML = in2.innerHTML.substring(1, in2.innerHTML.length);
+      return;
+    }
+    in2.innerHTML = "-" + in2.innerHTML;
+    return;
+  }
+  if (val == "<") {
+    in2.innerHTML = in2.innerHTML.substring(0, in2.innerHTML.length - 1);
+    return;
+  }
+  in2.innerHTML += val;
+}
+
+function clearForm() {
+  scoreA = 0;
+  scoreB = 0;
+  outA.innerHTML = 0;
+  outB.innerHTML = 0;
+  err1.innerHTML = "";
+  outLogA.innerHTML = "";
+  outLogB.innerHTML = "";
+  outDebug.innerHTML = "";
+  // in1.value = "";
+  in2.innerHTML = "";
+  leader.innerHTML = "";
+  // in1.focus();
+}
+
+function updateLeader() {
+  if (scoreA == scoreB) {
+    leader.innerHTML = "";
+  } else if (scoreA > scoreB) {
+    leader.innerHTML = "<span style=\"background: purple;\">Purple</span> by " + (scoreA - scoreB);
+  } else {
+    leader.innerHTML = "<span style=\"background: orange;\">Orange</span> by " + (scoreB - scoreA);
+
+  }
+}
+
+function add(team) { 
+  if (in2.innerHTML == "" ) {
+    return;
+  }
+  let tmp = Math.floor(1*in2.innerHTML);
+  if (Number.isInteger(tmp)) {
+    if (team == "A") {
+      scoreA += tmp;
+      outLogA.innerHTML = tmp + "<br/>" + outLogA.innerHTML;
+    } else {
+      scoreB += tmp;
+      outLogB.innerHTML = tmp + "<br/>" + outLogB.innerHTML;
+    }
+  } else {
+    err1.innerHTML = "Invalid number!, no change";
+    in1.value = "";
+    in1.focus();
+    return;
+  }
+  outA.innerHTML = scoreA;
+  outB.innerHTML = scoreB;
+  in2.innerHTML = "";
+  err1.innerHTML = "";
+  updateLeader();
+  // in2.focus();
+}
+
+function processInput(val) {
+  // if (val == "u") { // undo
+  if (val == "r" || val == "R" || val == "/") {
+    scoreA = 0;
+    scoreB = 0;
+    err1.innerHTML = "";
+    outLogA.innerHTML = "";
+    outLogB.innerHTML = "";
+  } else {
+    let pI = /(\s*)(-{0,1}[0-9]+)(\s*)(-{0,1}[0-9]*)/.exec(val).slice(1);
+    // outDebug.innerHTML = pI;
+    if (pI[1] == "" && pI[3] == "" || pI[3] == "-") { //} == null) {
+      err1.innerHTML = "Invalid number!, no change";
+      in1.value = "";
+      in1.focus();
+      return;
+    }
+    if (pI[0] == "") { // begins with number
+      scoreA += 1*pI[1];
+      scoreB += 1*pI[3];
+      outLogA.innerHTML = 1 * pI[1] + "<br/>" + outLogA.innerHTML;
+      outLogB.innerHTML = 1 * pI[3] + "<br/>" + outLogB.innerHTML;
+      // outLog.innerHTML = 1*pI[1] + ", " + 1*pI[3] + "<br/>" + outLog.innerHTML;
+    } else {
+      scoreB += 1*pI[1];
+      outLogB.innerHTML = 1 * pI[3] + "<br/>" + outLogB.innerHTML;
+      // outLog.innerHTML = "0, " + 1*pI[1] + "<br/>" + outLog.innerHTML;
+    }
+  }
+  outA.innerHTML = scoreA;
+  outB.innerHTML = scoreB;
+  in1.value = "";
+  err1.innerHTML = "";
+  updateLeader();
+  in1.focus();
+}
+</script>
+  </body>
+</html>
