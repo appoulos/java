@@ -47,9 +47,11 @@
     <!-- </h5> -->
     <!-- Keyboard speed input:<br/> -->
     <!-- <input id='in1' type="text" name="txt1" value="" onchange="processInput(this.value)"> -->
+    <!-- <input type="button" value="PLAY" onclick="play()"> -->
+    <!-- <audio id="audio" src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3"></audio> -->
+    <audio id="audio" src="mixkit-interface-click-1126.mp3"></audio>
     <button onclick="clearForm()">Reset Page</button>
     Leader: <span id='leader' style="font-size: 20pt;"></span>
-    <br/>
     <table>
       <tr>
         <td><span style="background: purple; font-size: 20px; font-weight: bold;">Purple</span></td>
@@ -63,7 +65,7 @@
       </tr>
     </table>
     <!-- <input id='in2' type="text" name="txt2" value=""> -->
-    <div>Onscreen keypad input:
+    <div>Input:
     <span id='in2' style="font-size: 20pt;"></span>
       &nbsp;
     </div>
@@ -120,6 +122,9 @@ let leader = document.getElementById("leader");
 let scoreA = 0;
 let scoreB = 0;
 // let log;
+var audio = document.getElementById("audio");
+
+
 
 function enter(val) {
   if (val == "100") {
@@ -172,6 +177,7 @@ function clearForm() {
     );
     if (element != null) {
       element.classList.add('active');
+        audio.play();
       element.onclick();
     }
   });
