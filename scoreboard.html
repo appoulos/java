@@ -50,7 +50,7 @@
     <!-- <input type="button" value="PLAY" onclick="play()"> -->
     <!-- <audio id="audio" src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3"></audio> -->
     <!-- <audio id="audio" src="mixkit-interface-click-1126.mp3"></audio> -->
-    <button onclick="clearForm()">Reset Page</button>
+    <button onclick="clearForm()" data-keyboard-key="C">Clear scores</button>
     Leader: <span id='leader' style="font-size: 20pt;"></span>
     <table>
       <tr>
@@ -102,7 +102,8 @@
     <div id='err1'></div>
     <div id='outLog'></div>
     <div id='outDebug'></div>
-    <div>Help:<br/>
+    <div>Keyboard help:<br/>
+          c: (C)lear scores
           h: add one (H)undred<br/>
           o: add score to (O)range<br/>
           p: add score to (P)urple<br/>
@@ -123,6 +124,31 @@ let scoreA = 0;
 let scoreB = 0;
 // let log;
 var audio = document.getElementById("audio");
+document.addEventListener('keydown', (ev) => {
+  const key = ev.key;
+  if (key === "Backspace") {
+    enter('<');
+    return;
+  }
+  const element = document.querySelector(
+    '[data-keyboard-key="' + key.toUpperCase() + '"]'
+  );
+  if (element != null) {
+    element.classList.add('active');
+    // audio.play();
+    element.onclick();
+  }
+});
+
+document.addEventListener('keyup', (ev) => {
+  const key = ev.key;
+  const element = document.querySelector(
+    '[data-keyboard-key="' + key.toUpperCase() + '"]'
+  );
+  if (element != null) {
+    element.classList.remove('active');
+  }
+});
 
 
 
@@ -166,31 +192,6 @@ function clearForm() {
   // in1.value = "";
   in2.innerHTML = "";
   leader.innerHTML = "";
-  document.addEventListener('keydown', (ev) => {
-    const key = ev.key;
-    if (key === "Backspace") {
-      enter('<');
-      return;
-    }
-    const element = document.querySelector(
-      '[data-keyboard-key="' + key.toUpperCase() + '"]'
-    );
-    if (element != null) {
-      element.classList.add('active');
-        // audio.play();
-      element.onclick();
-    }
-  });
-
-  document.addEventListener('keyup', (ev) => {
-    const key = ev.key;
-    const element = document.querySelector(
-      '[data-keyboard-key="' + key.toUpperCase() + '"]'
-    );
-    if (element != null) {
-      element.classList.remove('active');
-    }
-  });
   // in1.focus();
 }
  
