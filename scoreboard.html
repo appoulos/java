@@ -8,7 +8,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <link rel="icon" type="image/svg+xml" href="miniserve-icon.svg">
       <link rel="stylesheet" href="miniserve-style.css">
-      <link rel="stylesheet" href="https://unpkg.com/keyboard-css@1.2.4/dist/css/main.min.css" />
+      <link rel="stylesheet" href="main.min.css" />
       <title>Scoreboard</title>
     </head>
     <body class="default_theme_monokai default_theme_dark_monokai" id="drop-container" onload="clearForm()">
@@ -164,7 +164,12 @@ document.addEventListener('keyup', (ev) => {
 
 function enter(val) {
   if (val == "100") {
-    in2.innerHTML = 100 + 1 * in2.innerHTML;
+    let tmp = Math.floor(1*in2.innerHTML);
+    if (Number.isInteger(tmp)) {
+      in2.innerHTML = 100 + tmp; // 1 * in2.innerHTML;
+      return;
+    }
+    in2.innerHTML = 100;
     return;
   }
   if (val == "0") {
