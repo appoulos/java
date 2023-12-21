@@ -45,8 +45,11 @@
     <!-- <h5 style="color:green;"> -->
     <!--     Scoreboard -->
     <!-- </h5> -->
-    Keyboard speed input:<br/>
-    <input id='in1' type="text" name="txt1" value="" onchange="processInput(this.value)">
+    <!-- Keyboard speed input:<br/> -->
+    <!-- <input id='in1' type="text" name="txt1" value="" onchange="processInput(this.value)"> -->
+    <button onclick="clearForm()">Reset Page</button>
+    Leader: <span id='leader' style="font-size: 20pt;"></span>
+    <br/>
     <table>
       <tr>
         <td><span style="background: purple; font-size: 20px; font-weight: bold;">Purple</span></td>
@@ -67,43 +70,43 @@
     <!-- <div style="font-size: 60px;"> -->
     <table width=100% class="keypad">
       <tr>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="enter('7')">7</button></td>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="enter('8')">8</button></td>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="enter('9')">9</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="7" onclick="enter('7')">7</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="8" onclick="enter('8')">8</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="9" onclick="enter('9')">9</button></td>
       </tr>
       <tr>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="enter('4')">4</button></td>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="enter('5')">5</button></td>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="enter('6')">6</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="4" onclick="enter('4')">4</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="5" onclick="enter('5')">5</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="6" onclick="enter('6')">6</button></td>
       </tr>
       <tr>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="enter('1')">1</button></td>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="enter('2')">2</button></td>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="enter('3')">3</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="1" onclick="enter('1')">1</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="2" onclick="enter('2')">2</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="3" onclick="enter('3')">3</button></td>
       </tr>
       <tr>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="enter('-')">-</button></td>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="enter('0')">0</button></td>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="enter('<')">&lt;</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="-" onclick="enter('-')">-</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="0" onclick="enter('0')">0</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="B" onclick="enter('<')">&lt;</button></td>
       </tr>
       <tr>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="add('A')">&nbsp;&nbsp;+&nbsp;&nbsp;</button></td>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="enter('100')">100</button></td>
-        <td class="keypad"><button class="kbc-button kbc-button-lg" onclick="add('B')">&nbsp;&nbsp;+&nbsp;&nbsp;</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="P" onclick="add('A')">&nbsp;&nbsp;+&nbsp;&nbsp;</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="H" onclick="enter('100')">100</button></td>
+        <td class="keypad"><button class="kbc-button kbc-button-lg" data-keyboard-key="O" onclick="add('B')">&nbsp;&nbsp;+&nbsp;&nbsp;</button></td>
       </tr>
     </table>
     <!-- </div> -->
-    Leader: <span id='leader' style="font-size: 20pt;"></span>
-    <br/>
-    <button onclick="clearForm()">Clear</button>
     <br/>
     <div id='err1'></div>
     <div id='outLog'></div>
     <div id='outDebug'></div>
     <div>Help:<br/>
-      Keyboard speed input: Enter one or two numbers separated by space and press return.<br/>
-      To add only to b's score enter a space and only one number.
-      "r", "/", or "R" to reset
+          h: add one (H)undred<br/>
+          o: add score to (O)range<br/>
+          p: add score to (P)urple<br/>
+      <!-- Keyboard speed input: Enter one or two numbers separated by space and press return.<br/> -->
+      <!--     To add only to b's score enter a space and only one number.<br/> -->
+      <!--     "r", "/", or "R" to reset -->
     </div>
     <script>
 let outA = document.getElementById("outA");
@@ -155,9 +158,33 @@ function clearForm() {
   err1.innerHTML = "";
   outLog.innerHTML = "";
   outDebug.innerHTML = "";
-  in1.value = "";
+  // in1.value = "";
   in2.innerHTML = "";
   leader.innerHTML = "";
+  document.addEventListener('keydown', (ev) => {
+    const key = ev.key;
+    if (key === "Backspace") {
+      enter('<');
+      return;
+    }
+    const element = document.querySelector(
+      '[data-keyboard-key="' + key.toUpperCase() + '"]'
+    );
+    if (element != null) {
+      element.classList.add('active');
+      element.onclick();
+    }
+  });
+
+  document.addEventListener('keyup', (ev) => {
+    const key = ev.key;
+    const element = document.querySelector(
+      '[data-keyboard-key="' + key.toUpperCase() + '"]'
+    );
+    if (element != null) {
+      element.classList.remove('active');
+    }
+  });
   // in1.focus();
 }
  
