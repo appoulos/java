@@ -8,6 +8,12 @@ public class LoanTable extends ConsoleProgram {
 		double k = 0;
 		double n = 0;
 		println("Welcome to a bank...\n\n");
+		{
+			int x = 1;
+			int y = 2;
+			int z = 3;
+			println((x < y) ? ((x < z) ? x : z) : (y < z) ? y : z);
+		}
 		String yesOrNo = readLine("Would you like to take out a loan... (y/n) ");
 		while (true) {
 			if (yesOrNo.equals("y")) {
