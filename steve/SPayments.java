@@ -10,30 +10,25 @@ public class SPayments extends ConsoleProgram {
 		double totInterest = 0;
 		double monthInterest = 0;
 		double newBalance = principal;
-		String fmt = "%-6s%12s%12s%12s%16s\n";
+		String lineFormat = "%-6s%12s%12s%12s%16s\n";
 
-		System.out.printf(fmt, "Month", "Principal", "Interest", "Payment", "New Balance");
-		System.out.printf(fmt, "-----", "---------", "--------", "-------", "-----------");
+		System.out.printf(lineFormat, "Month", "Principal", "Interest", "Payment", "New Balance");
 		int month = 1;
 		interest /= 100;
 		do {
 			monthInterest = principal * interest;
 			newBalance = principal + monthInterest - payment;
 			totInterest += monthInterest;
-			System.out.printf(fmt,
-					String.format("%2d", month),
+			System.out.printf(lineFormat,
+					month,
 					round(principal),
-					round(interest),
+					round(monthInterest),
 					round(payment),
 					round(newBalance));
-			// String.format("%.2f", principal),
-			// String.format("%.2f", interest),
-			// String.format("%.2f", payment),
-			// String.format("%.2f", newBalance));
 			principal = newBalance;
 			month++;
 		} while (newBalance >= payment);
-		System.out.println();
-		System.out.printf("%s%.2f\n", "Total interest paid: $", totInterest);
+		println();
+		System.out.println(round(totInterest) + " total interest");
 	}
 }
