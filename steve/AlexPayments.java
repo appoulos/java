@@ -1,7 +1,8 @@
 public class AlexPayments extends ConsoleProgram {
 	public void run() {
 		double p = 10000; // readDouble("What is the Principle: $");
-		double ir = 1.0f; // readDouble("What is the monthly interest rate: ");
+		double ir = 12.0f; // readDouble("What is the monthly interest rate: ");
+		ir /= 12;
 		double mp = 300; // readDouble("How much do you pay monthly: $");
 		double i = 0;
 		double nb = 0;

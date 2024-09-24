@@ -16,6 +16,7 @@ public class Payments extends ConsoleProgram {
 
 		while (true) {
 			interest = readDouble("What is the annual interest rate? ");
+			interest /= 12;
 			if (interest >= 0 && interest < 100) {
 				break;
 			}
