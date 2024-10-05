@@ -1,4 +1,4 @@
-public class MyProgram extends ConsoleProgram {
+public class StopwatchMin extends ConsoleProgram {
 	public void run() {
 		String str;
 		boolean on = false;
