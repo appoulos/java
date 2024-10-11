@@ -6,6 +6,8 @@ public class Payments extends ConsoleProgram {
 		double payment = 0.0f;
 		double minPayment = 0.0f;
 
+		String a = "Rydell hight school";
+		println(a.substring(8));
 		while (true) {
 			principal = readDouble("What is your principal? ");
 			if (principal > 0) {
