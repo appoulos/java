@@ -84,7 +84,22 @@ public class Hello extends ConsoleProgram {
 		return true;
 	}
 
+	boolean passwordValid(String str) {
+		if (str.length() < 8) {
+			return false;
+		}
+		for (int i = 0; i < str.length(); i++) {
+			if (!Character.isLetterOrDigit(str.charAt(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public void run() {
+		println("asdf" + (passwordValid("asdf") ? " is" : " is not"));
+		println("asdf1234" + (passwordValid("asdf1234") ? " is" : " is not"));
+		println("asdf4#21" + (passwordValid("asdf4#21") ? " is" : " is not"));
 		if (bracketsMatch("{asdf}")) {
 			println("matched");
 		} else {
