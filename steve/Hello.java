@@ -175,11 +175,31 @@ public class Hello extends ConsoleProgram {
 		return cnt;
 	}
 
+	int countOc(String str, String substr) {
+		int strLen = str.length();
+		int substrLen = substr.length();
+		int cnt = 0;
+		int p = 0;
+		for (int i = 0; i < strLen; i++) {
+			if (str.charAt(i) == substr.charAt(p)) {
+				if (p >= substrLen - 1) {
+					cnt++;
+					p = 0;
+				} else {
+					p++;
+				}
+			} else {
+				p = 0;
+			}
+		}
+		return cnt;
+	}
+
 	boolean equalIsNot(String str) {
 		// int is = countOccurrences(str, "is");
 		// int not = countOccurrences(str, "not");
-		int is = countOcc(str, "is");
-		int not = countOcc(str, "not");
+		int is = countOc(str, "is");
+		int not = countOc(str, "not");
 		return is == not;
 	}
 
