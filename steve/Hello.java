@@ -162,16 +162,17 @@ public class Hello extends ConsoleProgram {
 	}
 
 	int countOcc(String str, String substr) {
+		int substrLen = substr.length();
 		int cnt = 0;
 		int ndx = 0;
-		int substrLen = substr.length();
-		do {
+		while (true) {
 			ndx = str.indexOf(substr, ndx);
-			if (ndx != -1) {
-				cnt++;
-				ndx += substrLen;
+			if (ndx == -1) {
+				break;
 			}
-		} while (ndx != -1);
+			cnt++;
+			ndx += substrLen;
+		}
 		return cnt;
 	}
 
