@@ -110,7 +110,7 @@ public class Hello extends ConsoleProgram {
 			}
 		}
 
-		// Empty string is not paindrone
+		// Empty string is not paindrome
 		if (strCleaned.length() == 0)
 			return false;
 		// println("cleaned: " + strCleaned);
@@ -152,7 +152,7 @@ public class Hello extends ConsoleProgram {
 			p_e--;
 		}
 
-		// No characters is not palindrone
+		// No characters is not palindrome
 		// if (len == 0 || !Character.isLetterOrDigit(str.charAt(p_b))) {
 		// println("###");
 		// return false;
