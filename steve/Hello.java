@@ -96,22 +96,64 @@ public class Hello extends ConsoleProgram {
 		return true;
 	}
 
-	boolean palin(String str) {
-		str = str.toLowerCase();
-		String forward = "";
+	boolean palinRev(String str) {
+		String strCleaned = "";
 		String rev = "";
-		char c;
+
+		str = str.toLowerCase();
+
+		// Make strCleaned with only letters and digits
 		for (int i = 0; i < str.length(); i++) {
-			c = str.charAt(i);
+			char c = str.charAt(i);
 			if (Character.isLetterOrDigit(c)) {
-				forward += c;
-			}
-			c = str.charAt(str.length() - i - 1);
-			if (Character.isLetterOrDigit(c)) {
-				rev += c;
+				strCleaned += c;
 			}
 		}
-		return forward.equals(rev);
+
+		// Empty string is not paindrone
+		if (strCleaned.length() == 0)
+			return false;
+		println("cleaned: " + strCleaned);
+
+		// Reverse string
+		for (int i = strCleaned.length() - 1; i >= 0; i--) {
+			rev += strCleaned.charAt(i);
+		}
+		println("rev: " + rev);
+
+		return strCleaned.equals(rev);
+	}
+
+	boolean palin(String str) {
+		int len = str.length();
+		if (len == 0)
+			return false;
+		int p_end = len - 1;
+		int p_b = 0;
+		int p_e = p_end;
+
+		str = str.toLowerCase();
+		while (p_b < p_e) {
+			while (p_b <= p_end && !Character.isLetterOrDigit(str.charAt(p_b))) {
+				p_b++;
+			}
+			while (p_e > p_b && !Character.isLetterOrDigit(str.charAt(p_e))) {
+				p_e--;
+			}
+			// if (b > e) {
+			// println("b: " + b);
+			// println("e: " + e);
+			// return false;
+			// }
+			println("comparing b: " + str.charAt(p_b) + ", c: " + str.charAt(p_e));
+			if (str.charAt(p_b) != str.charAt(p_e))
+				return false;
+			p_b++;
+			p_e--;
+		}
+		if (len == 0 || !Character.isLetterOrDigit(str.charAt(p_b)))
+			return false;
+		return true;
 	}
 
 	public static int countOccurrences(String str, String substr) {
@@ -137,9 +179,15 @@ public class Hello extends ConsoleProgram {
 
 	public void run() {
 		String str = "H .elleh";
-		println("palin " + str + ": " + palin(str));
+		println("palin " + str + ": " + palinRev(str));
 		str = "ab%$!1ba";
-		println("palin " + str + ": " + palin(str));
+		println("palin " + str + ": " + palinRev(str));
+		str = "1";
+		println("palin " + str + ": " + palinRev(str));
+		str = "%";
+		println("palin " + str + ": " + palinRev(str));
+		str = "";
+		println("palin " + str + ": " + palinRev(str));
 		str = "is is not nt";
 		println("equalisnot: " + equalIsNot(str));
 		println("asdf" + (passwordValid("asdf") ? " is" : " is not"));
