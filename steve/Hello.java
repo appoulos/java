@@ -96,7 +96,41 @@ public class Hello extends ConsoleProgram {
 		return true;
 	}
 
+	boolean palin(String str) {
+		String rev = "";
+		for (int i = 0; i < str.length(); i++) {
+			rev += str.charAt(str.length() - i - 1);
+		}
+		println("rev:" + rev);
+		return str.toLowerCase().equals(rev.toLowerCase());
+	}
+
+	public static int countOccurrences(String str, String substr) {
+		int count = 0;
+		int index = 0;
+
+		while (index != -1) {
+			index = str.indexOf(substr, index);
+			if (index != -1) {
+				count++;
+				index += substr.length();
+			}
+		}
+
+		return count;
+	}
+
+	boolean equalIsNot(String str) {
+		int is = countOccurrences(str, "is");
+		int not = countOccurrences(str, "not");
+		return is == not;
+	}
+
 	public void run() {
+		String str = "Helleh";
+		println("palin:" + palin(str));
+		str = "is is not nt";
+		println("equalisnot: " + equalIsNot(str));
 		println("asdf" + (passwordValid("asdf") ? " is" : " is not"));
 		println("asdf1234" + (passwordValid("asdf1234") ? " is" : " is not"));
 		println("asdf4#21" + (passwordValid("asdf4#21") ? " is" : " is not"));
