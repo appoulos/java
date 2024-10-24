@@ -97,12 +97,21 @@ public class Hello extends ConsoleProgram {
 	}
 
 	boolean palin(String str) {
+		str = str.toLowerCase();
+		String forward = "";
 		String rev = "";
+		char c;
 		for (int i = 0; i < str.length(); i++) {
-			rev += str.charAt(str.length() - i - 1);
+			c = str.charAt(i);
+			if (Character.isLetterOrDigit(c)) {
+				forward += c;
+			}
+			c = str.charAt(str.length() - i - 1);
+			if (Character.isLetterOrDigit(c)) {
+				rev += c;
+			}
 		}
-		println("rev:" + rev);
-		return str.toLowerCase().equals(rev.toLowerCase());
+		return forward.equals(rev);
 	}
 
 	public static int countOccurrences(String str, String substr) {
@@ -127,8 +136,10 @@ public class Hello extends ConsoleProgram {
 	}
 
 	public void run() {
-		String str = "Helleh";
-		println("palin:" + palin(str));
+		String str = "H .elleh";
+		println("palin " + str + ": " + palin(str));
+		str = "ab%$!1ba";
+		println("palin " + str + ": " + palin(str));
 		str = "is is not nt";
 		println("equalisnot: " + equalIsNot(str));
 		println("asdf" + (passwordValid("asdf") ? " is" : " is not"));
