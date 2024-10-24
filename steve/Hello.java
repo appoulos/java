@@ -113,13 +113,13 @@ public class Hello extends ConsoleProgram {
 		// Empty string is not paindrone
 		if (strCleaned.length() == 0)
 			return false;
-		println("cleaned: " + strCleaned);
+		// println("cleaned: " + strCleaned);
 
 		// Reverse string
 		for (int i = strCleaned.length() - 1; i >= 0; i--) {
 			rev += strCleaned.charAt(i);
 		}
-		println("rev: " + rev);
+		// println("rev: " + rev);
 
 		return strCleaned.equals(rev);
 	}
@@ -128,68 +128,90 @@ public class Hello extends ConsoleProgram {
 		int len = str.length();
 		if (len == 0)
 			return false;
+
 		int p_end = len - 1;
 		int p_b = 0;
 		int p_e = p_end;
 
 		str = str.toLowerCase();
+
 		while (p_b < p_e) {
-			while (p_b <= p_end && !Character.isLetterOrDigit(str.charAt(p_b))) {
+			// Find next char/letter from left
+			while (p_b < p_e && !Character.isLetterOrDigit(str.charAt(p_b))) {
 				p_b++;
 			}
+			// Find next char/letter from right
 			while (p_e > p_b && !Character.isLetterOrDigit(str.charAt(p_e))) {
 				p_e--;
 			}
-			// if (b > e) {
-			// println("b: " + b);
-			// println("e: " + e);
-			// return false;
-			// }
-			println("comparing b: " + str.charAt(p_b) + ", c: " + str.charAt(p_e));
-			if (str.charAt(p_b) != str.charAt(p_e))
+			if (p_b < p_e && str.charAt(p_b) != str.charAt(p_e)) {
+				// println("!!!");
 				return false;
+			}
 			p_b++;
 			p_e--;
 		}
-		if (len == 0 || !Character.isLetterOrDigit(str.charAt(p_b)))
-			return false;
+
+		// No characters is not palindrone
+		// if (len == 0 || !Character.isLetterOrDigit(str.charAt(p_b))) {
+		// println("###");
+		// return false;
+		// }
+
 		return true;
 	}
 
-	public static int countOccurrences(String str, String substr) {
-		int count = 0;
-		int index = 0;
-
-		while (index != -1) {
-			index = str.indexOf(substr, index);
-			if (index != -1) {
-				count++;
-				index += substr.length();
+	int countOcc(String str, String substr) {
+		int cnt = 0;
+		int ndx = 0;
+		int substrLen = substr.length();
+		do {
+			ndx = str.indexOf(substr, ndx);
+			if (ndx != -1) {
+				cnt++;
+				ndx += substrLen;
 			}
-		}
-
-		return count;
+		} while (ndx != -1);
+		return cnt;
 	}
 
 	boolean equalIsNot(String str) {
-		int is = countOccurrences(str, "is");
-		int not = countOccurrences(str, "not");
+		// int is = countOccurrences(str, "is");
+		// int not = countOccurrences(str, "not");
+		int is = countOcc(str, "is");
+		int not = countOcc(str, "not");
 		return is == not;
 	}
 
+	void test_palin() {
+		String[] t = { "a", "bc", "aba", "$", "$a$", "$aa$b$" };
+		for (int i = 0; i < t.length; i++) {
+			// println("Testing `" + t[i] + "`:");
+			println("palin(\"" + t[i] + "\"):" + palin(t[i]));
+			println("palinRev(\"" + t[i] + "\"):" + palinRev(t[i]));
+		}
+		println();
+	}
+
 	public void run() {
-		String str = "H .elleh";
-		println("palin " + str + ": " + palinRev(str));
-		str = "ab%$!1ba";
-		println("palin " + str + ": " + palinRev(str));
-		str = "1";
-		println("palin " + str + ": " + palinRev(str));
-		str = "%";
-		println("palin " + str + ": " + palinRev(str));
-		str = "";
-		println("palin " + str + ": " + palinRev(str));
-		str = "is is not nt";
-		println("equalisnot: " + equalIsNot(str));
+		test_palin();
+		String str;
+		// println("palin " + str + ": " + palinRev(str));
+		// str = "ab%$!1ba";
+		// println("palin " + str + ": " + palinRev(str));
+		// str = "1";
+		// println("palin " + str + ": " + palinRev(str));
+		// str = "%";
+		// println("palin " + str + ": " + palinRev(str));
+		// str = "";
+		// println("palin " + str + ": " + palinRev(str));
+		str = "is is not not";
+		println("equalisnot: " + str + ": " + equalIsNot(str));
+		str = "is s not not";
+		println("equalisnot: " + str + ": " + equalIsNot(str));
+
+		if (true)
+			return;
 		println("asdf" + (passwordValid("asdf") ? " is" : " is not"));
 		println("asdf1234" + (passwordValid("asdf1234") ? " is" : " is not"));
 		println("asdf4#21" + (passwordValid("asdf4#21") ? " is" : " is not"));
