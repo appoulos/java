@@ -214,7 +214,18 @@ public class Hello extends ConsoleProgram {
 		println();
 	}
 
+	int someMethod(int x, int y) {
+		int sum = 0;
+		while (x < 10) {
+			sum += x % y;
+			x++;
+			y++;
+		}
+		return sum;
+	}
+
 	public void run() {
+		println("someMethod: " + someMethod(3, 1));
 		test_palin();
 		String str;
 		// println("palin " + str + ": " + palinRev(str));
