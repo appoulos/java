@@ -224,7 +224,18 @@ public class Hello extends ConsoleProgram {
 		return sum;
 	}
 
+	void dist() {
+		double l1la = Math.toRadians(48.8567);
+		double l1lo = Math.toRadians(2.3508);
+		double l2la = Math.toRadians(51.5072);
+		double l2lo = Math.toRadians(0.1275);
+		double radius = 3963.1676;
+		println("dist: " + radius
+				* (Math.acos(Math.sin(l1la) * Math.sin(l2la) + Math.cos(l1la) * Math.cos(l2la) * Math.cos(l1lo - l2lo))));
+	}
+
 	public void run() {
+		dist();
 		println("someMethod: " + someMethod(3, 1));
 		test_palin();
 		String str;
