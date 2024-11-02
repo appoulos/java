@@ -234,7 +234,49 @@ public class Hello extends ConsoleProgram {
 				* (Math.acos(Math.sin(l1la) * Math.sin(l2la) + Math.cos(l1la) * Math.cos(l2la) * Math.cos(l1lo - l2lo))));
 	}
 
+	class H {
+		int a;
+		int b;
+
+		H() {
+			a = 0;
+			b = 0;
+		}
+
+		H(int x, int y) {
+			a = x;
+			b = y;
+		}
+
+		public int add(int x, int y) {
+			a += x;
+			b += y;
+			return a + b;
+		}
+
+		@Override
+		public String toString() {
+			return "a: " + a + ", b: " + b;
+		}
+	}
+
+	int hget(H h) {
+		h.a++;
+		return h.a + h.b;
+	}
+
 	public void run() {
+		H hs[];
+		hs = new H[2];
+		for (int i = 0; i < hs.length; i++) {
+			hs[i] = new H(i, i);
+			println("hs[" + i + "]: " + hs[i]);
+		}
+		H h = new H();
+		println(h.add(3, 4));
+		println(h.add(3, 4));
+		println(hget(h));
+		println(hget(h));
 		dist();
 		println("someMethod: " + someMethod(3, 1));
 		test_palin();
@@ -290,4 +332,5 @@ public class Hello extends ConsoleProgram {
 		println(min_if(3, 4, 2));
 		println(min_ternary(3, 4, 2));
 	}
+
 }
