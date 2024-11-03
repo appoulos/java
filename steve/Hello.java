@@ -256,7 +256,7 @@ public class Hello extends ConsoleProgram {
 
 		@Override
 		public String toString() {
-			return "a: " + a + ", b: " + b;
+			return "a: " + a + ", b: " + b + ", ptr: " + super.toString();
 		}
 	}
 
@@ -266,34 +266,34 @@ public class Hello extends ConsoleProgram {
 	}
 
 	public void run() {
+		int num = 5;
+		Object os[];
+		os = new Object[num];
+		for (int i = 0; i < os.length; i++) {
+			os[i] = new H(i, i);
+			println("os[" + i + "]: " + os[i]);
+		}
 		H hs[];
 		hs = new H[2];
 		for (int i = 0; i < hs.length; i++) {
 			hs[i] = new H(i, i);
 			println("hs[" + i + "]: " + hs[i]);
 		}
-		H h = new H();
+		H h;
+		h = new H();
 		println(h.add(3, 4));
 		println(h.add(3, 4));
 		println(hget(h));
 		println(hget(h));
-		dist();
-		println("someMethod: " + someMethod(3, 1));
-		test_palin();
-		String str;
-		// println("palin " + str + ": " + palinRev(str));
-		// str = "ab%$!1ba";
-		// println("palin " + str + ": " + palinRev(str));
-		// str = "1";
-		// println("palin " + str + ": " + palinRev(str));
-		// str = "%";
-		// println("palin " + str + ": " + palinRev(str));
-		// str = "";
-		// println("palin " + str + ": " + palinRev(str));
-		str = "is is not not";
-		println("equalisnot: " + str + ": " + equalIsNot(str));
-		str = "is s not not";
-		println("equalisnot: " + str + ": " + equalIsNot(str));
+		System.exit(0);
+		// dist();
+		// println("someMethod: " + someMethod(3, 1));
+		// test_palin();
+		// String str;
+		// str = "is is not not";
+		// println("equalisnot: " + str + ": " + equalIsNot(str));
+		// str = "is s not not";
+		// println("equalisnot: " + str + ": " + equalIsNot(str));
 
 		if (true)
 			return;
@@ -301,16 +301,6 @@ public class Hello extends ConsoleProgram {
 		println("asdf1234" + (passwordValid("asdf1234") ? " is" : " is not"));
 		println("asdf4#21" + (passwordValid("asdf4#21") ? " is" : " is not"));
 		if (bracketsMatch("{asdf}")) {
-			println("matched");
-		} else {
-			println("not matched");
-		}
-		if (bracketsMatch("{a")) {
-			println("matched");
-		} else {
-			println("not matched");
-		}
-		if (bracketsMatch("{{{{}}}}")) {
 			println("matched");
 		} else {
 			println("not matched");
