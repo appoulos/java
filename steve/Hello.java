@@ -1,3 +1,4 @@
+@SuppressWarnings("deprecation")
 public class Hello extends ConsoleProgram {
 	int min_if(int a, int b, int c) {
 		if (a < b)
@@ -234,16 +235,21 @@ public class Hello extends ConsoleProgram {
 				* (Math.acos(Math.sin(l1la) * Math.sin(l2la) + Math.cos(l1la) * Math.cos(l2la) * Math.cos(l1lo - l2lo))));
 	}
 
-	class H {
+	class Horse {
+		String name;
 		int a;
 		int b;
 
-		H() {
+		Horse() {
 			a = 0;
 			b = 0;
 		}
 
-		H(int x, int y) {
+		Horse(String name) {
+			this.name = name;
+		}
+
+		Horse(int x, int y) {
 			a = x;
 			b = y;
 		}
@@ -256,31 +262,51 @@ public class Hello extends ConsoleProgram {
 
 		@Override
 		public String toString() {
-			return "a: " + a + ", b: " + b + ", ptr: " + super.toString();
+			return "name: " + name + ", a: " + a + ", b: " + b + ", ptr: " + super.toString();
 		}
+
+		// @Override
+		// protected void finalize() throws Throwable {
+		// try {
+		// // Cleanup code here (e.g., closing resources)
+		// println("cleaning up: " + this);
+		// } finally {
+		// super.finalize();
+		// }
+		// }
 	}
 
-	int hget(H h) {
+	public Horse makeHorse() {
+		return new Horse();
+	}
+
+	int hget(Horse h) {
 		h.a++;
 		return h.a + h.b;
 	}
 
 	public void run() {
+		{
+			Object m;
+			m = makeHorse();
+			println(m);
+		}
+
 		int num = 5;
 		Object os[];
 		os = new Object[num];
 		for (int i = 0; i < os.length; i++) {
-			os[i] = new H(i, i);
+			os[i] = new Horse(Integer.toString(i)); // i, i);
 			println("os[" + i + "]: " + os[i]);
 		}
-		H hs[];
-		hs = new H[2];
+		Horse hs[];
+		hs = new Horse[2];
 		for (int i = 0; i < hs.length; i++) {
-			hs[i] = new H(i, i);
+			hs[i] = new Horse(i, i);
 			println("hs[" + i + "]: " + hs[i]);
 		}
-		H h;
-		h = new H();
+		Horse h;
+		h = new Horse();
 		println(h.add(3, 4));
 		println(h.add(3, 4));
 		println(hget(h));
