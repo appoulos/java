@@ -286,6 +286,14 @@ public class Hello extends ConsoleProgram {
 	}
 
 	public void run() {
+
+		println("-------------------------");
+		double qpi = Math.PI / 4.0f;
+		for (int i = 0; i < 8; i++) {
+			println(Math.round(i * qpi * 100.0f) / 100.0f + ": "
+					+ Math.round(Math.cos(i * qpi) * 100.0f) / 100.0f + ", "
+					+ Math.round(Math.sin(i * qpi) * 100.0f) / 100.0f);
+		}
 		println("-------------------------");
 		{
 			Object m;
