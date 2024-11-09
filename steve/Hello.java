@@ -285,6 +285,10 @@ public class Hello extends ConsoleProgram {
 		return h.a + h.b;
 	}
 
+	double round(double d, int n) {
+		return Math.round(d * Math.pow(10, n)) / Math.pow(10, n);
+	}
+
 	public void run() {
 
 		println("-------------------------");
@@ -293,6 +297,13 @@ public class Hello extends ConsoleProgram {
 			println(Math.round(i * qpi * 100.0f) / 100.0f + ": "
 					+ Math.round(Math.cos(i * qpi) * 100.0f) / 100.0f + ", "
 					+ Math.round(Math.sin(i * qpi) * 100.0f) / 100.0f);
+		}
+		println("-------------------------");
+
+		for (int i = 0; i < 8; i++) {
+			println(round(i * qpi, 2) + ": "
+					+ round(Math.cos(i * qpi), 2) + ", "
+					+ round(Math.sin(i * qpi), 2));
 		}
 		println("-------------------------");
 		{
