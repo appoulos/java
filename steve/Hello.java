@@ -290,7 +290,22 @@ public class Hello extends ConsoleProgram {
 	}
 
 	public void run() {
+		String string;
+		if (false) {
+			string = null;
+		} else {
+			string = "as";
+		}
+		if (string == null)
+			println("s: is set to NULL");
+		else if (string == "")
+			println("s: is empty");
+		else
+			println("s:" + string);
 
+		println("Done.");
+		System.exit(0);
+		// dist();
 		println("-------------------------");
 		double qpi = Math.PI / 4.0f;
 		for (int i = 0; i < 8; i++) {
