@@ -15,16 +15,18 @@ class CountLetters {
 			}
 		}
 
+		int totLetters = 0;
 		for (int i = 0; i < freq.length; i++) {
 			if (freq[i] != 0) {
 				// All on one line
 				System.out.print((char) ('a' + i) + " ");
+				totLetters += freq[i];
 
 				// With frequency of the letter on each line:
 				// System.out.println((char) ('a' + i) + ": " + freq[i]);
 			}
 		}
-		System.out.println();
+		System.out.println("\n\nTotal letters: " + totLetters);
 
 	}
 }
