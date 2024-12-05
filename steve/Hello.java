@@ -361,7 +361,17 @@ public class Hello extends ConsoleProgram {
 		return count;
 	}
 
+	public int[] makeArray(int num) {
+		return new int[num];
+	}
+
 	public void run() {
+		int[] a = new int[1];
+		println("a: " + a);
+		a = makeArray(5);
+		a[4] = 5;
+		println("a: " + a);
+		println("a[4]: " + a[4]);
 		{
 			int[] n = { 1, 6, 2, 13, 7, 1 };
 			// println(sum13(n));
