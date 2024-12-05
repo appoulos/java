@@ -320,17 +320,39 @@ public class Hello extends ConsoleProgram {
 		return count;
 	}
 
+	public int sum67(int[] nums) {
+		int count = 0;
+		boolean found6 = false;
+		for (int i = 0; i < nums.length; i++) {
+			// start ignoring
+			if (nums[i] == 6) {
+				found6 = true;
+				continue;
+			}
+			// stop ignoring
+			if (found6 && nums[i] == 7) {
+				found6 = false;
+				continue;
+			}
+			if (!found6) {
+				count += nums[i];
+			}
+		}
+		return count;
+	}
+
 	public void run() {
 		{
-			int[] n = { 1, 2, 13, 2, 1 };
-			println(sum13(n));
-			println(sum13b(n));
+			int[] n = { 1, 6, 2, 13, 7, 1 };
+			// println(sum13(n));
+			// println(sum13b(n));
+			println(sum67(n));
 		}
-		{
-			int[] n = { 5, 13, 13, 1, 13, 1, 1 };
-			println(sum13(n));
-			println(sum13b(n));
-		}
+		// {
+		// int[] n = { 5, 13, 13, 1, 13, 1, 1 };
+		// println(sum13(n));
+		// println(sum13b(n));
+		// }
 		String string;
 		if (false) {
 			string = null;
