@@ -289,7 +289,48 @@ public class Hello extends ConsoleProgram {
 		return Math.round(d * Math.pow(10, n)) / Math.pow(10, n);
 	}
 
+	public int sum13b(int[] nums) {
+		int count = 0;
+		boolean found13 = false;
+		for (int i = 0; i < nums.length; i++) {
+			if (nums[i] == 13)
+				found13 = true;
+			else if (found13)
+				found13 = false;
+			else
+				count += nums[i];
+		}
+		return count;
+	}
+
+	public int sum13(int[] nums) {
+		int count = 0;
+		boolean found13 = false;
+		for (int i = 0; i < nums.length; i++) {
+			if (nums[i] == 13) {
+				found13 = true;
+				continue;
+			}
+			if (found13) {
+				found13 = false;
+				continue;
+			}
+			count += nums[i];
+		}
+		return count;
+	}
+
 	public void run() {
+		{
+			int[] n = { 1, 2, 13, 2, 1 };
+			println(sum13(n));
+			println(sum13b(n));
+		}
+		{
+			int[] n = { 5, 13, 13, 1, 13, 1, 1 };
+			println(sum13(n));
+			println(sum13b(n));
+		}
 		String string;
 		if (false) {
 			string = null;
