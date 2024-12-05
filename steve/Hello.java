@@ -320,7 +320,7 @@ public class Hello extends ConsoleProgram {
 		return count;
 	}
 
-	public int sum67(int[] nums) {
+	public int sum67a(int[] nums) {
 		int count = 0;
 		boolean found6 = false;
 		for (int i = 0; i < nums.length; i++) {
@@ -341,11 +341,32 @@ public class Hello extends ConsoleProgram {
 		return count;
 	}
 
+	public int sum67(int[] nums) {
+		int count = 0;
+		boolean found6 = false;
+		for (int i = 0; i < nums.length; i++) {
+			if (found6) {
+				if (nums[i] == 7)
+					// stop ignoring
+					found6 = false;
+			} else {
+				if (nums[i] == 6) {
+					// start ignoring
+					found6 = true;
+				} else {
+					count += nums[i];
+				}
+			}
+		}
+		return count;
+	}
+
 	public void run() {
 		{
 			int[] n = { 1, 6, 2, 13, 7, 1 };
 			// println(sum13(n));
 			// println(sum13b(n));
+			println(sum67a(n));
 			println(sum67(n));
 		}
 		// {
