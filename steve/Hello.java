@@ -365,7 +365,60 @@ public class Hello extends ConsoleProgram {
 		return new int[num];
 	}
 
+	public int digitOfPi(int digit) {
+		if (digit == 0)
+			return 3;
+		return Integer.parseInt(
+				Double.toString(Math.PI).substring(
+						digit + 1, digit + 2));
+	}
+
+	public int maxSpan(int[] nums) {
+		int[] first = new int[10];
+		for (int i = 0; i < 10; i++)
+			first[i] = -1;
+
+		int[] last = new int[10];
+		for (int i = 0; i < 10; i++)
+			last[i] = -1;
+
+		for (int i = 0; i < nums.length; i++) {
+			int j = nums[i];
+			if (j < 0 || j > 9) {
+				println("error: expected single digit int, got " + j);
+				continue;
+			}
+			if (first[j] == -1) {
+				first[j] = i;
+			} else {
+				last[j] = i;
+			}
+		}
+		int max = 0;
+		for (int i = 0; i < 10; i++) {
+			if (first[i] == -1) {
+				continue;
+			}
+			if (last[i] == -1) {
+				if (max == 0) {
+					max = 1;
+				}
+			} else {
+				int diff = last[i] - first[i] + 1;
+				if (diff > max) {
+					max = diff;
+				}
+			}
+		}
+		return max;
+	}
+
 	public void run() {
+		int[] arr = { 1, 1, 13, 1 };
+		println("maxSpan: " + maxSpan(arr));
+		for (int i = 0; i < 3; i++)
+			println("pi(" + i + "): " + digitOfPi(i));
+		println(Double.toString(Math.PI).substring(1, 2));
 		int[] a = new int[1];
 		println("a: " + a);
 		a = makeArray(5);
