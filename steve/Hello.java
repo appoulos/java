@@ -1,4 +1,7 @@
+import java.util.HashMap;
+
 @SuppressWarnings("deprecation")
+
 public class Hello extends ConsoleProgram {
 	int min_if(int a, int b, int c) {
 		if (a < b)
@@ -373,49 +376,95 @@ public class Hello extends ConsoleProgram {
 						digit + 1, digit + 2));
 	}
 
-	public int maxSpan(int[] nums) {
-		int[] first = new int[10];
-		for (int i = 0; i < 10; i++)
-			first[i] = -1;
+	public class Span {
+		int first;
+		int last;
 
-		int[] last = new int[10];
-		for (int i = 0; i < 10; i++)
-			last[i] = -1;
+		Span(int f, int l) {
+			first = f;
+			last = l;
+		}
+	}
 
+	public int maxSpanHash(int[] nums) {
+		HashMap<Integer, Span> spans = new HashMap<Integer, Span>();
 		for (int i = 0; i < nums.length; i++) {
-			int j = nums[i];
-			if (j < 0 || j > 9) {
-				println("error: expected single digit int, got " + j);
+			if (!spans.containsKey(nums[i])) {
+				spans.put(nums[i], new Span(i, -1));
 				continue;
 			}
+			Span s = spans.get(nums[i]);
+			s.last = i;
+			spans.put(nums[i], s);
+		}
+
+		int max = 0;
+		for (Span s : spans.values()) {
+			if (s.last == -1) {
+				if (max < 1) {
+					max = 1;
+				}
+				continue;
+			}
+			int diff = s.last - s.first + 1;
+			if (max < diff)
+				max = diff;
+		}
+
+		return max;
+	}
+
+	public int maxSpan(int[] nums) {
+		// find largest integer in nums array
+		int maxValue = Integer.MIN_VALUE;
+		for (int i = 0; i < nums.length; i++)
+			if (nums[i] > maxValue)
+				maxValue = nums[i];
+
+		// create arrays for first and last locations of integers in nums
+		int[] first = new int[maxValue + 1];
+		for (int i = 0; i < maxValue; i++)
+			first[i] = -1;
+
+		int[] last = new int[maxValue + 1];
+		for (int i = 0; i < maxValue; i++)
+			last[i] = -1;
+
+		// process nums array
+		for (int i = 0; i < nums.length; i++) {
+			int j = nums[i];
 			if (first[j] == -1) {
 				first[j] = i;
 			} else {
 				last[j] = i;
 			}
 		}
-		int max = 0;
-		for (int i = 0; i < 10; i++) {
+
+		// find largest span
+		int maxSpan = 0;
+		for (int i = 0; i < maxValue; i++) {
 			if (first[i] == -1) {
 				continue;
 			}
 			if (last[i] == -1) {
-				if (max == 0) {
-					max = 1;
+				if (maxSpan == 0) {
+					maxSpan = 1;
 				}
 			} else {
 				int diff = last[i] - first[i] + 1;
-				if (diff > max) {
-					max = diff;
+				if (diff > maxSpan) {
+					maxSpan = diff;
 				}
 			}
 		}
-		return max;
+
+		return maxSpan;
 	}
 
 	public void run() {
 		int[] arr = { 1, 1, 13, 1 };
-		println("maxSpan: " + maxSpan(arr));
+		println("maxSpan    : " + maxSpan(arr));
+		println("maxSpanHash: " + maxSpanHash(arr));
 		for (int i = 0; i < 3; i++)
 			println("pi(" + i + "): " + digitOfPi(i));
 		println(Double.toString(Math.PI).substring(1, 2));
