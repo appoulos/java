@@ -414,7 +414,7 @@ public class Hello extends ConsoleProgram {
 		return max;
 	}
 
-	public int maxSpan(int[] nums) {
+	public int maxSpan2(int[] nums) {
 		if (nums.length == 0)
 			return 0;
 		// find largest integer in nums array and enforce nums values >= 0
@@ -466,9 +466,25 @@ public class Hello extends ConsoleProgram {
 		return maxSpan;
 	}
 
+	public int maxSpan(int[] nums) {
+		int max = 0;
+		for (int i = 0; i < nums.length; i++) {
+			for (int j = nums.length - 1; j >= i; j--) {
+				if (nums[i] == nums[j]) {
+					if (max < j - i + 1) {
+						max = j - i + 1;
+					}
+					break;
+				}
+			}
+		}
+		return max;
+	}
+
 	public void run() {
-		int[] arr = { 0, 0, 1, 1, 1 };
+		int[] arr = { 1, 2, 3, 4, 5, 1 };
 		println("maxSpan    : " + maxSpan(arr));
+		println("maxSpan2   : " + maxSpan2(arr));
 		println("maxSpanHash: " + maxSpanHash(arr));
 		for (int i = 0; i < 3; i++)
 			println("pi(" + i + "): " + digitOfPi(i));
