@@ -469,6 +469,7 @@ public class Hello extends ConsoleProgram {
 	public int maxSpan(int[] nums) {
 		int max = 0;
 		for (int i = 0; i < nums.length; i++) {
+			// for (int j = nums.length - 1; j >= i && max < j - i + 1; j--) {
 			for (int j = nums.length - 1; j >= i; j--) {
 				if (nums[i] == nums[j]) {
 					if (max < j - i + 1) {
@@ -476,13 +477,24 @@ public class Hello extends ConsoleProgram {
 					}
 					break;
 				}
+				if (max >= j - i + 1) {
+					println("optimized: j: " + j + ", i: " + i + ", max: " + max + ", len: " + nums.length);
+					break;
+				}
+			}
+			// ***ooooo
+			// i_____jX
+			// 01234567
+			if (max > nums.length - i) {
+				println("optimized: i: " + i + ", max: " + max + ", len: " + nums.length);
+				break;
 			}
 		}
 		return max;
 	}
 
 	public void run() {
-		int[] arr = { 1, 2, 3, 4, 5, 1 };
+		int[] arr = { 1, 2, 3, 4, 5, 1, 6, 2, 7, 8, 9, 10, 11 };
 		println("maxSpan    : " + maxSpan(arr));
 		println("maxSpan2   : " + maxSpan2(arr));
 		println("maxSpanHash: " + maxSpanHash(arr));
