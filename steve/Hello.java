@@ -415,19 +415,24 @@ public class Hello extends ConsoleProgram {
 	}
 
 	public int maxSpan(int[] nums) {
-		// find largest integer in nums array
-		int maxValue = Integer.MIN_VALUE;
-		for (int i = 0; i < nums.length; i++)
+		if (nums.length == 0)
+			return 0;
+		// find largest integer in nums array and enforce nums values >= 0
+		int maxValue = -1;
+		for (int i = 0; i < nums.length; i++) {
+			if (nums[i] < 0)
+				return 0;
 			if (nums[i] > maxValue)
 				maxValue = nums[i];
+		}
 
 		// create arrays for first and last locations of integers in nums
 		int[] first = new int[maxValue + 1];
-		for (int i = 0; i < maxValue; i++)
+		for (int i = 0; i < first.length; i++)
 			first[i] = -1;
 
 		int[] last = new int[maxValue + 1];
-		for (int i = 0; i < maxValue; i++)
+		for (int i = 0; i < last.length; i++)
 			last[i] = -1;
 
 		// process nums array
@@ -442,7 +447,7 @@ public class Hello extends ConsoleProgram {
 
 		// find largest span
 		int maxSpan = 0;
-		for (int i = 0; i < maxValue; i++) {
+		for (int i = 0; i < first.length; i++) {
 			if (first[i] == -1) {
 				continue;
 			}
@@ -462,7 +467,7 @@ public class Hello extends ConsoleProgram {
 	}
 
 	public void run() {
-		int[] arr = { 1, 1, 13, 1 };
+		int[] arr = { 0, 0, 1, 1, 1 };
 		println("maxSpan    : " + maxSpan(arr));
 		println("maxSpanHash: " + maxSpanHash(arr));
 		for (int i = 0; i < 3; i++)
