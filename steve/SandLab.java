@@ -110,19 +110,15 @@ public class SandLab {
 					break;
 				}
 				// make pyrimids in water/erase
-				if ((int) (Math.random() * 2) == 0) {
-					// down and left
-					if (col >= 1 && (grid[row + 1][col - 1] == WATER
-							|| grid[row + 1][col - 1] == ERASE)) {
-						grid[row][col] = grid[row + 1][col - 1];
-						grid[row + 1][col - 1] = g;
-					}
-				} else { // down and right
-					if (col < maxCol - 1 && (grid[row + 1][col + 1] == WATER
-							|| grid[row + 1][col + 1] == ERASE)) {
-						grid[row][col] = grid[row + 1][col + 1];
-						grid[row + 1][col + 1] = g;
-					}
+				// dx = random number either -1 or 1
+				int dx = (int) (Math.random() * 2) * 2 - 1;
+				if ((dx == -1 && col >= 1 || dx == 1 && col < maxCol - 1)
+						&& (grid[row][col + dx] == WATER
+								|| grid[row][col + dx] == ERASE)
+						&& (grid[row + 1][col + dx] == WATER
+								|| grid[row + 1][col + dx] == ERASE)) {
+					grid[row][col] = grid[row + 1][col + dx];
+					grid[row + 1][col + dx] = g;
 				}
 				break;
 			case WATER:
