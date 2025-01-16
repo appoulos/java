@@ -40,19 +40,19 @@ public class SandLabMy {
 	private void locationClicked(int row, int col, int tool) {
 		switch (tool) {
 			case SAND: // sand can only be placed in empty space
-				if (grid[row][col] == ERASE) {
-					grid[row][col] = tool;
+				if (getGrid(row, col) == ERASE) {
+					setGrid(row, col, tool);
 				}
 				break;
 			case LASER: // make laser 3 wide
-				grid[row][col] = tool;
+				setGrid(row, col, tool);
 				// down and left
 				setGrid(row, col, 1, 0, tool);
 				// up and right
 				setGrid(row, col, -1, 0, tool);
 				break;
 			default:
-				grid[row][col] = tool;
+				setGrid(row, col, tool);
 		}
 	}
 
@@ -60,7 +60,7 @@ public class SandLabMy {
 	public void updateDisplay() {
 		for (int row = 0; row < grid.length; row++) {
 			for (int col = 0; col < grid[0].length; col++) {
-				switch (grid[row][col]) {
+				switch (getGrid(row, col)) {
 					case METAL:
 						display.setColor(row, col, Color.gray);
 						break;
@@ -132,7 +132,7 @@ public class SandLabMy {
 		int row = (int) (Math.random() * maxRow);
 		int col = (int) (Math.random() * maxCol);
 
-		int g = grid[row][col];
+		int g = getGrid(row, col);
 		switch (g) {
 			case SAND:
 				if (row >= maxRow - 1)
@@ -140,13 +140,13 @@ public class SandLabMy {
 				// sand replaces water
 				if (getGrid(row, col, 1, 0) == WATER) {
 					setGrid(row, col, 1, 0, g);
-					grid[row][col] = WATER;
+					setGrid(row, col, WATER);
 					break;
 				}
 				// sand falls
 				if (getGrid(row, col, 1, 0) == ERASE) {
 					setGrid(row, col, 1, 0, g);
-					grid[row][col] = ERASE;
+					setGrid(row, col, ERASE);
 					break;
 				}
 				// make pyrimids in water/erase
@@ -158,7 +158,7 @@ public class SandLabMy {
 						|| getGrid(row, col, 0, dx) == ERASE)
 						&& (getGrid(row, col, 1, dx) == WATER
 								|| getGrid(row, col, 1, dx) == ERASE)) {
-					grid[row][col] = getGrid(row, col, 1, dx);
+					setGrid(row, col, getGrid(row, col, 1, dx));
 					setGrid(row, col, 1, dx, g);
 				}
 				break;
@@ -169,7 +169,7 @@ public class SandLabMy {
 				// Falling
 				if (getGrid(row, col, 1, 0) == ERASE) {
 					setGrid(row, col, 1, 0, g);
-					grid[row][col] = ERASE;
+					setGrid(row, col, ERASE);
 					break;
 				}
 				// dx = random number either -1 or 1 for random sideways movement
@@ -177,21 +177,21 @@ public class SandLabMy {
 				// if sideways movement is available (erase), swap
 				if (getGrid(row, col, 0, dx) == ERASE) {
 					setGrid(row, col, 0, dx, g);
-					grid[row][col] = ERASE;
+					setGrid(row, col, ERASE);
 				}
 				break;
 			case WOOD:
 				// if (row > maxRow - 1 && col > maxCol - 1) {
 				// if (getGrid(row, col, 1, 0) == ERASE) {
 				// setGrid(row, col, 1, 0, g);
-				// grid[row][col] = ERASE;
+				// setGrid(row,col, ERASE);
 				// break;
 				// }
 				// }
 				break;
 			case LASER:
 				// Erases past laser
-				grid[row][col] = ERASE;
+				setGrid(row, col, ERASE);
 				// make new laser down and to right
 				setGrid(row, col, 1, 1, LASER);
 				break;

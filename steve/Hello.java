@@ -493,7 +493,26 @@ public class Hello extends ConsoleProgram {
 		return max;
 	}
 
+	public int chance(int... args) {
+		int tot = 0;
+		for (int num : args) {
+			tot += num;
+		}
+		int rnd = (int) (Math.random() * tot + 1);
+		println("tot: " + tot + ", rnd: " + rnd);
+		int sum = 0;
+		int cnt = 0;
+		for (int num : args) {
+			cnt++;
+			sum += num;
+			if (rnd <= sum)
+				return cnt;
+		}
+		return 0;
+	}
+
 	public void run() {
+		println(chance(1, 1));
 		int[] arr = { 1, 2, 3, 4, 5, 1, 6, 2, 7, 8, 9, 10, 11 };
 		println("maxSpan    : " + maxSpan(arr));
 		println("maxSpan2   : " + maxSpan2(arr));
