@@ -84,6 +84,44 @@ public class SandLab {
 		}
 	}
 
+	// "setGrid(row, col, ERASE);" instead of "grid[row][col] = ERASE;"
+	public void setGrid(int row, int col, int element) {
+		grid[row][col] = element;
+	}
+
+	// "int g = getGrid(row, col);" instead of "int g = grid[row][col];"
+	public int getGrid(int row, int col) {
+		return grid[row][col];
+	}
+
+	// "setGrid(row, col, 1, -1, ERASE);" instead of
+	// "grid[row + 1][col - 1] = ERASE;"
+	public void setGrid(int row, int col, int drow, int dcol, int element) {
+		if (dcol > 0 && col + dcol >= grid[0].length)
+			return;
+		if (dcol < 0 && col + dcol < 0)
+			return;
+		if (drow > 0 && row + drow >= grid.length)
+			return;
+		if (drow < 0 && row + drow < 0)
+			return;
+		grid[row + drow][col + dcol] = element;
+	}
+
+	// "int g = getGrid(row, col, 1, -1);" instead of
+	// "int g = grid[row + 1][col - 1];"
+	public int getGrid(int row, int col, int drow, int dcol) {
+		if (dcol > 0 && col + dcol >= grid[0].length)
+			return METAL;
+		if (dcol < 0 && col + dcol < 0)
+			return METAL;
+		if (drow > 0 && row + drow >= grid.length)
+			return METAL;
+		if (drow < 0 && row + drow < 0)
+			return METAL;
+		return grid[row + drow][col + dcol];
+	}
+
 	// called repeatedly.
 	// causes one random particle to maybe do something.
 	public void step() {
