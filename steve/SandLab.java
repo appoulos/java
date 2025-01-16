@@ -1,5 +1,5 @@
 import java.awt.*;
-import java.util.*;
+// import java.util.*;
 
 public class SandLab {
 	public static void main(String[] args) {
@@ -8,6 +8,7 @@ public class SandLab {
 	}
 
 	// add constants for particle types here
+	// remember to update elemColors[] in SandDisplay.java
 	public static final int ERASE = 0;
 	public static final int METAL = 1;
 	public static final int SAND = 2;
@@ -18,8 +19,22 @@ public class SandLab {
 	public static final int LASER = 7;
 	public static final int NUKE = 8;
 
+	// apoulos, each pixel contains both the element and color
+	class cell {
+		int element;
+		Color color;
+
+		cell(int element, Color color) {
+			this.element = element;
+			this.color = color;
+		}
+	}
+
+	// apoulos, used to erase contents in laser/nuke and initalize the grid
+	cell erase = new cell(ERASE, new Color(0, 0, 0));
+
 	// do not add any more fields
-	private int[][] grid;
+	private cell[][] grid;
 	private SandDisplay display;
 
 	public SandLab(int numRows, int numCols) {
@@ -34,7 +49,13 @@ public class SandLab {
 		names[LASER] = "Laser";
 		names[NUKE] = "NUKE...";
 		names[ERASE] = "ERASE";
-		grid = new int[numRows][numCols];
+		grid = new cell[numRows][numCols];
+
+		// apoulos, Initialize grid to ERASE
+		for (int row = 0; row < grid.length; row++)
+			for (int col = 0; col < grid[0].length; col++)
+				grid[row][col] = erase;
+
 		display = new SandDisplay("Falling Sand", numRows, numCols, names);
 	}
 
@@ -46,28 +67,13 @@ public class SandLab {
 		}
 	}
 
-	public void setGrid(int row, int col, int drow, int dcol, int element) {
-		if (dcol > 0 && col + dcol >= grid[0].length) {
-			return;
-		}
-		if (dcol < 0 && col + dcol < 0) {
-			return;
-		}
-		if (drow > 0 && row + drow >= grid.length) {
-			return;
-		}
-		if (drow < 0 && row + drow < 0) {
-			return;
-		}
-		grid[row + drow][col + dcol] = element;
-	}
-
 	// called when the user clicks on a location using the given tool
 	private void locationClicked(int row, int col, int tool) {
 		switch (tool) {
 			case SAND: // Sand can only be placed in empty space
-				if (grid[row][col] == ERASE) {
-					grid[row][col] = tool;
+				if (grid[row][col].element == ERASE) {
+					// display.getColor() gets the color from the color chooser
+					grid[row][col] = new cell(tool, display.getColor());
 				}
 				break;
 			case LASER:
@@ -75,58 +81,28 @@ public class SandLab {
 					// make laser 4 tall
 					for (int i = 1; i <= 3; i++) {
 						if (row + i <= grid.length - 1) {
-							grid[row + i][col] = tool;
+							grid[row + i][col] = new cell(tool, display.getColor());
 						}
 					}
 				}
 				break;
 			default:
-				grid[row][col] = tool;
+				grid[row][col] = new cell(tool, display.getColor());
 		}
 	}
 
 	// copies each element of grid into the display
 	public void updateDisplay() {
-		for (int row = 0; row < grid.length; row++) {
-			for (int col = 0; col < grid[0].length; col++) {
-				if (grid[row][col] == ERASE) {
-					Color anotherColor = new Color(0, 0, 0);
-					display.setColor(row, col, anotherColor);
-				} else if (grid[row][col] == METAL) {
-					Color anotherColor = new Color(128, 128, 128);
-					display.setColor(row, col, anotherColor);
-				} else if (grid[row][col] == SAND) {
-					Color anotherColor = new Color(250, 220, 50);
-					display.setColor(row, col, anotherColor);
-				} else if (grid[row][col] == WATER) {
-					Color anotherColor = new Color(46, 213, 255);
-					display.setColor(row, col, anotherColor);
-				} else if (grid[row][col] == WOOD) {
-					int randomNum = (int) (Math.random() * 2);
-					if (randomNum == 0) {
-						Color anotherColor1 = new Color(74, 55, 40);
-						display.setColor(row, col, anotherColor1);
-					} else {
-						Color anotherColor2 = new Color(108, 69, 28);
-						display.setColor(row, col, anotherColor2);
-					}
-				} else if (grid[row][col] == FIRE) {
-					Color anotherColor = new Color(255, 64, 0);
-					display.setColor(row, col, anotherColor);
-				} else if (grid[row][col] == SMOKE) {
-					Color anotherColor = new Color(255, 255, 255);
-					display.setColor(row, col, anotherColor);
-				} else if (grid[row][col] == LASER) {
-					Color anotherColor = new Color(255, 87, 51);
-					display.setColor(row, col, anotherColor);
-				} else if (grid[row][col] == NUKE) {
-					Color anotherColor = new Color(255, 87, 51);
-					display.setColor(row, col, anotherColor);
-				}
-			}
-		}
+		for (int row = 0; row < grid.length; row++)
+			for (int col = 0; col < grid[0].length; col++)
+				display.setColor(row, col, grid[row][col].color);
 	}
 
+	// return a one based index based on the probabilities in args
+	// for example:
+	// chance(1, 3) ->
+	// return 1: 25% of the time (1/4)
+	// return 2: 75% (3/4)
 	public int chance(int... args) {
 		int tot = 0;
 		for (int num : args) {
@@ -144,6 +120,13 @@ public class SandLab {
 		return 0;
 	}
 
+	// swap two cells
+	public void swap(int r1, int c1, int r2, int c2) {
+		cell tmp = grid[r1][c1];
+		grid[r1][c1] = grid[r2][c2];
+		grid[r2][c2] = tmp;
+	}
+
 	// called repeatedly.
 	// causes one random particle to maybe do something.
 	public void step() {
@@ -152,34 +135,35 @@ public class SandLab {
 		int row = (int) (Math.random() * maxRow);
 		int col = (int) (Math.random() * maxCol);
 
-		int g = grid[row][col];
-		switch (g) {
+		cell g = grid[row][col];
+		switch (g.element) {
 			case SAND:
 				if (row >= maxRow - 1)
 					break;
+
 				// sand replaces water
-				if (grid[row + 1][col] == WATER) {
-					grid[row + 1][col] = g;
-					grid[row][col] = WATER;
+				if (grid[row + 1][col].element == WATER) {
+					swap(row, col, row + 1, col);
 					break;
 				}
+
 				// sand falls
-				if (grid[row + 1][col] == ERASE) {
-					grid[row + 1][col] = g;
-					grid[row][col] = ERASE;
+				if (grid[row + 1][col].element == ERASE) {
+					swap(row, col, row + 1, col);
 					break;
 				}
+
 				// make pyrimids in water/erase
 				if ((int) (Math.random() * 2) == 0) {
 					// down and left
-					if (col >= 1 && (grid[row + 1][col - 1] == WATER
-							|| grid[row + 1][col - 1] == ERASE)) {
+					if (col >= 1 && (grid[row + 1][col - 1].element == WATER
+							|| grid[row + 1][col - 1].element == ERASE)) {
 						grid[row][col] = grid[row + 1][col - 1];
 						grid[row + 1][col - 1] = g;
 					}
 				} else { // down and right
-					if (col < maxCol - 1 && (grid[row + 1][col + 1] == WATER
-							|| grid[row + 1][col + 1] == ERASE)) {
+					if (col < maxCol - 1 && (grid[row + 1][col + 1].element == WATER
+							|| grid[row + 1][col + 1].element == ERASE)) {
 						grid[row][col] = grid[row + 1][col + 1];
 						grid[row + 1][col + 1] = g;
 					}
@@ -191,34 +175,38 @@ public class SandLab {
 					break;
 				}
 				// Falling
-				if (grid[row + 1][col] == ERASE) {
-					grid[row + 1][col] = g;
-					grid[row][col] = ERASE;
+				if (grid[row + 1][col].element == ERASE) {
+					swap(row, col, row + 1, col);
 					break;
 				}
 				// Left or right movement
 				if ((int) (Math.random() * 2) == 0) {
 					// Left movement
-					if (grid[row][col - 1] == ERASE) {
-						grid[row][col - 1] = g;
-						grid[row][col] = ERASE;
+					if (grid[row][col - 1].element == ERASE) {
+						swap(row, col, row, col - 1);
 					}
 				} else {
 					// Right movement
-					if (grid[row][col + 1] == ERASE) {
-						grid[row][col + 1] = g;
-						grid[row][col] = ERASE;
+					if (grid[row][col + 1].element == ERASE) {
+						swap(row, col, row, col + 1);
 					}
 					break;
 				}
 				break;
 			case WOOD:
-				if (row > maxRow - 1 && col > maxCol - 1) {
-					if (grid[row + 1][col] == ERASE) {
-						grid[row + 1][col] = g;
-						grid[row][col] = ERASE;
-						break;
-					}
+				if (row >= maxRow - 1)
+					break;
+
+				// wood replaces water
+				if (grid[row + 1][col].element == WATER) {
+					swap(row, col, row + 1, col);
+					break;
+				}
+
+				// wood falls
+				if (grid[row + 1][col].element == ERASE) {
+					swap(row, col, row + 1, col);
+					break;
 				}
 				break;
 			case FIRE:
@@ -234,18 +222,18 @@ public class SandLab {
 					case 2:
 						// Move smoke downward
 						if (row + 1 <= maxRow - 1 // oob check row
-								&& grid[row + 1][col] == ERASE) {
-							grid[row + 1][col] = g;
-							grid[row][col] = ERASE;
+								&& grid[row + 1][col].element == ERASE) {
+							swap(row, col, row + 1, col);
+							// grid[row + 1][col] = g;
+							// grid[row][col] = ERASE;
 							break;
 						}
 						break;
 					case 3:
 						// Move smoke upward
 						if (row - 1 >= 0 // oob check row
-								&& grid[row - 1][col] == ERASE) {
-							grid[row - 1][col] = g;
-							grid[row][col] = ERASE;
+								&& grid[row - 1][col].element == ERASE) {
+							swap(row, col, row - 1, col);
 							break;
 						}
 						break;
@@ -254,73 +242,39 @@ public class SandLab {
 						int ran = (int) (Math.random() * 2);
 						if (ran == 0) { // attempt to move right
 							if (col + 1 <= maxCol - 1 // oob check col
-									&& grid[row][col + 1] == ERASE) {
-								grid[row][col + 1] = g;
-								grid[row][col] = ERASE;
+									&& grid[row][col + 1].element == ERASE) {
+								swap(row, col, row, col + 1);
 							}
 						} else { // attempt to move left
 							if (col - 1 >= 0 // oob check col
-									&& grid[row][col - 1] == ERASE) {
-								grid[row][col - 1] = g;
-								grid[row][col] = ERASE;
+									&& grid[row][col - 1].element == ERASE) {
+								swap(row, col, row, col - 1);
 							}
 						}
 						break;
 				}
-
-				// // slow smoke down
-				// int ran = (int) (Math.random() * 50);
-				// if (ran < 48)
-				// break;
-				//
-				// // Move smoke upward
-				// ran = (int) (Math.random() * 4);
-				// if (ran > 0) {
-				// if (row - 1 >= 0 // oob check row
-				// && grid[row - 1][col] == ERASE) {
-				// grid[row - 1][col] = g;
-				// grid[row][col] = ERASE;
-				// break;
-				// }
-				// }
-				//
-				// // random left or right movement
-				// ran = (int) (Math.random() * 2);
-				// if (ran == 0) { // attempt to move right
-				// if (col + 1 <= maxCol - 1 // oob check col
-				// && grid[row][col + 1] == ERASE) {
-				// grid[row][col + 1] = g;
-				// grid[row][col] = ERASE;
-				// }
-				// } else { // attempt to move left
-				// if (col - 1 >= 0 // oob check col
-				// && grid[row][col - 1] == ERASE) {
-				// grid[row][col - 1] = g;
-				// grid[row][col] = ERASE;
-				// }
-				// }
 				break;
 			case LASER:
-				// erase current laser
-				grid[row][col] = ERASE;
 
 				// Move laser down and to the right
 				if (row + 1 <= maxRow - 1 && col + 1 <= maxCol - 1) {
-					grid[row + 1][col + 1] = LASER;
+					grid[row + 1][col + 1] = grid[row][col];
 				}
+				// erase current laser
+				grid[row][col] = erase;
 				break;
 			case NUKE:
-				// erase current nuke
-				grid[row][col] = ERASE;
 
 				// add more nukes on next row
 				if (row + 1 <= maxRow - 1) {
 					for (int i = 0; i < 4; i++) {
 						if (col + i <= maxCol - 1) {
-							grid[row + 1][col + i] = NUKE;
+							grid[row + 1][col + i] = grid[row][col];
 						}
 					}
 				}
+				// erase current nuke
+				grid[row][col] = erase;
 				break;
 		}
 	}

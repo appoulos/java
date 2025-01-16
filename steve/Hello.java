@@ -499,7 +499,7 @@ public class Hello extends ConsoleProgram {
 			tot += num;
 		}
 		int rnd = (int) (Math.random() * tot + 1);
-		println("tot: " + tot + ", rnd: " + rnd);
+		// println("tot: " + tot + ", rnd: " + rnd);
 		int sum = 0;
 		int cnt = 0;
 		for (int num : args) {
