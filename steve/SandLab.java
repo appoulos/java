@@ -11,10 +11,14 @@ public class SandLab {
 	class cell {
 		int element;
 		Color color;
+		boolean burning;
+		int fuel;
 
 		cell(int element, Color color) {
 			this.element = element;
 			this.color = color;
+			this.burning = false;
+			this.fuel = 1000;
 		}
 	}
 
@@ -106,6 +110,16 @@ public class SandLab {
 					}
 				}
 				break;
+			case FIRE:
+				cell curr = grid[row][col];
+				if (curr.element == WOOD) {
+					if (row - 1 >= 0 && grid[row - 1][col].element == ERASE) {
+						if (curr.fuel > 0) {
+							curr.burning = true;
+						}
+					}
+				}
+				break;
 			default:
 				grid[row][col] = new cell(tool, display.getColor());
 		}
@@ -189,6 +203,15 @@ public class SandLab {
 					}
 				}
 				break;
+			case FIRE:
+				cell curr = grid[row][col];
+				if (curr.element == WOOD) {
+					if (row - 1 >= 0 && grid[row - 1][col].element == ERASE) {
+						if (curr.fuel > 0) {
+							curr.burning = true;
+						}
+					}
+				}
 			case WATER:
 				// Falling
 				if (row + 1 <= maxRow - 1 && grid[row + 1][col].element == ERASE) {
@@ -210,22 +233,63 @@ public class SandLab {
 				}
 				break;
 			case WOOD:
-				if (row >= maxRow - 1)
-					break;
+				if (row + 1 <= maxRow - 1) {
+					// wood replaces water
+					if (grid[row + 1][col].element == WATER) {
+						swap(row, col, row + 1, col);
+						break;
+					}
 
-				// wood replaces water
-				if (grid[row + 1][col].element == WATER) {
-					swap(row, col, row + 1, col);
-					break;
+					// wood falls
+					if (grid[row + 1][col].element == ERASE) {
+						swap(row, col, row + 1, col);
+						break;
+					}
 				}
 
-				// wood falls
-				if (grid[row + 1][col].element == ERASE) {
-					swap(row, col, row + 1, col);
-					break;
+				// on fire
+				if (grid[row][col].burning) {
+					switch (chance(1, 1)) {
+						case 1:
+							if (col - 1 >= 0 && grid[row][col - 1].element == WOOD) {
+								if (row - 1 >= 0 && grid[row - 1][col - 1].element == ERASE) {
+									grid[row][col - 1].burning = true;
+								}
+							} else if (row - 1 >= 0 && col - 2 >= 0 && grid[row - 1][col - 2].element == WOOD) {
+								if (row - 2 >= 0 && grid[row - 2][col - 2].element == ERASE) {
+									grid[row - 1][col - 2].burning = true;
+								}
+							}
+							break;
+						case 2:
+							if (col + 1 <= maxCol - 1 && grid[row][col + 1].element == WOOD) {
+								if (row - 1 >= 0 && grid[row - 1][col + 1].element == ERASE) {
+									grid[row][col + 1].burning = true;
+								}
+							} else if (row - 1 >= 0 && col + 1 <= maxCol - 1 && grid[row - 1][col + 1].element == WOOD) {
+								if (row - 2 >= 0 && grid[row - 2][col + 1].element == ERASE) {
+									grid[row - 1][col + 1].burning = true;
+								}
+							}
+							break;
+					}
+					grid[row][col].fuel -= 10;
+					if (grid[row][col].fuel <= 0) { // start next cell down on fire if wood
+						if (row + 1 <= maxRow - 1 && grid[row + 1][col].element == WOOD) {
+							grid[row + 1][col].burning = true;
+						}
+						grid[row][col] = erase;
+					} else {
+						if (row - 1 >= 0 && grid[row - 1][col].element == ERASE) {
+							grid[row - 1][col] = new cell(SMOKE, display.elemColors[SMOKE]);
+						}
+					}
 				}
 				break;
 			case SMOKE:
+				if (grid[row][col].fuel <= 0)
+					grid[row][col] = erase;
+				grid[row][col].fuel--;
 				switch (chance(2, 3, 6)) {
 					case 1:
 						// Move smoke downward
