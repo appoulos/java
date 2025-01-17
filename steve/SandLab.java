@@ -44,32 +44,32 @@ public class SandLab {
 
 	public SandLab(int numRows, int numCols) {
 		String[] names;
+		Color[] colors;
+		colors = new Color[NUM_ELEMENTS];
 		names = new String[NUM_ELEMENTS];
 		names[METAL] = "Metal";
+		colors[METAL] = new Color(128, 128, 128);
 		names[SAND] = "Sand";
+		colors[SAND] = new Color(250, 220, 50);
 		names[WATER] = "Water";
+		colors[WATER] = new Color(46, 213, 255);
 		names[WOOD] = "Wood";
+		colors[WOOD] = new Color(108, 69, 28);
 		names[FIRE] = "Fire";
+		colors[FIRE] = new Color(255, 64, 0);
 		names[SMOKE] = "Smoke";
+		colors[SMOKE] = new Color(255, 255, 255);
 		names[LASER] = "Laser";
+		colors[LASER] = new Color(255, 87, 51);
 		names[NUKE] = "NUKE...";
+		colors[NUKE] = new Color(255, 87, 51);
 		names[ERASE] = "ERASE";
+		colors[ERASE] = Color.black;
 		if (names.length != NUM_ELEMENTS) {
 			System.out.println("Error: names.length must be equal to " + NUM_ELEMENTS);
 			System.exit(1);
 		}
 
-		Color[] colors = new Color[] {
-				Color.black, // ERASE
-				new Color(128, 128, 128), // METAL
-				new Color(250, 220, 50), // SAND
-				new Color(46, 213, 255), // WATER
-				new Color(108, 69, 28), // WOOD
-				new Color(255, 64, 0), // FIRE
-				new Color(255, 255, 255), // SMOKE
-				new Color(255, 87, 51), // LASER
-				new Color(255, 87, 51), // NUKE
-		};
 		display = new SandDisplay("Falling Sand", numRows, numCols, names, colors);
 		if (display.elemColors.length != NUM_ELEMENTS) {
 			System.out.println("Error: display.elemColors.length must be equal to " + NUM_ELEMENTS);
