@@ -190,10 +190,6 @@ public class SandLab {
 				}
 				break;
 			case WATER:
-				// Bottom row ignore
-				// if (row >= maxRow - 1 || row <= 0) { // || col >= maxCol - 1 || col < 1) {
-				// break;
-				// }
 				// Falling
 				if (row + 1 <= maxRow - 1 && grid[row + 1][col].element == ERASE) {
 					swap(row, col, row + 1, col);
