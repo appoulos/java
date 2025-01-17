@@ -228,14 +228,9 @@ public class SandLab {
 					break;
 				}
 				break;
-			case FIRE:
-				break;
 			case SMOKE:
-				switch (chance(0, 2, 3, 6)) {
+				switch (chance(2, 3, 6)) {
 					case 1:
-						// don't do anything; slow down smoke
-						break;
-					case 2:
 						// Move smoke downward
 						if (row + 1 <= maxRow - 1 // oob check row
 								&& grid[row + 1][col].element == ERASE) {
@@ -245,7 +240,7 @@ public class SandLab {
 							break;
 						}
 						break;
-					case 3:
+					case 2:
 						// Move smoke upward
 						if (row - 1 >= 0 // oob check row
 								&& grid[row - 1][col].element == ERASE) {
@@ -253,10 +248,9 @@ public class SandLab {
 							break;
 						}
 						break;
-					case 4:
+					case 3:
 						// random left or right movement
-						int ran = (int) (Math.random() * 2);
-						if (ran == 0) { // attempt to move right
+						if ((int) (Math.random() * 2) == 0) { // attempt to move right
 							if (col + 1 <= maxCol - 1 // oob check col
 									&& grid[row][col + 1].element == ERASE) {
 								swap(row, col, row, col + 1);
