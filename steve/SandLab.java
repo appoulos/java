@@ -7,18 +7,6 @@ public class SandLab {
 		lab.run();
 	}
 
-	// add constants for particle types here
-	// remember to update elemColors[] in SandDisplay.java
-	public static final int ERASE = 0;
-	public static final int METAL = 1;
-	public static final int SAND = 2;
-	public static final int WATER = 3;
-	public static final int WOOD = 4;
-	public static final int FIRE = 5;
-	public static final int SMOKE = 6;
-	public static final int LASER = 7;
-	public static final int NUKE = 8;
-
 	// apoulos, each pixel contains both the element and color
 	class cell {
 		int element;
@@ -33,13 +21,26 @@ public class SandLab {
 	// apoulos, used to erase contents in laser/nuke and initalize the grid
 	cell erase = new cell(ERASE, new Color(0, 0, 0));
 
+	// add constants for particle types here
+	// remember to update elemColors[] in SandDisplay.java
+	public static final int ERASE = 0;
+	public static final int METAL = 1;
+	public static final int SAND = 2;
+	public static final int WATER = 3;
+	public static final int WOOD = 4;
+	public static final int FIRE = 5;
+	public static final int SMOKE = 6;
+	public static final int LASER = 7;
+	public static final int NUKE = 8;
+	public static final int NUM_ELEMENTS = 9;
+
 	// do not add any more fields
 	private cell[][] grid;
 	private SandDisplay display;
 
 	public SandLab(int numRows, int numCols) {
 		String[] names;
-		names = new String[9];
+		names = new String[NUM_ELEMENTS];
 		names[METAL] = "Metal";
 		names[SAND] = "Sand";
 		names[WATER] = "Water";
@@ -49,14 +50,32 @@ public class SandLab {
 		names[LASER] = "Laser";
 		names[NUKE] = "NUKE...";
 		names[ERASE] = "ERASE";
+		if (names.length != NUM_ELEMENTS) {
+			System.out.println("Error: names.length must be equal to " + NUM_ELEMENTS);
+			System.exit(1);
+		}
+		display = new SandDisplay("Falling Sand", numRows, numCols, names);
+		display.elemColors = new Color[] {
+				Color.black, // ERASE
+				new Color(128, 128, 128), // METAL
+				new Color(250, 220, 50), // SAND
+				new Color(46, 213, 255), // WATER
+				new Color(108, 69, 28), // WOOD
+				new Color(255, 64, 0), // FIRE
+				new Color(255, 255, 255), // SMOKE
+				new Color(255, 87, 51), // LASER
+				new Color(255, 87, 51), // NUKE
+		};
+		if (display.elemColors.length != NUM_ELEMENTS) {
+			System.out.println("Error: display.elemColors.length must be equal to " + NUM_ELEMENTS);
+			System.exit(1);
+		}
 		grid = new cell[numRows][numCols];
 
 		// apoulos, Initialize grid to ERASE
 		for (int row = 0; row < grid.length; row++)
 			for (int col = 0; col < grid[0].length; col++)
 				grid[row][col] = erase;
-
-		display = new SandDisplay("Falling Sand", numRows, numCols, names);
 	}
 
 	public static void d(int m) {
@@ -171,23 +190,23 @@ public class SandLab {
 				break;
 			case WATER:
 				// Bottom row ignore
-				if (row >= maxRow - 1 || row <= 0 || col >= maxCol - 1 || col < 1) {
-					break;
-				}
+				// if (row >= maxRow - 1 || row <= 0) { // || col >= maxCol - 1 || col < 1) {
+				// break;
+				// }
 				// Falling
-				if (grid[row + 1][col].element == ERASE) {
+				if (row + 1 <= maxRow - 1 && grid[row + 1][col].element == ERASE) {
 					swap(row, col, row + 1, col);
 					break;
 				}
 				// Left or right movement
 				if ((int) (Math.random() * 2) == 0) {
 					// Left movement
-					if (grid[row][col - 1].element == ERASE) {
+					if (col - 1 >= 0 && grid[row][col - 1].element == ERASE) {
 						swap(row, col, row, col - 1);
 					}
 				} else {
 					// Right movement
-					if (grid[row][col + 1].element == ERASE) {
+					if (col + 1 <= maxCol - 1 && grid[row][col + 1].element == ERASE) {
 						swap(row, col, row, col + 1);
 					}
 					break;
@@ -210,12 +229,9 @@ public class SandLab {
 				}
 				break;
 			case FIRE:
-				if (row >= maxRow - 1) {
-					break;
-				}
 				break;
 			case SMOKE:
-				switch (chance(10, 2, 3, 6)) {
+				switch (chance(0, 2, 3, 6)) {
 					case 1:
 						// don't do anything; slow down smoke
 						break;
