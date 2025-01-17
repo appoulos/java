@@ -15,17 +15,18 @@ public class SandDisplay extends JComponent implements MouseListener,
 	// apoulos
 	private JColorChooser tcc;
 	private Color color;
-	public Color elemColors[] = new Color[] {
-			Color.black, // ERASE
-			new Color(128, 128, 128), // METAL
-			new Color(250, 220, 50), // SAND
-			new Color(46, 213, 255), // WATER
-			new Color(108, 69, 28), // WOOD
-			new Color(255, 64, 0), // FIRE
-			new Color(255, 255, 255), // SMOKE
-			new Color(255, 87, 51), // LASER
-			new Color(255, 87, 51), // NUKE
-	};
+	public Color elemColors[];
+	// public Color elemColors[] = new Color[] {
+	// Color.black, // ERASE
+	// new Color(128, 128, 128), // METAL
+	// new Color(250, 220, 50), // SAND
+	// new Color(46, 213, 255), // WATER
+	// new Color(108, 69, 28), // WOOD
+	// new Color(255, 64, 0), // FIRE
+	// new Color(255, 255, 255), // SMOKE
+	// new Color(255, 87, 51), // LASER
+	// new Color(255, 87, 51), // NUKE
+	// };
 
 	private int numRows;
 	private int numCols;
@@ -34,10 +35,11 @@ public class SandDisplay extends JComponent implements MouseListener,
 	private JSlider slider;
 	private int speed;
 
-	public SandDisplay(String title, int numRows, int numCols, String[] buttonNames) {
+	public SandDisplay(String title, int numRows, int numCols, String[] buttonNames, Color[] colors) {
 		this.numRows = numRows;
 		this.numCols = numCols;
-		tool = 2;
+		this.elemColors = colors;
+		tool = 2; // default tool
 		color = elemColors[tool];
 		mouseLoc = null;
 		speed = computeSpeed(50);
@@ -101,6 +103,9 @@ public class SandDisplay extends JComponent implements MouseListener,
 		frame.setVisible(true);
 
 		enterFullScreen();
+
+		// apoulos, initial color
+		tcc.setColor(elemColors[tool]);
 	}
 
 	public void paintComponent(Graphics g) {

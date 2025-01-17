@@ -54,8 +54,8 @@ public class SandLab {
 			System.out.println("Error: names.length must be equal to " + NUM_ELEMENTS);
 			System.exit(1);
 		}
-		display = new SandDisplay("Falling Sand", numRows, numCols, names);
-		display.elemColors = new Color[] {
+
+		Color[] colors = new Color[] {
 				Color.black, // ERASE
 				new Color(128, 128, 128), // METAL
 				new Color(250, 220, 50), // SAND
@@ -66,6 +66,7 @@ public class SandLab {
 				new Color(255, 87, 51), // LASER
 				new Color(255, 87, 51), // NUKE
 		};
+		display = new SandDisplay("Falling Sand", numRows, numCols, names, colors);
 		if (display.elemColors.length != NUM_ELEMENTS) {
 			System.out.println("Error: display.elemColors.length must be equal to " + NUM_ELEMENTS);
 			System.exit(1);
