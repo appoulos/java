@@ -54,6 +54,7 @@ public class SandDisplay extends JComponent implements MouseListener,
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));
 		topPanel.add(buttonPanel);
 
+		// apoulos, add exit button
 		JButton btnClose = new JButton("Exit");
 		btnClose.addActionListener(e -> System.exit(0));
 		buttonPanel.add(btnClose);
@@ -69,24 +70,10 @@ public class SandDisplay extends JComponent implements MouseListener,
 
 		buttons[tool].setSelected(true);
 
-		// JPanel buttonPanel2 = new JPanel();
-		// buttonPanel2.setLayout(new BoxLayout(buttonPanel2, BoxLayout.PAGE_AXIS));
-		// topPanel.add(buttonPanel2);
-		// // apoulos, exit button
-		// JButton btnClose = new JButton("Exit");
-		// btnClose.addActionListener(e -> System.exit(0));
-		// buttonPanel2.add(btnClose);
-
 		// apoulos, add color picker widget
 		tcc = new JColorChooser(Color.green);
 		tcc.getSelectionModel().addChangeListener(this);
-		// tcc.setBorder(BorderFactory.createTitledBorder(
-		// "Choose Text Color"));
 		frame.getContentPane().add(tcc);
-		// Create and set up the content pane.
-		// JComponent newContentPane = new ColorChooserDemo();
-		// newContentPane.setOpaque(true); // content panes must be opaque
-		// frame.setContentPane(newContentPane);
 
 		slider = new JSlider(JSlider.HORIZONTAL, 0, 100, 50);
 		slider.addChangeListener(this);
