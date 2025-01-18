@@ -16,17 +16,6 @@ public class SandDisplay extends JComponent implements MouseListener,
 	private JColorChooser tcc;
 	private Color color;
 	public Color elemColors[];
-	// public Color elemColors[] = new Color[] {
-	// Color.black, // ERASE
-	// new Color(128, 128, 128), // METAL
-	// new Color(250, 220, 50), // SAND
-	// new Color(46, 213, 255), // WATER
-	// new Color(108, 69, 28), // WOOD
-	// new Color(255, 64, 0), // FIRE
-	// new Color(255, 255, 255), // SMOKE
-	// new Color(255, 87, 51), // LASER
-	// new Color(255, 87, 51), // NUKE
-	// };
 
 	private int numRows;
 	private int numCols;
@@ -65,6 +54,10 @@ public class SandDisplay extends JComponent implements MouseListener,
 		buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.PAGE_AXIS));
 		topPanel.add(buttonPanel);
 
+		JButton btnClose = new JButton("Exit");
+		btnClose.addActionListener(e -> System.exit(0));
+		buttonPanel.add(btnClose);
+
 		buttons = new JButton[buttonNames.length];
 
 		for (int i = 0; i < buttons.length; i++) {
@@ -76,6 +69,15 @@ public class SandDisplay extends JComponent implements MouseListener,
 
 		buttons[tool].setSelected(true);
 
+		// JPanel buttonPanel2 = new JPanel();
+		// buttonPanel2.setLayout(new BoxLayout(buttonPanel2, BoxLayout.PAGE_AXIS));
+		// topPanel.add(buttonPanel2);
+		// // apoulos, exit button
+		// JButton btnClose = new JButton("Exit");
+		// btnClose.addActionListener(e -> System.exit(0));
+		// buttonPanel2.add(btnClose);
+
+		// apoulos, add color picker widget
 		tcc = new JColorChooser(Color.green);
 		tcc.getSelectionModel().addChangeListener(this);
 		// tcc.setBorder(BorderFactory.createTitledBorder(
