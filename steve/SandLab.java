@@ -134,7 +134,7 @@ public class SandLab {
 
 	// return a one based index based on the probabilities in args
 	// for example:
-	// chance(1, 3) ->
+	// chance(25, 75) ->
 	// return 1: 25% of the time (1/4)
 	// return 2: 75% (3/4)
 	public int chance(int... args) {
@@ -290,7 +290,7 @@ public class SandLab {
 				if (grid[row][col].fuel <= 0)
 					grid[row][col] = erase;
 				grid[row][col].fuel--;
-				switch (chance(2, 3, 6)) {
+				switch (chance(20, 30, 50)) {
 					case 1:
 						// Move smoke downward
 						if (row + 1 <= maxRow - 1 // oob check row
