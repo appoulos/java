@@ -493,7 +493,7 @@ public class Hello extends ConsoleProgram {
 		return max;
 	}
 
-	public int chance(int... args) {
+	public int chances(int... args) {
 		int tot = 0;
 		for (int num : args) {
 			tot += num;
@@ -511,8 +511,20 @@ public class Hello extends ConsoleProgram {
 		return 0;
 	}
 
+	boolean chance(int num, int denom) {
+		int ran = (int) (Math.random() * denom + 1);
+		// println("ran: " + ran);
+		if (ran <= num)
+			return true;
+		return false;
+	}
+
 	public void run() {
-		println(chance(1, 1));
+		for (int i = 0; i < 30; i++)
+			println(chance(1, 10));
+		// chance(1, 2);
+		if (true)
+			return;
 		int[] arr = { 1, 2, 3, 4, 5, 1, 6, 2, 7, 8, 9, 10, 11 };
 		println("maxSpan    : " + maxSpan(arr));
 		println("maxSpan2   : " + maxSpan2(arr));
