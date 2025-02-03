@@ -198,41 +198,6 @@ public class SandLab {
 		}
 	}
 
-	// return true num/denom of the time
-	public boolean chance(int num, int denom) {
-		int rnd = (int) (Math.random() * denom + 1);
-		if (rnd <= num)
-			return true;
-		return false;
-	}
-
-	// return a one based index based on the probabilities in args
-	// for example:
-	// chances(25, 75) ->
-	// return 1: 25% of the time (1/4)
-	// return 2: 75% (3/4)
-	// or as many groups as you like:
-	// chances(1, 2, 3) ->
-	// return 1: 1/6
-	// return 2: 2/6 = 1/3
-	// return 3: 3/6 = 1/2
-	public int chances(int... args) {
-		int tot = 0;
-		for (int num : args) {
-			tot += num;
-		}
-		int rnd = (int) (Math.random() * tot + 1);
-		int sum = 0;
-		int cnt = 0;
-		for (int num : args) {
-			cnt++;
-			sum += num;
-			if (rnd <= sum)
-				return cnt;
-		}
-		return 0;
-	}
-
 	// called repeatedly.
 	// causes one random particle to maybe do something.
 	public void step() {
@@ -333,325 +298,340 @@ public class SandLab {
 				}
 				break;
 			case FIRE:
-				if (chance(1, 2000)) {
+				int ra = (int) (Math.random() * 2000);
+				if (ra == 500) {
 					grid[row][col] = ERASE;
 				}
-				switch (chances(1, 1, 1, 1, 75)) {
-					case 1:
-						switch (getGrid(row, col, 0, 1)) {
-							case WOOD:
-								setGrid(row, col, 0, 1, FIRE);
-								for (int i = 0; i < 2; i++) {
-									if (chance(1, 10)) {
-										setGrid(row, col, i - 3, 0, SMOKE);
-									}
-								}
-								break;
-							case WATER:
-								setGrid(row, col, 0, 1, STEAM);
-								setGrid(row, col, 0, 0, ERASE);
-								for (int i = 0; i < 2; i++) {
-									if (chance(1, 10)) {
-										setGrid(row, col, i - 3, 0, STEAM);
-									}
-								}
-								break;
-						}
-						break;
-					case 2:
-						if (getGrid(row, col, 0, -1) == WOOD) {
-							int random = (int) (Math.random() * 150);
-							if (random > 147) {
-								setGrid(row, col, 0, -1, FIRE);
-								for (int i = 0; i < 2; i++) {
-									int ran = (int) (Math.random() * 10);
-									if (random > 8) {
-										setGrid(row, col, i - 3, 0, SMOKE);
-									}
-								}
-							}
-							if (getGrid(row, col, 0, -1) == WATER) {
-								random = (int) (Math.random() * 150);
-								if (random > 145) {
-									setGrid(row, col, 0, -1, STEAM);
-									setGrid(row, col, 0, 0, ERASE);
-									for (int i = 0; i < 2; i++) {
-										int ran = (int) (Math.random() * 10);
-										if (random > 8) {
-											setGrid(row, col, i - 3, 0, STEAM);
-										}
-									}
+				int r = (int) (Math.random() * 4);
+				if (r == 0) {
+					if (getGrid(row, col, 0, 1) == WOOD) {
+						int random = (int) (Math.random() * 150);
+						if (random > 147) {
+							setGrid(row, col, 0, 1, FIRE);
+							for (int i = 0; i < 2; i++) {
+								// int ran = (int)(Math.random() * 10);
+								// if (ran > 8) {
+								if (random > 8) {
+									setGrid(row, col, i - 3, 0, SMOKE);
 								}
 							}
 						}
-						break;
-					case 3:
-						if (getGrid(row, col, 1, 0) == WOOD) {
-							int random = (int) (Math.random() * 150);
-							if (random > 147) {
-								setGrid(row, col, 1, 0, FIRE);
-								for (int i = 0; i < 2; i++) {
-									int ran = (int) (Math.random() * 10);
-									if (random > 8) {
-										setGrid(row, col, i - 3, 0, SMOKE);
-									}
-								}
-							}
-						}
-						if (getGrid(row, col, 1, 0) == WATER) {
-							int random = (int) (Math.random() * 150);
-							if (random > 145) {
-								setGrid(row, col, 1, 0, STEAM);
-								setGrid(row, col, 0, 0, ERASE);
-								for (int i = 0; i < 2; i++) {
-									int ran = (int) (Math.random() * 10);
-									if (random > 8) {
-										setGrid(row, col, i - 3, 0, STEAM);
-									}
-								}
-							}
-						}
-						break;
-					case 4:
-						if (getGrid(row, col, -1, 0) == WOOD) {
-							int random = (int) (Math.random() * 150);
-							if (random > 147) {
-								setGrid(row, col, -1, 0, FIRE);
-								for (int i = 0; i < 2; i++) {
-									int ran = (int) (Math.random() * 10);
-									if (random > 8) {
-										setGrid(row, col, i - 3, 0, SMOKE);
-									}
-								}
-							}
-						}
-						if (getGrid(row, col, -1, 0) == WATER) {
-							int random = (int) (Math.random() * 150);
-							if (random > 145) {
-								setGrid(row, col, -1, 0, STEAM);
-								setGrid(row, col, 0, 0, ERASE);
-								for (int i = 0; i < 2; i++) {
-									int ran = (int) (Math.random() * 10);
-									if (random > 8) {
-										setGrid(row, col, i - 3, 0, STEAM);
-									}
-								}
-							}
-						}
-						// if (getGrid(row, col, 0, -1) == WOOD) {
-						// setGrid(row, col, 0, -1, FIRE);
-						// for (int i = 0; i < 20; i++) {
-						// setGrid(row, col, 2, 0, SMOKE);
-						// }
-						// setGrid(row, col, 0, -1, FIRE);
-						// break;
-						// }
-						break;
-					case LAVA:
-						if (row >= maxRow - 1) {
-							break;
-						}
-						if (getGrid(row, col, 1, 0) == WOOD) {
-							int someRan1 = (int) (Math.random() * 30);
-							if (someRan1 == 1) {
-								setGrid(row, col, 1, 0, FIRE);
-							}
-						} else if (getGrid(row, col, -1, 0) == WOOD) {
-							int someRan1 = (int) (Math.random() * 30);
-							if (someRan1 == 1) {
-								setGrid(row, col, -1, 0, FIRE);
-							}
-						} else if (getGrid(row, col, 0, -1) == WOOD) {
-							int someRan1 = (int) (Math.random() * 30);
-							if (someRan1 == 1) {
-								setGrid(row, col, 0, -1, FIRE);
-							}
-						} else if (getGrid(row, col, 0, 1) == WOOD) {
-							int someRan1 = (int) (Math.random() * 30);
-							if (someRan1 == 1) {
-								setGrid(row, col, 0, 1, FIRE);
-							}
-						}
-						if (getGrid(row, col, 0, 1) == WATER) {
+					}
+					if (getGrid(row, col, 0, 1) == WATER) {
+						int random = (int) (Math.random() * 150);
+						if (random > 145) {
 							setGrid(row, col, 0, 1, STEAM);
-							int someRan2 = (int) (Math.random() * 10);
-							if (someRan2 == 1) {
-								setGrid(row, col, 0, 0, OBSIDIAN);
-							}
-						} else if (getGrid(row, col, 0, -1) == WATER) {
-							setGrid(row, col, 0, -1, STEAM);
-							int someRan2 = (int) (Math.random() * 10);
-							if (someRan2 == 1) {
-								setGrid(row, col, 0, 0, OBSIDIAN);
-							}
-						} else if (getGrid(row, col, 1, 0) == WATER) {
-							setGrid(row, col, 1, 0, STEAM);
-							int someRan2 = (int) (Math.random() * 10);
-							if (someRan2 == 1) {
-								setGrid(row, col, 0, 0, OBSIDIAN);
-							}
-						} else if (getGrid(row, col, -1, 0) == WATER) {
-							setGrid(row, col, -1, 0, STEAM);
-							int someRan2 = (int) (Math.random() * 10);
-							if (someRan2 == 1) {
-								setGrid(row, col, 0, 0, OBSIDIAN);
-							}
-						}
-						int someRan3 = (int) ((Math.random() * 100) + 1);
-						if (someRan3 == 55 || someRan3 == 86) {
-							// to fall
-							if (getGrid(row, col, 1, 0) == ERASE) {
-								setGrid(row, col, 1, 0, g);
-								setGrid(row, col, ERASE);
-								break;
-							}
-							// move horizontally
-							int ran2 = (int) (Math.random() * 8);
-							if (ran2 == 1) {
-								// dxx = random number either -1 or 1 for random sideways movement
-								int dxxx = (int) (((Math.random() * 2) * 2) - 1);
-								if (getGrid(row, col, 0, dxxx) == ERASE) {
-									setGrid(row, col, 0, dxxx, g);
-									grid[row][col] = ERASE;
+							setGrid(row, col, 0, 0, ERASE);
+							for (int i = 0; i < 2; i++) {
+								int ran = (int) (Math.random() * 10);
+								if (random > 8) {
+									setGrid(row, col, i - 3, 0, STEAM);
 								}
 							}
 						}
+					}
+				} else if (r == 1) {
+					if (getGrid(row, col, 0, -1) == WOOD) {
+						int random = (int) (Math.random() * 150);
+						if (random > 147) {
+							setGrid(row, col, 0, -1, FIRE);
+							for (int i = 0; i < 2; i++) {
+								int ran = (int) (Math.random() * 10);
+								if (random > 8) {
+									setGrid(row, col, i - 3, 0, SMOKE);
+								}
+							}
+						}
+					}
+					if (getGrid(row, col, 0, -1) == WATER) {
+						int random = (int) (Math.random() * 150);
+						if (random > 145) {
+							setGrid(row, col, 0, -1, STEAM);
+							setGrid(row, col, 0, 0, ERASE);
+							for (int i = 0; i < 2; i++) {
+								int ran = (int) (Math.random() * 10);
+								if (random > 8) {
+									setGrid(row, col, i - 3, 0, STEAM);
+								}
+							}
+						}
+					}
+				} else if (r == 2) {
+					if (getGrid(row, col, 1, 0) == WOOD) {
+						int random = (int) (Math.random() * 150);
+						if (random > 147) {
+							setGrid(row, col, 1, 0, FIRE);
+							for (int i = 0; i < 2; i++) {
+								int ran = (int) (Math.random() * 10);
+								if (random > 8) {
+									setGrid(row, col, i - 3, 0, SMOKE);
+								}
+							}
+						}
+					}
+					if (getGrid(row, col, 1, 0) == WATER) {
+						int random = (int) (Math.random() * 150);
+						if (random > 145) {
+							setGrid(row, col, 1, 0, STEAM);
+							setGrid(row, col, 0, 0, ERASE);
+							for (int i = 0; i < 2; i++) {
+								int ran = (int) (Math.random() * 10);
+								if (random > 8) {
+									setGrid(row, col, i - 3, 0, STEAM);
+								}
+							}
+						}
+					}
+				} else if (r == 3) {
+					if (getGrid(row, col, -1, 0) == WOOD) {
+						int random = (int) (Math.random() * 150);
+						if (random > 147) {
+							setGrid(row, col, -1, 0, FIRE);
+							for (int i = 0; i < 2; i++) {
+								int ran = (int) (Math.random() * 10);
+								if (random > 8) {
+									setGrid(row, col, i - 3, 0, SMOKE);
+								}
+							}
+						}
+					}
+					if (getGrid(row, col, -1, 0) == WATER) {
+						int random = (int) (Math.random() * 150);
+						if (random > 145) {
+							setGrid(row, col, -1, 0, STEAM);
+							setGrid(row, col, 0, 0, ERASE);
+							for (int i = 0; i < 2; i++) {
+								int ran = (int) (Math.random() * 10);
+								if (random > 8) {
+									setGrid(row, col, i - 3, 0, STEAM);
+								}
+							}
+						}
+					}
+				}
+				// if (getGrid(row, col, 0, -1) == WOOD) {
+				// setGrid(row, col, 0, -1, FIRE);
+				// for (int i = 0; i < 20; i++) {
+				// setGrid(row, col, 2, 0, SMOKE);
+				// }
+				// setGrid(row, col, 0, -1, FIRE);
+				// break;
+				// }
+				break;
+			case LAVA:
+				if (getGrid(row, col, 1, 0) == WOOD) {
+					int someRan1 = (int) (Math.random() * 30);
+					if (someRan1 == 1) {
+						setGrid(row, col, 1, 0, FIRE);
+					}
+				} else if (getGrid(row, col, -1, 0) == WOOD) {
+					int someRan1 = (int) (Math.random() * 30);
+					if (someRan1 == 1) {
+						setGrid(row, col, -1, 0, FIRE);
+					}
+				} else if (getGrid(row, col, 0, -1) == WOOD) {
+					int someRan1 = (int) (Math.random() * 30);
+					if (someRan1 == 1) {
+						setGrid(row, col, 0, -1, FIRE);
+					}
+				} else if (getGrid(row, col, 0, 1) == WOOD) {
+					int someRan1 = (int) (Math.random() * 30);
+					if (someRan1 == 1) {
+						setGrid(row, col, 0, 1, FIRE);
+					}
+				}
+				if (getGrid(row, col, 0, 1) == WATER) {
+					setGrid(row, col, 0, 1, STEAM);
+					int someRan2 = (int) (Math.random() * 10);
+					if (someRan2 == 1) {
+						setGrid(row, col, 0, 0, OBSIDIAN);
+					}
+				} else if (getGrid(row, col, 0, -1) == WATER) {
+					setGrid(row, col, 0, -1, STEAM);
+					int someRan2 = (int) (Math.random() * 10);
+					if (someRan2 == 1) {
+						setGrid(row, col, 0, 0, OBSIDIAN);
+					}
+				} else if (getGrid(row, col, 1, 0) == WATER) {
+					setGrid(row, col, 1, 0, STEAM);
+					int someRan2 = (int) (Math.random() * 10);
+					if (someRan2 == 1) {
+						setGrid(row, col, 0, 0, OBSIDIAN);
+					}
+				} else if (getGrid(row, col, -1, 0) == WATER) {
+					setGrid(row, col, -1, 0, STEAM);
+					int someRan2 = (int) (Math.random() * 10);
+					if (someRan2 == 1) {
+						setGrid(row, col, 0, 0, OBSIDIAN);
+					}
+				}
+				int someRan3 = (int) ((Math.random() * 100) + 1);
+				if (someRan3 == 55 || someRan3 == 86) {
+					// to fall
+					if (getGrid(row, col, 1, 0) == ERASE) {
+						setGrid(row, col, 1, 0, g);
+						setGrid(row, col, ERASE);
 						break;
-					case SMOKE:
-						// tried and true smoke
-
-						// slow smoke down
-						int ran = (int) (Math.random() * 50);
-						if (ran < 47) {
-							break;
-						}
-
-						// Move smoke upward
-						ran = (int) (Math.random() * 4);
-						if (ran > 0) {
-							if (row - 1 >= 0 // oob check row
-									&& grid[row - 1][col] == ERASE) {
-								grid[row - 1][col] = g;
-								grid[row][col] = ERASE;
-								break;
-							}
-						}
-
-						// random left or right movement
-						ran = (int) (Math.random() * 2);
-						if (ran == 0) { // attempt to move right
-							if (col + 1 <= maxCol - 1 // oob check col
-									&& grid[row][col + 1] == ERASE) {
-								grid[row][col + 1] = g;
-								grid[row][col] = ERASE;
-							}
-						} else { // attempt to move left
-							if (col - 1 >= 0 // oob check col
-									&& grid[row][col - 1] == ERASE) {
-								grid[row][col - 1] = g;
-								grid[row][col] = ERASE;
-							}
-						}
-						if (getGrid(row, col, -1, 0) == WOOD) {
-							setGrid(row, col, -1, 0, grid[row][col]);
-							setGrid(row, col, WOOD);
-						}
-						int ra2 = (int) (Math.random() * 2000);
-						if (ra2 == 554) {
+					}
+					// move horizontally
+					int ran2 = (int) (Math.random() * 8);
+					if (ran2 == 1) {
+						// dxx = random number either -1 or 1 for random sideways movement
+						int dxxx = (int) (((Math.random() * 2) * 2) - 1);
+						if (getGrid(row, col, 0, dxxx) == ERASE) {
+							setGrid(row, col, 0, dxxx, g);
 							grid[row][col] = ERASE;
 						}
-						break;
-					case STEAM:
-						int ra1 = (int) (Math.random() * 50);
-						if (ra1 < 43) {
-							break;
-						}
-
-						// Move smoke upward
-						ran = (int) (Math.random() * 4);
-						if (ran > 0) {
-							if (row - 1 >= 0 // oob check row
-									&& grid[row - 1][col] == ERASE) {
-								grid[row - 1][col] = g;
-								grid[row][col] = ERASE;
-								break;
-							}
-						}
-
-						// random left or right movement
-						ran = (int) (Math.random() * 2);
-						if (ran == 0) { // attempt to move right
-							if (col + 1 <= maxCol - 1 // oob check col
-									&& grid[row][col + 1] == ERASE) {
-								grid[row][col + 1] = g;
-								grid[row][col] = ERASE;
-							}
-						} else { // attempt to move left
-							if (col - 1 >= 0 // oob check col
-									&& grid[row][col - 1] == ERASE) {
-								grid[row][col - 1] = g;
-								grid[row][col] = ERASE;
-							}
-						}
-						if (getGrid(row, col, -1, 0) == WOOD) {
-							setGrid(row, col, -1, 0, grid[row][col]);
-							setGrid(row, col, WOOD);
-							break;
-						}
-						break;
-					case LASER:
-						// old laser
-						/*
-						 * // Erases current laser
-						 * grid[row][col] = ERASE;
-						 * 
-						 * // Move laser down and to the right
-						 * if (row + 1 <= maxRow - 1 && col + 1 <= maxCol - 1) {
-						 * grid[row + 1][col + 1] = LASER;
-						 * }
-						 * break;
-						 */
-
-						// new laser
-
-						// Erases past laser
-						setGrid(row, col, 0, 0, ERASE);
-						// make new laser down and to right
-						setGrid(row, col, 1, 1, LASER);
-						break;
-					case NUKE:
-						// old nuke:
-						// Erases laser on an edge
-						// if (row == maxRow - 1 || col == maxCol - 1) {
-						// grid[row][col] = ERASE;
-						// }
-						// if (row + 1 <= maxRow - 1 && col + 1 <= maxCol - 1) {
-						// grid[row][col] = ERASE;
-						// grid[row + 1][col + 1] = NUKE;
-						// }
-						// if (row + 2 <= maxRow - 1 && col - 1 >= 0 && col <= maxCol - 1) {
-						// grid[row + 1][col - 1] = ERASE;
-						// grid[row + 2][col] = NUKE;
-						// }
-						// if (row <= maxRow - 1 && row - 1 >= 0 && col + 2 <= maxCol - 1) {
-						// grid[row - 1][col + 1] = ERASE;
-						// grid[row][col + 2] = NUKE;
-						// }
-						// break;
-
-						// erase current nuke
-						grid[row][col] = ERASE;
-
-						// add more nukes on next row
-						if (row + 1 <= maxRow - 1) {
-							for (int i = 0; i < 4; i++) {
-								if (col + i <= maxCol - 1) {
-									grid[row + 1][col + i] = NUKE;
-								}
-							}
-						}
-						break;
+					}
 				}
+				break;
+			case SMOKE:
+				// tried and true smoke
+
+				// slow smoke down
+				int ran = (int) (Math.random() * 50);
+				if (ran < 47) {
+					break;
+				}
+
+				// Move smoke upward
+				ran = (int) (Math.random() * 4);
+				if (ran > 0) {
+					if (row - 1 >= 0 // oob check row
+							&& grid[row - 1][col] == ERASE) {
+						grid[row - 1][col] = g;
+						grid[row][col] = ERASE;
+						break;
+					}
+				}
+
+				// random left or right movement
+				ran = (int) (Math.random() * 2);
+				if (ran == 0) { // attempt to move right
+					if (col + 1 <= maxCol - 1 // oob check col
+							&& grid[row][col + 1] == ERASE) {
+						grid[row][col + 1] = g;
+						grid[row][col] = ERASE;
+					}
+				} else { // attempt to move left
+					if (col - 1 >= 0 // oob check col
+							&& grid[row][col - 1] == ERASE) {
+						grid[row][col - 1] = g;
+						grid[row][col] = ERASE;
+					}
+				}
+				if (getGrid(row, col, -1, 0) == WOOD) {
+					setGrid(row, col, -1, 0, grid[row][col]);
+					setGrid(row, col, WOOD);
+				}
+				int ra2 = (int) (Math.random() * 2000);
+				if (ra2 == 554) {
+					grid[row][col] = ERASE;
+				}
+				break;
+			case STEAM:
+				int ra1 = (int) (Math.random() * 50);
+				if (ra1 < 44) {
+					break;
+				}
+
+				if (getGrid(row, col, -1, 0) == WATER ||
+						getGrid(row, col, -1, 0) == WOOD ||
+						getGrid(row, col, -1, 0) == SAND) {
+					// setGrid(row, col, 0, 0, );
+					int save = grid[row - 1][col];
+					setGrid(row, col, -1, 0, STEAM);
+					setGrid(row, col, 0, 0, save);
+				}
+
+				// Move smoke upward
+				ran = (int) (Math.random() * 4);
+				if (ran > 0) {
+					if (row - 1 >= 0 // oob check row
+							&& grid[row - 1][col] == ERASE) {
+						grid[row - 1][col] = g;
+						grid[row][col] = ERASE;
+						break;
+					}
+				}
+
+				// random left or right movement
+				ran = (int) (Math.random() * 2);
+				if (ran == 0) { // attempt to move right
+					if (col + 1 <= maxCol - 1 // oob check col
+							&& grid[row][col + 1] == ERASE) {
+						grid[row][col + 1] = g;
+						grid[row][col] = ERASE;
+					}
+				} else { // attempt to move left
+					if (col - 1 >= 0 // oob check col
+							&& grid[row][col - 1] == ERASE) {
+						grid[row][col - 1] = g;
+						grid[row][col] = ERASE;
+					}
+				}
+				if (getGrid(row, col, -1, 0) == WOOD) {
+					setGrid(row, col, -1, 0, grid[row][col]);
+					setGrid(row, col, WOOD);
+					break;
+				}
+				int ra3 = (int) (Math.random() * 2000);
+				if (ra3 == 600) {
+					grid[row][col] = ERASE;
+				}
+				break;
+			case LASER:
+				// old laser
+				/*
+				 * // Erases current laser
+				 * grid[row][col] = ERASE;
+				 * 
+				 * // Move laser down and to the right
+				 * if (row + 1 <= maxRow - 1 && col + 1 <= maxCol - 1) {
+				 * grid[row + 1][col + 1] = LASER;
+				 * }
+				 * break;
+				 */
+
+				// new laser
+
+				// Erases past laser
+				setGrid(row, col, 0, 0, ERASE);
+				// make new laser down and to right
+				setGrid(row, col, 1, 1, LASER);
+				break;
+			case NUKE:
+				// old nuke:
+				// Erases laser on an edge
+				// if (row == maxRow - 1 || col == maxCol - 1) {
+				// grid[row][col] = ERASE;
+				// }
+				// if (row + 1 <= maxRow - 1 && col + 1 <= maxCol - 1) {
+				// grid[row][col] = ERASE;
+				// grid[row + 1][col + 1] = NUKE;
+				// }
+				// if (row + 2 <= maxRow - 1 && col - 1 >= 0 && col <= maxCol - 1) {
+				// grid[row + 1][col - 1] = ERASE;
+				// grid[row + 2][col] = NUKE;
+				// }
+				// if (row <= maxRow - 1 && row - 1 >= 0 && col + 2 <= maxCol - 1) {
+				// grid[row - 1][col + 1] = ERASE;
+				// grid[row][col + 2] = NUKE;
+				// }
+				// break;
+
+				// erase current nuke
+				grid[row][col] = ERASE;
+
+				// add more nukes on next row
+				if (row + 1 <= maxRow - 1) {
+					for (int i = 0; i < 4; i++) {
+						if (col + i <= maxCol - 1) {
+							grid[row + 1][col + i] = NUKE;
+						}
+					}
+				}
+				break;
 		}
 	}
 
