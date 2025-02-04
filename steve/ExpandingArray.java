@@ -52,9 +52,19 @@ public class ExpandingArray {
 		if (isFull()) {
 			expand();
 		}
-		// shift elements to right by one to make room for element at index
-		for (int i = numElements; i > index; i--) {
-			arr[i] = arr[i - 1];
+		if (false) {
+			int t = arr[index];
+			for (int i = index + 1; i < arr.length; i++) {
+				int t2 = arr[i];
+				arr[i] = t;
+				System.out.println("t: " + t);
+				t = t2;
+			}
+		} else {
+			// shift elements to right by one to make room for element at index
+			for (int i = numElements; i > index; i--) {
+				arr[i] = arr[i - 1];
+			}
 		}
 		// add element at index
 		arr[index] = element;
@@ -130,14 +140,23 @@ public class ExpandingArray {
 	public static void main(String[] args) {
 		ExpandingArray arr = new ExpandingArray();
 
-		for (int i = 0; i < 9; i++) {
+		int n = 9;
+		for (int i = 0; i < n; i++) {
 			System.out.println("adding " + i);
 			arr.add(i);
 		}
 
-		// arr.add(1, 7);
-		System.out.println(arr.numElements);
-		System.out.println(arr.remove(8));
+		System.out.println("numElems: " + arr.numElements);
+		System.out.println(arr);
+		arr.add(1, 55);
+		System.out.println("numElems: " + arr.numElements);
+		// Thread.dumpStack();
+		// // StackTraceElement[] st = Thread.currentThread().getStackTrace();
+		// for (StackTraceElement s : Thread.currentThread().getStackTrace())
+		// System.out.println(s);
+		// if (n == 9)
+		// throw new RuntimeException("hi");
+		// System.out.println(arr.remove(8));
 		System.out.println(arr);
 
 		// for (int i = 0; i < arr.currentSize; i++) {
