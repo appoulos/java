@@ -1,4 +1,5 @@
 public class ExpandingArray {
+	static boolean prod = false;
 	private static final int STARTING_SIZE = 10;
 	private int[] arr;
 	private int currentSize;
@@ -15,7 +16,10 @@ public class ExpandingArray {
 	public int remove(int index) {
 		// sanity check input
 		if (index >= numElements) {
-			return -1;
+			if (!prod)
+				throw new IllegalArgumentException("index too big, index: " + index);
+			else
+				return -1;
 		}
 		// store return value
 		int result = arr[index];
@@ -52,12 +56,12 @@ public class ExpandingArray {
 		if (isFull()) {
 			expand();
 		}
-		if (false) {
+		if (true) {
 			int t = arr[index];
 			for (int i = index + 1; i < arr.length; i++) {
 				int t2 = arr[i];
 				arr[i] = t;
-				System.out.println("t: " + t);
+				// System.out.println("t: " + t);
 				t = t2;
 			}
 		} else {
@@ -138,6 +142,11 @@ public class ExpandingArray {
 	}
 
 	public static void main(String[] args) {
+		if (args.length > 0 && args[0].equals("prod")) {
+			prod = true;
+			System.out.println("prod now!");
+		} else
+			System.out.println("development mode now!");
 		ExpandingArray arr = new ExpandingArray();
 
 		int n = 9;
