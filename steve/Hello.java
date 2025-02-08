@@ -520,7 +520,12 @@ public class Hello extends ConsoleProgram {
 	}
 
 	public void run() {
-		for (int i = 0; i < 30; i++)
+		int codePoint = 0x1F600; // Example: U+1F600 GRINNING FACE EMOJI
+		int cp = 0x1f0c1;
+		println(
+				"a: " + new String(Character.toChars(codePoint)) + new String(Character.toChars(0x1f0c1)) + (char) codePoint
+						+ (char) cp + "\u2663\u25c6\uf004\u2660");
+		for (int i = 0; i < 3; i++)
 			println(chance(1, 10));
 		// chance(1, 2);
 		if (true)

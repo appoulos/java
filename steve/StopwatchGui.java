@@ -78,10 +78,19 @@ public class StopwatchGui {
 		frame.setSize(700, 400);
 		frame.setLayout(null);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		// Create a Font object with desired font family, style, and size
+		Font customFont = new Font("Monospace", Font.BOLD, 30);
+
+		// Set the font for the JFrame (will affect components without their own font
+		// set)
+		frame.setFont(customFont);
 
 		final JLabel lTime = setLabel("");
 		final JLabel lHelp1 = setLabel("Cube timer: Release space-bar to start and press space-bar to stop");
-		final JLabel lHelp2 = setLabel("G to start and S to stop, Q to quit");
+		final JLabel lHelp2 = setLabel("G to start and S to stop, Q to quit" + new String(Character.toChars(0x1f0c1)));
+		// Set the font for the JLabel
+		lHelp2.setFont(customFont);
+
 		lHelp1.setIcon(null); // to hide lsp warning about unused variable
 		lHelp2.setIcon(null); // to hide lsp warning about unused variable
 
