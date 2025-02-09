@@ -60,7 +60,8 @@ public class StopwatchGui {
 	static JLabel setLabel(String str) {
 		final int lineSpace = 40;
 		JLabel jl = new JLabel(str);
-		jl.setFont(new Font("Verdana", Font.PLAIN, 20));
+		// jl.setFont(new Font("Verdana", Font.PLAIN, 20));
+		jl.setFont(new Font("Monospace", Font.PLAIN, 20));
 		jl.setBounds(20, lineSpace * line++ + 10, 700, 40);
 		jl.setForeground(Color.white);
 		frame.add(jl);
@@ -75,7 +76,7 @@ public class StopwatchGui {
 		final int delay = 10; // delay to update running timer so cpu is not spinning
 		frame.getContentPane().setBackground(Color.black);
 		// System.setProperty("awt.useSystemAAFontSettings", "lcd");
-		frame.setSize(700, 400);
+		frame.setSize(700, 800);
 		frame.setLayout(null);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		// Create a Font object with desired font family, style, and size
@@ -87,9 +88,34 @@ public class StopwatchGui {
 
 		final JLabel lTime = setLabel("");
 		final JLabel lHelp1 = setLabel("Cube timer: Release space-bar to start and press space-bar to stop");
-		final JLabel lHelp2 = setLabel("G to start and S to stop, Q to quit" + new String(Character.toChars(0x1f0c1)));
+		final JLabel lHelp2 = setLabel(
+				"G to start and S to stop, Q to quit \u0041 \u25c6 " + new String(Character.toChars(0x1f0c1)));
 		// Set the font for the JLabel
 		lHelp2.setFont(customFont);
+
+		int aceSpades = 0x1f0a1;
+		int aceHearts = 0x1f0b1;
+		int aceDiamonds = 0x1f0c1;
+		int aceClubs = 0x1f0d1;
+		int[] aces = { aceClubs, aceDiamonds, aceHearts, aceSpades };
+		String cards = "";
+		for (int j = 0; j < 4; j++) {
+			// System.out.println("suit: " + suit);
+			for (int i = 0; i < 14; i++) {
+				if (i == 11) // skip C
+					continue;
+				cards += new String(Character.toChars(aces[j] + i));
+			}
+			cards += "\n";
+		}
+
+		final int lineHeight = 40;
+		JLabel lHelp3 = new JLabel(cards);
+		// jl.setFont(new Font("Verdana", Font.PLAIN, 20));
+		lHelp3.setFont(new Font("Monospace", Font.PLAIN, 20));
+		lHelp3.setBounds(20, lineHeight * line++ + 10, 700, 400);
+		lHelp3.setForeground(Color.white);
+		frame.add(lHelp3);
 
 		lHelp1.setIcon(null); // to hide lsp warning about unused variable
 		lHelp2.setIcon(null); // to hide lsp warning about unused variable
