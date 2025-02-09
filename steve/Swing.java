@@ -24,13 +24,16 @@ public class Swing {
 		ImageIcon c = new ImageIcon("cards/2_of_clubs.png");
 		ImageIcon d = null;
 		ImageIcon tile = null;
-
+		BufferedImage tiles = null;
 		try {
-			BufferedImage tiles = ImageIO.read(new File("cards/tiles.png"));
-			tile = new ImageIcon(tiles.getSubimage(207, 0, 207, 300));
+			tiles = ImageIO.read(new File("tiles.png"));
 		} catch (IOException e) {
 			System.err.println("Error reading image file: " + e.getMessage());
 			System.exit(1);
+		}
+		for (int i = 0; i < 52; i++) {
+			tile = new ImageIcon(tiles.getSubimage(207 * i, 0, 207, 300));
+			f.add(new JLabel(tile));
 		}
 		try {
 			BufferedImage originalImage = ImageIO.read(new File("cards/2_of_clubs.png"));
@@ -53,7 +56,6 @@ public class Swing {
 		f.add(l1);
 		JLabel l2 = new JLabel(d);
 		f.add(l2);
-		f.add(new JLabel(tile));
 
 		f.setSize(400, 400);
 		f.setLayout(new FlowLayout());
