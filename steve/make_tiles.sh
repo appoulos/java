@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# get zip file from: https://opengameart.org/content/playing-cards-vector-png
+
 ranks=(ace 2 3 4 5 6 7 8 9 10 jack queen king)
 files=()
 for suit in clubs diamonds hearts spades; do

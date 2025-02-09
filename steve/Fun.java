@@ -1,12 +1,12 @@
 class Fun {
-	private int a;
+	// private int a;
 
 	public Fun() {
-		a = 7;
+		// a = 7;
 	}
 
 	public Fun chain() {
-		a++;
+		// a++;
 		return this;
 	}
 
@@ -15,14 +15,14 @@ class Fun {
 	}
 
 	public String toString() {
-		return "a: " + a;
+		return "empty"; // "a: " + a;
 	}
 
 	public static void main(String[] args) {
 		Fun g = new Fun();
 		System.out.println(g.chain().chain().chain());
-		System.out.println(g.chain().chain().chain());
-		System.out.println(add(add(add(g.a))));
-		System.out.println(add(add(add(g.a))));
+		System.out.println(g.chain().chain().chain().chain().chain());
+		System.out.println(add(add(add(8))));
+		// System.out.println(add(add(add(g.a))));
 	}
 }
