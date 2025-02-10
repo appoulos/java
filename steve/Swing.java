@@ -1,6 +1,7 @@
 import javax.swing.*;
 
-import java.awt.*;
+// import java.awt.*;
+import java.awt.GridLayout;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -29,8 +30,8 @@ public class Swing {
 
 		// Create the JScrollPane
 		JScrollPane scrollPane = new JScrollPane(imagePanel);
-		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		// scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		// scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		// Add the JScrollPane to the frame
 		f.add(scrollPane);
