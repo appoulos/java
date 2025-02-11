@@ -278,6 +278,14 @@ class Dealer {
 		return true;
 	}
 
+	void showResults() {
+		if (players.size() == 0)
+			return;
+		out.println("Final results:");
+		for (Player player : players)
+			out.println(player);
+	}
+
 	@Override
 	public String toString() {
 		return "Dealer: " + name + ", hand: " + hand + ", value: " + hand.value();
@@ -376,8 +384,9 @@ public class BlackJack {
 			players.add(new Player(name));
 		}
 
+		Dealer dealer;
 		while (true) {
-			Dealer dealer = new Dealer("Bob", players);
+			dealer = new Dealer("Bob", players);
 			if (!dealer.newRound())
 				break;
 
@@ -390,6 +399,7 @@ public class BlackJack {
 				break;
 		}
 
+		dealer.showResults();
 		out.println("Thank you for playing");
 	}
 }
