@@ -47,6 +47,7 @@ class Deck {
 
 	Card getCard() {
 		if (cards.size() < 52 * numDecks / 2) {
+			out.println("New decks filled in shoe");
 			newDeck();
 		}
 		return cards.remove(0);
@@ -83,6 +84,10 @@ class Hand {
 		cards = new ArrayList<>();
 	}
 
+	void clear() {
+		cards.clear();
+	}
+
 	int value() {
 		int value = 0;
 		int aces = 0;
@@ -109,7 +114,6 @@ class Hand {
 				case "King":
 					value += 10;
 					break;
-				// default ->value += 0;
 			}
 			// switch (card.rank) {
 			// case "Ace" -> value += 1;
@@ -145,20 +149,26 @@ class Hand {
 class Dealer {
 	String name;
 	ArrayList<Player> players;
+	Hand hand;
 	Shoe shoe;
 
 	Dealer(String name, ArrayList<Player> players) {
 		this.name = name;
 		this.players = players;
+		hand = new Hand();
 		shoe = new Shoe(1);
 	}
 
 	void newRound() {
 		// deal two cards to every player
 		for (Player player : players) {
+			player.clearHand();
 			player.giveCard(shoe.getCard());
 			player.giveCard(shoe.getCard());
 		}
+		// dealer gets two cards
+		hand.addCard(shoe.getCard());
+		hand.addCard(shoe.getCard());
 
 		String turn;
 		for (Player player : players) {
@@ -169,16 +179,58 @@ class Dealer {
 					break;
 				player.giveCard(shoe.getCard());
 				if (player.hand.value() > 21) {
+					out.println(player);
 					out.println("Player " + player.name + " busts");
 					break;
 				}
 			}
 		}
 
-		out.println("Results: ");
+		ArrayList<Player> winners = new ArrayList<>();
+		int maxScore = 0;
 		for (Player player : players) {
-			out.println("" + player);
+			int score = player.hand.value();
+			if (score <= 21 && score > maxScore) {
+				maxScore = score;
+				winners.clear();
+				winners.add(player);
+			}
 		}
+
+		if (winners.size() == 0) {
+			out.println("Dealer wins");
+			return;
+		}
+
+		// Dealers turn
+		out.println("Dealers turn");
+		out.println(this);
+		while (hand.value() < maxScore && hand.value() != 21) {
+			out.println("Dealer hits");
+			hand.addCard(shoe.getCard());
+			out.println(this);
+			if (hand.value() > 21) {
+				out.println("Dealer busts");
+			}
+		}
+
+		// Show winners
+		if (hand.value() > maxScore && hand.value() <= 21)
+			out.println("Dealer wins");
+		else {
+			out.println("Winner(s): ");
+			for (Player winner : winners) {
+				out.println(winner);
+			}
+			// dealer
+			if (hand.value() >= maxScore && hand.value() <= 21)
+				out.println(this);
+		}
+	}
+
+	@Override
+	public String toString() {
+		return "Dealer: " + name + ", hand: " + hand + ", value: " + hand.value();
 	}
 }
 
@@ -195,13 +247,17 @@ class Player {
 		hand.addCard(card);
 	}
 
+	void clearHand() {
+		hand.clear();
+	}
+
 	int getHandValue() {
 		return hand.value();
 	}
 
 	@Override
 	public String toString() {
-		return "Name: " + name + ", hand: " + hand + ", value: " + hand.value();
+		return "  Name: " + name + ", hand: " + hand + ", value: " + hand.value();
 	}
 }
 
@@ -220,9 +276,21 @@ class Scan {
 				int n = Integer.parseInt(input);
 				return n;
 			} catch (NumberFormatException e) {
-
+				out.println("Invalid input. Please enter a number");
 			}
 		}
+	}
+
+	public static String readName(String prompt) {
+		String input;
+		while (true) {
+			input = readLine(prompt);
+			input = input.trim();
+			if (input.length() > 0 && input.length() <= 10)
+				break;
+			out.println("Invalid input. Name length must be between one and ten characters");
+		}
+		return input;
 	}
 }
 
@@ -232,35 +300,21 @@ public class BlackJack {
 		ArrayList<Player> players = new ArrayList<>();
 		out.println("Welcome to Black Jack");
 
-		Dealer dealer = new Dealer("Bob", players);
-
 		int numPlayers = Scan.readInt("How many players? ");
 
 		for (int i = 1; i <= numPlayers; i++) {
-			String name = Scan.readLine("Player " + i + " name? ");
+			String name = Scan.readName("Player " + i + " name? ");
 			players.add(new Player(name));
-
 		}
-		while (true) {
-			dealer.newRound();
 
-			ArrayList<Player> winners = new ArrayList<>();
-			int maxScore = 0;
-			for (Player player : players) {
-				int score = player.hand.value();
-				if (score > maxScore) {
-					maxScore = score;
-					winners.clear();
-					winners.add(player);
-				}
-			}
-			out.println("Winner(s): ");
-			for (Player winner : winners) {
-				out.println(winner);
-			}
+		while (true) {
+			Dealer dealer = new Dealer("Bob", players);
+			dealer.newRound();
 			String again = Scan.readLine("Again (Y/n)? ");
 			if (again.equals("n"))
 				break;
 		}
+
+		out.println("Thank you for playing");
 	}
 }
