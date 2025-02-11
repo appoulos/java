@@ -450,7 +450,7 @@ public class BlackJack {
 
 	public static void main(String[] args) {
 		ArrayList<Player> players = new ArrayList<>();
-		out.println("Welcome to Blackjack");
+		out.println("Welcome to Blackjack\n");
 
 		int numDecks = Scan.readInt("How many decks in the shoe (1)? ", 1);
 		int ante = Scan.readInt("Ante (1)? ", 1);
@@ -476,10 +476,10 @@ public class BlackJack {
 			dealer.showResults(round);
 
 			if (!dealer.checkBalances()) {
-				out.println("No players with sufficient balance to play another round");
+				out.println("\nNo players with sufficient balance to play another round");
 				break;
 			}
-			String again = Scan.readLine("Again (Y/n)? ");
+			String again = Scan.readLine("\nAgain (Y/n)? ");
 			if (again.equals("n")) {
 				break;
 			}
