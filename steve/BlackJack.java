@@ -115,6 +115,10 @@ class Hand {
 		cards.clear();
 	}
 
+	boolean splitOption() {
+		return cards.get(0).getValue() == cards.get(1).getValue();
+	}
+
 	int value() {
 		int sum = 0;
 		int aces = 0;
@@ -129,6 +133,13 @@ class Hand {
 			aces--;
 		}
 		return sum;
+	}
+
+	Card getFirst() {
+		if (cards.size() > 0) {
+			return cards.get(0);
+		}
+		return null;
 	}
 
 	void addCard(Card c) {
@@ -152,21 +163,23 @@ class Dealer {
 	ArrayList<Player> players;
 	Hand hand;
 	Shoe shoe;
-	int ante;
+	int minBet;
+	int maxBet;
 	boolean showValues;
 
-	Dealer(String name, ArrayList<Player> players, int numDecks, int ante, boolean showValues) {
+	Dealer(String name, ArrayList<Player> players, int numDecks, int minBet, int maxBet, boolean showValues) {
 		this.name = name;
 		this.players = players;
 		hand = new Hand();
 		shoe = new Shoe(numDecks);
-		this.ante = ante;
+		this.minBet = minBet;
+		this.maxBet = maxBet;
 		this.showValues = showValues;
 	}
 
 	boolean checkBalances() {
 		for (Player player : players) {
-			if (player.getBalance() >= ante) {
+			if (player.getBalance() >= minBet) {
 				return true;
 			}
 		}
@@ -180,17 +193,15 @@ class Dealer {
 	 * @return false if no player has more than ante balance
 	 */
 	boolean newRound() {
-		int pot = ante; // dealer puts in initial ante
 		// bounce players with insufficient funds
 		for (int i = players.size() - 1; i >= 0; i--) {
 			Player player = players.get(i);
-			if (player.getBalance() < ante) {
+			if (player.getBalance() < minBet) {
 				out.println("Player " + player.getName()
 						+ " has insufficient balance. Removed from table with balance " + player.getBalance());
 				players.remove(i);
 			} else {
-				player.addBalance(-ante);
-				pot += ante;
+				player.addBalance(-Scan.readBet("" + player.getName() + " bet (" + minBet + ")? ", minBet, maxBet));
 			}
 		}
 
@@ -213,22 +224,29 @@ class Dealer {
 		for (Player player : players) {
 			out.println(player + (showValues ? ", Value: " + player.getHandValue() : ""));
 		}
-		// dealer hand
-		out.println(this + (showValues ? ", Value: " + hand.value() : ""));
+		// dealer hand hide one card
+		// todo: show both cards if dealer has blackjack
+		out.println(hand.getFirst() + ", \uf656");
 
 		// start hit/stand for each player
-		String turn;
+		String choice;
 		for (Player player : players) {
+			int turn = 0;
 			out.println("\n***** Player " + player.getName() + "'s turn *****");
 			while (true) {
+				turn++;
 				out.println(player.getHand());
 				if (player.getHandValue() == 21) {
 					out.println("Player " + player.name + " blackjack");
 					break;
 				}
-				turn = Scan.readLine("(H)it or (s)tand? ");
-				if (turn.equalsIgnoreCase("s")) {
-					break;
+				if (turn == 1 && player.splitOption()) {
+					choice = Scan.readLine("(h)it, (s)tand, (d)ouble down, sp(L)it, s(u)rrender ? ");
+				} else {
+					choice = Scan.readLine("(H)it, (s)tand, s(u)rrender? ");
+					if (choice.equalsIgnoreCase("s")) {
+						break;
+					}
 				}
 				player.giveCard(shoe.getCard());
 				if (player.getHandValue() > 21) {
@@ -261,7 +279,8 @@ class Dealer {
 		// Dealers turn
 		out.println("\n***** Dealers turn *****");
 		out.println(this + (showValues ? ", Value: " + hand.value() : ""));
-		while (hand.value() < maxScore && hand.value() != 21) {
+		// Dealer rule must hit below 17
+		while (hand.value() < 17) {
 			out.println("Dealer hits");
 			hand.addCard(shoe.getCard());
 			out.println(this + (showValues ? ", Value: " + hand.value() : ""));
@@ -291,14 +310,10 @@ class Dealer {
 				return true;
 			}
 
-			// Give winnings. Dealer keeps the remainder
-			int winnerPot = pot / numWinners;
-			if (winners.size() > 0) {
-				// out.println("Winners each receive " + winnerPot);
-				for (Player winner : winners) {
-					winner.addBalance(winnerPot);
-					out.println("New balance for " + winner.getName() + " is " + winner.getBalance());
-				}
+			// Give winnings
+			for (Player winner : winners) {
+				winner.addBalance(winner.getBet());
+				out.println("New balance for " + winner.getName() + " is " + winner.getBalance());
 			}
 		}
 		return true;
@@ -315,6 +330,11 @@ class Dealer {
 		out.println(this + ", value: " + hand.value());
 	}
 
+	// void String holeHand() {
+	// // String str="";
+	// return "Dealer: "+name+", hand: "+hand;
+	// }
+
 	@Override
 	public String toString() {
 		return "Dealer: " + name + ", hand: " + hand;
@@ -325,6 +345,7 @@ class Player {
 	String name;
 	Hand hand;
 	int balance;
+	int bet;
 
 	Player(String name, int balance) {
 		this.name = name;
@@ -337,12 +358,24 @@ class Player {
 		return name;
 	}
 
+	int getBet() {
+		return bet;
+	}
+
+	void setBet(int bet) {
+		this.bet = bet;
+	}
+
 	int getBalance() {
 		return balance;
 	}
 
 	Hand getHand() {
 		return hand;
+	}
+
+	boolean splitOption() {
+		return hand.splitOption();
 	}
 
 	void giveCard(Card card) {
@@ -380,6 +413,30 @@ class Scan {
 			String input = readLine(prompt);
 			try {
 				int n = Integer.parseInt(input);
+				return n;
+			} catch (NumberFormatException e) {
+				out.println("Invalid input. Please enter a number");
+			}
+		}
+	}
+
+	public static int readBet(String prompt, int min, int max) {
+		int n;
+		while (true) {
+			String input = readLine(prompt);
+			input = input.trim();
+			if (input.length() == 0) {
+				return min;
+			}
+			try {
+				n = Integer.parseInt(input);
+				if (n > max) {
+					out.println("Max bet is " + max + ". Try again");
+					continue;
+				} else if (n < min) {
+					out.println("Min bet is " + min + ". Try again");
+					continue;
+				}
 				return n;
 			} catch (NumberFormatException e) {
 				out.println("Invalid input. Please enter a number");
@@ -444,6 +501,29 @@ class Scan {
 			out.println("Invalid input. Please enter 'y' or 'n'");
 		}
 	}
+
+	public static String readChoice(String prompt, String default_, String choices) {
+		String input;
+		char[] charArray = choices.toCharArray();
+		prompt_: while (true) {
+			input = readLine(prompt);
+			input = input.trim();
+			switch (input.length()) {
+				case 0:
+					return default_;
+				case 1:
+					for (char choice : charArray) {
+						if (input.charAt(0) == choice)
+							break prompt_;
+					}
+					break;
+				default:
+					out.println("Invalid input. Please enter one letter from \"" + choices + "\"");
+			}
+		}
+		return input;
+	}
+
 }
 
 public class BlackJack {
@@ -453,10 +533,11 @@ public class BlackJack {
 		out.println("Welcome to Blackjack\n");
 
 		int numDecks = Scan.readInt("How many decks in the shoe (1)? ", 1);
-		int ante = Scan.readInt("Ante (1)? ", 1);
+		int minBet = Scan.readInt("Min bet (1)? ", 1);
+		int maxBet = Scan.readInt("Min bet (" + minBet * 2 + ")? ", minBet * 2);
 		boolean showValues = Scan.readBoolean("Show hand values (y/N)? ", "N");
 		int numPlayers = Scan.readInt("How many players (1)? ", 1);
-		int defBalance = Math.max(ante, 1);
+		int defBalance = Math.max(minBet * 2, 1);
 		int numBalance = Scan.readInt("Starting balance (" + defBalance + ")? ", defBalance);
 
 		for (int i = 1; i <= numPlayers; i++) {
@@ -468,7 +549,7 @@ public class BlackJack {
 		int round = 0;
 		while (true) {
 			round++;
-			dealer = new Dealer("Bob", players, numDecks, ante, showValues);
+			dealer = new Dealer("Bob", players, numDecks, minBet, maxBet, showValues);
 			if (!dealer.newRound()) {
 				break;
 			}
