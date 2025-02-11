@@ -152,6 +152,8 @@ class Dealer {
 	Hand hand;
 	Shoe shoe;
 
+	static int ante = 1;
+
 	Dealer(String name, ArrayList<Player> players) {
 		this.name = name;
 		this.players = players;
@@ -159,7 +161,28 @@ class Dealer {
 		shoe = new Shoe(1);
 	}
 
-	void newRound() {
+	boolean checkBalances() {
+		for (Player player : players) {
+			if (player.getBalance() >= ante)
+				return true;
+		}
+		return false;
+	}
+
+	boolean newRound() {
+		// bounce players with insufficient funds
+		for (int i = players.size() - 1; i >= 0; i--) {
+			Player player = players.get(i);
+			if (player.getBalance() < ante) {
+				out.println("Player " + (i + 1) + ", name: " + player.name + " has insufficient balance. Removed from table");
+				players.remove(i);
+			} else
+				player.addBalance(-ante);
+		}
+
+		if (players.size() == 0)
+			return false;
+
 		// deal two cards to every player
 		for (Player player : players) {
 			player.clearHand();
@@ -170,22 +193,33 @@ class Dealer {
 		hand.addCard(shoe.getCard());
 		hand.addCard(shoe.getCard());
 
-		String turn;
+		// show player hands
 		for (Player player : players) {
+			out.println(player);
+		}
+		// dealer hand
+		out.println(this);
+
+		// start hit/stand for each player
+		String turn;
+		int i = 0;
+		for (Player player : players) {
+			i++;
 			while (true) {
 				out.println(player);
-				turn = Scan.readLine("Player " + player.name + " (H)it or (s)tand? ");
+				turn = Scan.readLine("Player " + i + ", name: " + player.name + " (H)it or (s)tand? ");
 				if (turn.equals("s"))
 					break;
 				player.giveCard(shoe.getCard());
 				if (player.hand.value() > 21) {
 					out.println(player);
-					out.println("Player " + player.name + " busts");
+					out.println("Player " + i + ", name: " + player.name + " busts");
 					break;
 				}
 			}
 		}
 
+		// Get winners of players (not including dealer)
 		ArrayList<Player> winners = new ArrayList<>();
 		int maxScore = 0;
 		for (Player player : players) {
@@ -199,7 +233,7 @@ class Dealer {
 
 		if (winners.size() == 0) {
 			out.println("Dealer wins");
-			return;
+			return true;
 		}
 
 		// Dealers turn
@@ -221,11 +255,13 @@ class Dealer {
 			out.println("Winner(s): ");
 			for (Player winner : winners) {
 				out.println(winner);
+				winner.addBalance(1);
 			}
 			// dealer
 			if (hand.value() >= maxScore && hand.value() <= 21)
 				out.println(this);
 		}
+		return true;
 	}
 
 	@Override
@@ -237,10 +273,12 @@ class Dealer {
 class Player {
 	String name;
 	Hand hand;
+	int balance;
 
 	Player(String name) {
 		this.name = name;
 		hand = new Hand();
+		balance = 1;
 	}
 
 	void giveCard(Card card) {
@@ -253,6 +291,14 @@ class Player {
 
 	int getHandValue() {
 		return hand.value();
+	}
+
+	int getBalance() {
+		return balance;
+	}
+
+	void addBalance(int add) {
+		balance += add;
 	}
 
 	@Override
@@ -309,7 +355,13 @@ public class BlackJack {
 
 		while (true) {
 			Dealer dealer = new Dealer("Bob", players);
-			dealer.newRound();
+			if (!dealer.newRound())
+				break;
+
+			if (!dealer.checkBalances()) {
+				out.println("No players with sufficient balance to play another round");
+				break;
+			}
 			String again = Scan.readLine("Again (Y/n)? ");
 			if (again.equals("n"))
 				break;
