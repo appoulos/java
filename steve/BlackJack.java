@@ -156,6 +156,12 @@ class Dealer {
 		return false;
 	}
 
+	/**
+	 * Start new round.
+	 * 
+	 * @return true if any player has more than ante balance to start another round
+	 * @return false if no player has more than ante balance
+	 */
 	boolean newRound() {
 		int pot = ante; // dealer puts in initial ante
 		// bounce players with insufficient funds
@@ -166,7 +172,7 @@ class Dealer {
 				players.remove(i);
 			} else {
 				player.addBalance(-ante);
-				pot++;
+				pot += ante;
 			}
 		}
 
@@ -245,7 +251,7 @@ class Dealer {
 		else {
 			out.println("Winner(s): ");
 			for (Player winner : winners) {
-				out.println(winner);
+				out.println(winner.getName());
 				numWinners++;
 			}
 			// dealer
@@ -254,9 +260,19 @@ class Dealer {
 				numWinners++;
 			}
 
+			if (numWinners == 0) {
+				out.println("Error: nobody won this round");
+				return true;
+			}
+
+			// Give winnings. Dealer keeps the remainder
 			int winnerPot = pot / numWinners;
-			for (Player winner : winners) {
-				winner.addBalance(winnerPot);
+			if (winners.size() > 0) {
+				// out.println("Winners each receive " + winnerPot);
+				for (Player winner : winners) {
+					winner.addBalance(winnerPot);
+					out.println("New balance for " + winner.getName() + " is " + winner.getBalance());
+				}
 			}
 		}
 		return true;
@@ -279,6 +295,14 @@ class Player {
 		balance = 1;
 	}
 
+	String getName() {
+		return name;
+	}
+
+	int getBalance() {
+		return balance;
+	}
+
 	void giveCard(Card card) {
 		hand.addCard(card);
 	}
@@ -291,17 +315,13 @@ class Player {
 		return hand.value();
 	}
 
-	int getBalance() {
-		return balance;
-	}
-
 	void addBalance(int add) {
 		balance += add;
 	}
 
 	@Override
 	public String toString() {
-		return "  Name: " + name + ", hand: " + hand + ", value: " + hand.value();
+		return "  Name: " + name + ", balance: " + balance + ", hand: " + hand + ", value: " + hand.value();
 	}
 }
 
@@ -325,11 +345,16 @@ class Scan {
 		}
 	}
 
-	public static String readName(String prompt) {
+	public static String readName(String prompt, ArrayList<Player> players) {
 		String input;
-		while (true) {
+		prompt_: while (true) {
 			input = readLine(prompt);
 			input = input.trim();
+			for (Player player : players)
+				if (input.equals(player.getName())) {
+					out.println("Player name already taken. Please choose another");
+					continue prompt_;
+				}
 			if (input.length() > 0 && input.length() <= 10)
 				break;
 			out.println("Invalid input. Name length must be between one and ten characters");
@@ -347,7 +372,7 @@ public class BlackJack {
 		int numPlayers = Scan.readInt("How many players? ");
 
 		for (int i = 1; i <= numPlayers; i++) {
-			String name = Scan.readName("Player " + i + " name? ");
+			String name = Scan.readName("Player " + i + " name? ", players);
 			players.add(new Player(name));
 		}
 
