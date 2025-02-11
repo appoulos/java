@@ -26,7 +26,18 @@ class Card {
 
 	@Override
 	public String toString() {
-		return rank; // + " of " + suit;
+		String str = rank;
+		switch (suit) {
+			case "Clubs":
+				str += "\u2663";
+			case "Diamonds":
+				str += "\u2666";
+			case "Hearts":
+				str += "\uf004";
+			case "Spades":
+				str += "\u2660";
+		}
+		return str; // + " of " + suit;
 	}
 }
 
@@ -375,7 +386,7 @@ public class BlackJack {
 
 	public static void main(String[] args) {
 		ArrayList<Player> players = new ArrayList<>();
-		out.println("Welcome to Black Jack");
+		out.println("Welcome to Black Jack\u2663\u2666\uf004\u2660");
 
 		int numPlayers = Scan.readInt("How many players? ");
 
