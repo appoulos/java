@@ -166,8 +166,9 @@ class Dealer {
 
 	boolean checkBalances() {
 		for (Player player : players) {
-			if (player.getBalance() >= ante)
+			if (player.getBalance() >= ante) {
 				return true;
+			}
 		}
 		return false;
 	}
@@ -193,8 +194,9 @@ class Dealer {
 			}
 		}
 
-		if (players.size() == 0)
+		if (players.size() == 0) {
 			return false;
+		}
 
 		// deal two cards to every player
 		for (Player player : players) {
@@ -225,8 +227,9 @@ class Dealer {
 					break;
 				}
 				turn = Scan.readLine("(H)it or (s)tand? ");
-				if (turn.equalsIgnoreCase("s"))
+				if (turn.equalsIgnoreCase("s")) {
 					break;
+				}
 				player.giveCard(shoe.getCard());
 				if (player.getHandValue() > 21) {
 					out.println(player + (showValues ? ", Value: " + player.getHandValue() : ""));
@@ -269,9 +272,9 @@ class Dealer {
 
 		// Show winners
 		int numWinners = 0;
-		if (hand.value() > maxScore && hand.value() <= 21)
+		if (hand.value() > maxScore && hand.value() <= 21) {
 			out.println("\n***** Dealer wins *****");
-		else {
+		} else {
 			out.println("\n***** Winner(s) *****");
 			for (Player winner : winners) {
 				out.println(winner.getName());
@@ -302,12 +305,14 @@ class Dealer {
 	}
 
 	void showResults(int round) {
-		if (players.size() == 0)
+		if (players.size() == 0) {
 			return;
+		}
 		out.println("\n***** Round " + round + " results *****");
-		for (Player player : players)
-			out.println(player);
-		out.println(this);
+		for (Player player : players) {
+			out.println(player + ", value: " + player.getHandValue());
+		}
+		out.println(this + ", value: " + hand.value());
 	}
 
 	@Override
@@ -386,8 +391,9 @@ class Scan {
 		while (true) {
 			String input = readLine(prompt);
 			input = input.trim();
-			if (input.length() == 0)
+			if (input.length() == 0) {
 				return default_;
+			}
 			try {
 				int n = Integer.parseInt(input);
 				return n;
@@ -402,15 +408,18 @@ class Scan {
 		prompt_: while (true) {
 			input = readLine(prompt);
 			input = input.trim();
-			if (input.length() == 0)
+			if (input.length() == 0) {
 				input = default_;
-			for (Player player : players)
+			}
+			for (Player player : players) {
 				if (input.equals(player.getName())) {
 					out.println("Player name already taken. Please choose another name");
 					continue prompt_;
 				}
-			if (input.length() > 0 && input.length() <= 10)
+			}
+			if (input.length() > 0 && input.length() <= 10) {
 				break;
+			}
 			out.println("Invalid input. Name length must be between one and ten characters");
 		}
 		return input;
@@ -421,8 +430,9 @@ class Scan {
 			String input = readLine(prompt);
 			input = input.trim();
 
-			if (input.length() == 0)
+			if (input.length() == 0) {
 				input = default_;
+			}
 
 			if (input.equalsIgnoreCase("y")) {
 				return true;
@@ -459,8 +469,9 @@ public class BlackJack {
 		while (true) {
 			round++;
 			dealer = new Dealer("Bob", players, numDecks, ante, showValues);
-			if (!dealer.newRound())
+			if (!dealer.newRound()) {
 				break;
+			}
 
 			dealer.showResults(round);
 
@@ -469,8 +480,9 @@ public class BlackJack {
 				break;
 			}
 			String again = Scan.readLine("Again (Y/n)? ");
-			if (again.equals("n"))
+			if (again.equals("n")) {
 				break;
+			}
 		}
 
 		out.println("\nThank you for playing");
