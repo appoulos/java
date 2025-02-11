@@ -11,6 +11,19 @@ class Card {
 		this.suit = suit;
 	}
 
+	int getValue() {
+		switch (rank) {
+			case "Ace":
+				return 1;
+			case "Jack":
+			case "Queen":
+			case "King":
+				return 10;
+			default:
+				return Integer.valueOf(rank);
+		}
+	}
+
 	@Override
 	public String toString() {
 		return rank; // + " of " + suit;
@@ -89,45 +102,19 @@ class Hand {
 	}
 
 	int value() {
-		int value = 0;
+		int sum = 0;
 		int aces = 0;
 		for (Card card : cards) {
-			if (card.rank == "Ace")
+			int value = card.getValue();
+			if (value == 1)
 				aces++;
-			switch (card.rank) {
-				case "Ace":
-					value += 1;
-					break;
-				case "2":
-				case "3":
-				case "4":
-				case "5":
-				case "6":
-				case "7":
-				case "8":
-				case "9":
-				case "10":
-					value += Integer.valueOf(card.rank);
-					break;
-				case "Jack":
-				case "Queen":
-				case "King":
-					value += 10;
-					break;
-			}
-			// switch (card.rank) {
-			// case "Ace" -> value += 1;
-			// case "2", "3", "4", "5", "6", "7", "8", "9", "10" ->
-			// value = Integer.valueOf(card.rank);
-			// case "Jack", "Queen", "King" -> value += 10;
-			// default ->value += 0;
-			// }
+			sum += value;
 		}
-		while (aces > 0 && value + 10 <= 21) {
-			value += 10;
+		while (aces > 0 && sum + 10 <= 21) {
+			sum += 10;
 			aces--;
 		}
-		return value;
+		return sum;
 	}
 
 	void addCard(Card c) {
@@ -170,14 +157,17 @@ class Dealer {
 	}
 
 	boolean newRound() {
+		int pot = ante; // dealer puts in initial ante
 		// bounce players with insufficient funds
 		for (int i = players.size() - 1; i >= 0; i--) {
 			Player player = players.get(i);
 			if (player.getBalance() < ante) {
 				out.println("Player " + (i + 1) + ", name: " + player.name + " has insufficient balance. Removed from table");
 				players.remove(i);
-			} else
+			} else {
 				player.addBalance(-ante);
+				pot++;
+			}
 		}
 
 		if (players.size() == 0)
@@ -249,17 +239,25 @@ class Dealer {
 		}
 
 		// Show winners
+		int numWinners = 0;
 		if (hand.value() > maxScore && hand.value() <= 21)
 			out.println("Dealer wins");
 		else {
 			out.println("Winner(s): ");
 			for (Player winner : winners) {
 				out.println(winner);
-				winner.addBalance(1);
+				numWinners++;
 			}
 			// dealer
-			if (hand.value() >= maxScore && hand.value() <= 21)
+			if (hand.value() >= maxScore && hand.value() <= 21) {
 				out.println(this);
+				numWinners++;
+			}
+
+			int winnerPot = pot / numWinners;
+			for (Player winner : winners) {
+				winner.addBalance(winnerPot);
+			}
 		}
 		return true;
 	}
