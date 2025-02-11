@@ -30,10 +30,13 @@ class Card {
 		switch (suit) {
 			case "Clubs":
 				str += "\u2663";
+				break;
 			case "Diamonds":
 				str += "\u2666";
+				break;
 			case "Hearts":
 				str += "\uf004";
+				break;
 			case "Spades":
 				str += "\u2660";
 		}
@@ -149,14 +152,14 @@ class Dealer {
 	ArrayList<Player> players;
 	Hand hand;
 	Shoe shoe;
+	int ante = 1;
 
-	static int ante = 1;
-
-	Dealer(String name, ArrayList<Player> players) {
+	Dealer(String name, ArrayList<Player> players, int numDecks, int ante) {
 		this.name = name;
 		this.players = players;
 		hand = new Hand();
-		shoe = new Shoe(1);
+		shoe = new Shoe(numDecks);
+		this.ante = ante;
 	}
 
 	boolean checkBalances() {
@@ -201,6 +204,7 @@ class Dealer {
 		hand.addCard(shoe.getCard());
 
 		// show player hands
+		out.println("\n***** At the table *****");
 		for (Player player : players) {
 			out.println(player);
 		}
@@ -211,6 +215,7 @@ class Dealer {
 		String turn;
 		int i = 0;
 		for (Player player : players) {
+			out.println("\n***** Player " + player.getName() + "'s turn *****");
 			i++;
 			while (true) {
 				out.println(player);
@@ -230,21 +235,23 @@ class Dealer {
 		ArrayList<Player> winners = new ArrayList<>();
 		int maxScore = 0;
 		for (Player player : players) {
-			int score = player.hand.value();
+			int score = player.getHandValue();
 			if (score <= 21 && score > maxScore) {
 				maxScore = score;
 				winners.clear();
+				winners.add(player);
+			} else if (score == maxScore) {
 				winners.add(player);
 			}
 		}
 
 		if (winners.size() == 0) {
-			out.println("Dealer wins");
+			out.println("\n***** Dealer wins *****");
 			return true;
 		}
 
 		// Dealers turn
-		out.println("Dealers turn");
+		out.println("\n***** Dealers turn *****");
 		out.println(this);
 		while (hand.value() < maxScore && hand.value() != 21) {
 			out.println("Dealer hits");
@@ -258,21 +265,21 @@ class Dealer {
 		// Show winners
 		int numWinners = 0;
 		if (hand.value() > maxScore && hand.value() <= 21)
-			out.println("Dealer wins");
+			out.println("\n***** Dealer wins *****");
 		else {
-			out.println("Winner(s): ");
+			out.println("\n***** Winner(s) *****");
 			for (Player winner : winners) {
 				out.println(winner.getName());
 				numWinners++;
 			}
 			// dealer
 			if (hand.value() >= maxScore && hand.value() <= 21) {
-				out.println(this);
+				out.println(this.name);
 				numWinners++;
 			}
 
 			if (numWinners == 0) {
-				out.println("Error: nobody won this round");
+				out.println("Error: nobody won this round. This should not happen");
 				return true;
 			}
 
@@ -289,10 +296,10 @@ class Dealer {
 		return true;
 	}
 
-	void showResults() {
+	void showResults(int round) {
 		if (players.size() == 0)
 			return;
-		out.println("Final results:");
+		out.println("\n***** Round " + round + " results *****");
 		for (Player player : players)
 			out.println(player);
 	}
@@ -308,8 +315,9 @@ class Player {
 	Hand hand;
 	int balance;
 
-	Player(String name) {
+	Player(String name, int balance) {
 		this.name = name;
+		this.balance = balance;
 		hand = new Hand();
 		balance = 1;
 	}
@@ -364,11 +372,28 @@ class Scan {
 		}
 	}
 
-	public static String readName(String prompt, ArrayList<Player> players) {
+	public static int readInt(String prompt, int default_) {
+		while (true) {
+			String input = readLine(prompt);
+			input = input.trim();
+			if (input.length() == 0)
+				return default_;
+			try {
+				int n = Integer.parseInt(input);
+				return n;
+			} catch (NumberFormatException e) {
+				out.println("Invalid input. Please enter a number");
+			}
+		}
+	}
+
+	public static String readName(String prompt, ArrayList<Player> players, String default_) {
 		String input;
 		prompt_: while (true) {
 			input = readLine(prompt);
 			input = input.trim();
+			if (input.length() == 0)
+				input = default_;
 			for (Player player : players)
 				if (input.equals(player.getName())) {
 					out.println("Player name already taken. Please choose another");
@@ -388,16 +413,21 @@ public class BlackJack {
 		ArrayList<Player> players = new ArrayList<>();
 		out.println("Welcome to Black Jack\u2663\u2666\uf004\u2660");
 
-		int numPlayers = Scan.readInt("How many players? ");
+		int numDecks = Scan.readInt("How many decks in the shoe (1)? ", 1);
+		int ante = Scan.readInt("Ante (1)? ", 1);
+		int numPlayers = Scan.readInt("How many players (1)? ", 1);
+		int numBalance = Scan.readInt("Starting balance (1)? ", 1);
 
 		for (int i = 1; i <= numPlayers; i++) {
-			String name = Scan.readName("Player " + i + " name? ", players);
-			players.add(new Player(name));
+			String name = Scan.readName("Player " + i + " name (player" + i + ")? ", players, "player" + i);
+			players.add(new Player(name, numBalance));
 		}
 
 		Dealer dealer;
+		int round = 0;
 		while (true) {
-			dealer = new Dealer("Bob", players);
+			round++;
+			dealer = new Dealer("Bob", players, numDecks, ante);
 			if (!dealer.newRound())
 				break;
 
@@ -410,7 +440,7 @@ public class BlackJack {
 				break;
 		}
 
-		dealer.showResults();
-		out.println("Thank you for playing");
+		dealer.showResults(round);
+		out.println("\nThank you for playing\u2663\u2666\uf004\u2660");
 	}
 }
