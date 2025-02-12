@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.ArrayList;
 
 @SuppressWarnings("deprecation")
 
@@ -520,6 +521,17 @@ public class Hello extends ConsoleProgram {
 	}
 
 	public void run() {
+		ArrayList<Integer> al = new ArrayList<>();
+		al.add(7);
+		al.add(8);
+		// for (int i=0; i<al.size(); i++) {
+		int j=0;
+		for (int k: al) {
+			if (j==1) al.add(9);
+			println("arr("+j+"): "+k); //al.get(j));
+			j++;
+		}
+
 		int codePoint = 0x1F600; // Example: U+1F600 GRINNING FACE EMOJI
 		int cp = 0x1f0c1;
 		println(
