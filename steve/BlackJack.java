@@ -215,6 +215,13 @@ class Dealer {
 		return false;
 	}
 
+	boolean blackjack() {
+		if (hand.blackJack()) {
+			return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Start new round.
 	 * 
@@ -293,15 +300,20 @@ class Dealer {
 				}
 
 				// Balance required for split or double down
-				boolean canSplitOrDD = false;
+				boolean enoughBalance = false;
 				if (player.getBalance() >= player.getBet()) {
-					canSplitOrDD = true;
+					enoughBalance = true;
+				}
+
+				boolean twoCards = false;
+				if (playerHand.cards.size() == 2) {
+					twoCards = true;
 				}
 
 				// Double down option
 				String doubleDownPrompt = "";
 				String doubleDownkey = "";
-				if (canSplitOrDD && turn == 1) {
+				if (twoCards && !player.getDoubleDown() && enoughBalance && turn == 1) {
 					doubleDownPrompt = "(d)ouble down, ";
 					doubleDownkey = "d";
 				}
@@ -309,7 +321,7 @@ class Dealer {
 				// Split option
 				String splitPrompt = "";
 				String splitKey = "";
-				if (canSplitOrDD && player.numHands() < 4 && playerHand.splitOption()) {
+				if (twoCards && enoughBalance && player.numHands() < 4 && playerHand.splitOption()) {
 					splitPrompt = "sp(l)it, ";
 					splitKey = "l";
 				}
@@ -317,7 +329,7 @@ class Dealer {
 				// Surrender option
 				String surrenderPrompt = "";
 				String surrenderKey = "";
-				if (player.numHands() == 2) {
+				if (twoCards && player.numHands() < 2) {
 					surrenderPrompt = "s(u)rrender";
 					surrenderKey = "u";
 				}
@@ -341,6 +353,9 @@ class Dealer {
 					case 'd':
 						player.addBalance(-player.getBet());
 						player.setBet(player.getBet() * 2);
+						player.setDoubleDown();
+						out.println("New balance: " + player.getBalance());
+						out.println("New bet: " + player.getBet());
 						handNum--;
 						turn--;
 						break;
@@ -353,7 +368,8 @@ class Dealer {
 						break;
 					case 'u': // TODO: test don't allow after splitting
 						player.setSurrender(true);
-						player.setBet(player.getBet() / 2); // TODO: correct value?
+						player.addBalance(-(player.getBet() / 2)); // TODO: correct value?
+						out.println("New balance: " + player.getBalance());
 						break;
 					default:
 						out.println("Error: unreachable switch: " + choice);
@@ -401,9 +417,12 @@ class Dealer {
 			}
 			for (Hand playerHand : player.getHands()) {
 				int playerValue = playerHand.value();
-				if (playerValue > 21 || dealerValue > playerValue) {
+				if (playerValue > 21) {
 					continue;
 				}
+				// if (dealerValue > playerValue && dealerValue <= 21) {
+				// 	continue;
+				// }
 				if (playerValue > dealerValue || dealerValue > 21) {
 					float payout = 2.0f; // 1:1
 					if (playerHand.blackJack()) {
@@ -413,8 +432,10 @@ class Dealer {
 					out.println("Awarding " + winnings + " to player " + player.getName());
 					player.addBalance(winnings);
 				} else if (playerValue == dealerValue) {
-					out.println("Push " + player.getBet() + " to player " + player.getName());
-					player.addBalance(player.getBet());
+					if (blackjack() && playerHand.blackJack() || playerValue < 21) {
+						out.println("Push " + player.getBet() + " to player " + player.getName());
+						player.addBalance(player.getBet());
+					}
 				}
 			}
 		}
@@ -451,6 +472,7 @@ class Player {
 	int balance;
 	int bet;
 	boolean surrender;
+	boolean doubleDown;
 
 	Player(String name, int balance) {
 		this.name = name;
@@ -458,6 +480,15 @@ class Player {
 		hands = new ArrayList<Hand>();
 		balance = 1;
 		surrender = false;
+		doubleDown = false;
+	}
+
+	boolean getDoubleDown() {
+		return doubleDown;
+	}
+
+	void setDoubleDown() {
+		doubleDown = true;
 	}
 
 	boolean getSurrender() {
@@ -756,6 +787,7 @@ public class BlackJack {
 		out.println(" - Betting in increments of 10");
 		out.println(" - Resplit to 4");
 		out.println(" - After splitting aces, only one card will be dealt to each ace");
+		out.println(" - Cannot surrender after splitting your hand");
 		out.println();
 
 		Scan.useDefaults();
