@@ -77,7 +77,7 @@ class Deck {
 
 	Card getCard() {
 		if (cards.size() < 52 * numDecks / 4) { // cards left less than 25% restock shoe
-			out.println("New decks filled in shoe");
+			out.println("***** New decks filled in shoe *****");
 			newDeck();
 		}
 		return cards.remove(0);
@@ -223,7 +223,8 @@ class Dealer {
 						+ " has insufficient balance. Removed from table with balance " + player.getBalance());
 				players.remove(i);
 			} else {
-				int bet = Scan.readBet("" + player.getName() + " bet (" + minBet + ")? ", minBet, maxBet);
+				int bet = Scan.readBet("" + player.getName() + " bet", minBet,
+						Math.min(maxBet, player.getBalance()));
 				player.addBalance(-bet);
 				player.setBet(bet);
 			}
@@ -604,6 +605,7 @@ class Scan {
 	}
 
 	public static int readBet(String prompt, int min, int max) {
+		prompt += prompt + " (" + min + "-" + max + ")? ";
 		if (useDefaults) {
 			out.println(prompt + min);
 			return min;
@@ -618,10 +620,10 @@ class Scan {
 			try {
 				n = Integer.parseInt(input);
 				if (n > max) {
-					out.println("Max bet is " + max + ". Try again");
+					out.println("Max is " + max + ". Try again");
 					continue;
 				} else if (n < min) {
-					out.println("Min bet is " + min + ". Try again");
+					out.println("Min is " + min + ". Try again");
 					continue;
 				}
 				return n;
@@ -737,7 +739,7 @@ public class BlackJack {
 		out.println(" - After splitting aces, only one card will be dealt to each ace");
 
 		Scan.useDefaults();
-		int numDecks = Scan.readInt("How many decks in the shoe", 4);
+		int numDecks = Scan.readBet("How many decks in the shoe", 1, 8);
 		int minBet = Scan.readInt("Min bet", 1);
 		int maxBet = Scan.readInt("Max bet", minBet * 2);
 		boolean showValues = Scan.readBoolean("Show hand values", true);
