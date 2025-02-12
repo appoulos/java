@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 // Filename: MainClass.java
 class HelperClass {
     void helperMethod() {
@@ -5,7 +6,7 @@ class HelperClass {
     }
 }
 
-public class MultipleClassExample {
+public class MultiClassExample {
     public static void main(String[] args) {
         System.out.println("Main class method");
         HelperClass helper = new HelperClass();

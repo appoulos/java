@@ -442,7 +442,7 @@ class Dealer {
 			hand.addCard(shoe.getCard());
 			out.println(this + (showValues ? ", Value: " + hand.value() : ""));
 			if (hand.value() > 21) {
-				out.println("Dealer busts");
+				out.println("\n***** Dealer busts *****");
 			}
 		}
 
