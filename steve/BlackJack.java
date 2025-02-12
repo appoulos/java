@@ -271,7 +271,11 @@ class Dealer {
 
 		// dealer hand hide one card
 		// todo: show both cards if dealer has blackjack
-		out.println("Dealer: " + hand.getFirst() + ", \uf656");
+		if (blackjack()) {
+			out.println(this + " blackjack!");
+		} else {
+			out.println("Dealer: " + hand.getFirst() + ", \uf656");
+		}
 
 		// start hit/stand for each player
 		char choice;
