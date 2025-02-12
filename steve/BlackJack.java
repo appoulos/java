@@ -290,14 +290,27 @@ class Dealer {
 					break;
 				}
 
+				ArrayList<String> choices = new ArrayList<>();
+				ArrayList<Character> keys = new ArrayList<>();
+
 				// split ace cannot be hit
-				String hitPrompt = "(h)it, ";
-				String hitkey = "h";
-				if (playerHand.getSplit()
-						&& playerHand.getFirst().rank == "Ace") {
-					hitPrompt = "";
-					hitkey = "";
+				// String hitPrompt = "(h)it, ";
+				// String hitkey = "h";
+
+				// if (playerHand.getSplit()
+				// && playerHand.getFirst().rank == "Ace") {
+				// hitPrompt = "";
+				// hitkey = "";
+				// }
+
+				if (!playerHand.getSplit()
+						|| playerHand.getFirst().rank != "Ace") {
+					choices.add("(h)it");
+					keys.add('h');
 				}
+
+				choices.add("(s)tay");
+				keys.add('s');
 
 				// Balance required for split or double down
 				boolean enoughBalance = false;
@@ -311,32 +324,50 @@ class Dealer {
 				}
 
 				// Double down option
-				String doubleDownPrompt = "";
-				String doubleDownkey = "";
+				// String doubleDownPrompt = "";
+				// String doubleDownkey = "";
+				// if (twoCards && !player.getDoubleDown() && enoughBalance && turn == 1) {
+				// doubleDownPrompt = "(d)ouble down, ";
+				// doubleDownkey = "d";
+				// }
+
 				if (twoCards && !player.getDoubleDown() && enoughBalance && turn == 1) {
-					doubleDownPrompt = "(d)ouble down, ";
-					doubleDownkey = "d";
+					choices.add("(d)ouble down");
+					keys.add('d');
 				}
 
 				// Split option
-				String splitPrompt = "";
-				String splitKey = "";
+				// String splitPrompt = "";
+				// String splitKey = "";
+				// if (twoCards && enoughBalance && player.numHands() < 4 &&
+				// playerHand.splitOption()) {
+				// splitPrompt = "sp(l)it, ";
+				// splitKey = "l";
+				// }
+
 				if (twoCards && enoughBalance && player.numHands() < 4 && playerHand.splitOption()) {
-					splitPrompt = "sp(l)it, ";
-					splitKey = "l";
+					choices.add("sp(l)it");
+					keys.add('l');
 				}
 
 				// Surrender option
-				String surrenderPrompt = "";
-				String surrenderKey = "";
+				// String surrenderPrompt = "";
+				// String surrenderKey = "";
+				// if (twoCards && player.numHands() < 2) {
+				// surrenderPrompt = "s(u)rrender";
+				// surrenderKey = "u";
+				// }
+
 				if (twoCards && player.numHands() < 2) {
-					surrenderPrompt = "s(u)rrender";
-					surrenderKey = "u";
+					choices.add("s(u)rrender");
+					keys.add('u');
 				}
 
-				choice = Scan.readChoice(
-						hitPrompt + "(s)tand, " + doubleDownPrompt + splitPrompt + surrenderPrompt,
-						hitkey + "s" + doubleDownkey + splitKey + surrenderKey);
+				// choice = Scan.readChoice(
+				// hitPrompt + "(s)tand, " + doubleDownPrompt + splitPrompt + surrenderPrompt,
+				// hitkey + "s" + doubleDownkey + splitKey + surrenderKey);
+
+				choice = Scan.readChoice2(choices, keys);
 
 				switch (choice) {
 					case 'h':
@@ -366,16 +397,15 @@ class Dealer {
 						handNum--;
 						turn--;
 						break;
-					case 'u': // TODO: test don't allow after splitting
+					case 'u': // NOTE: test don't allow after splitting
 						player.setSurrender(true);
-						player.addBalance(-(player.getBet() / 2)); // TODO: correct value?
+						player.addBalance(-(player.getBet() / 2)); // NOTE: correct value?
 						out.println("New balance: " + player.getBalance());
 						break;
 					default:
 						out.println("Error: unreachable switch: " + choice);
 						System.exit(1);
 				}
-
 			}
 		}
 
@@ -421,7 +451,7 @@ class Dealer {
 					continue;
 				}
 				// if (dealerValue > playerValue && dealerValue <= 21) {
-				// 	continue;
+				// continue;
 				// }
 				if (playerValue > dealerValue || dealerValue > 21) {
 					float payout = 2.0f; // 1:1
@@ -590,9 +620,12 @@ class Scan {
 	static Scanner scan = new Scanner(System.in);
 	private static boolean useDefaults = false;
 
-	public static void useDefaults() {
-		out.println("Using defaults for prompts...");
-		useDefaults = true;
+	public static boolean getDefaults() {
+		return useDefaults;
+	}
+
+	public static void setDefaults(boolean b) {
+		useDefaults = b;
 	}
 
 	public static String readLine(String prompt) {
@@ -646,11 +679,13 @@ class Scan {
 	}
 
 	public static int readBet(String prompt, int min, int max) {
-		String minToMax = min + "-" + max;
+		String minToMax;
 		if (min == max) {
 			minToMax = "" + min;
+		} else {
+			minToMax = "("+min + ")-" + max;
 		}
-		prompt = prompt + " (" + minToMax + ")? ";
+		prompt = prompt + " [" + minToMax + "]? ";
 		if (useDefaults) {
 			out.println(prompt + min);
 			return min;
@@ -729,7 +764,7 @@ class Scan {
 
 	public static boolean readBoolean(String prompt, boolean default_) {
 		char yes = default_ ? 'Y' : 'y';
-		char no = default_ ? 'N' : 'n';
+		char no = default_ ? 'n' : 'N';
 		prompt += " (" + yes + "/" + no + ")? ";
 		if (useDefaults) {
 			out.println(prompt + (default_ ? 'Y' : 'N'));
@@ -751,6 +786,29 @@ class Scan {
 				return false;
 			}
 			out.println("Invalid input. Please enter 'y' or 'n'");
+		}
+	}
+
+	public static char readChoice2(ArrayList<String> choices, ArrayList<Character> keys) {
+		String prompt = "";
+		String sep = "";
+		for (String choice : choices) {
+			prompt += sep + choice;
+			sep = ", ";
+		}
+		String input;
+		while (true) {
+			input = readLine(prompt + "? ").trim();
+			switch (input.length()) {
+				case 1:
+					char choice = input.charAt(0);
+					if (keys.contains(choice)) {
+						return choice;
+					}
+					break;
+				default:
+					out.println("Invalid input. Please enter one letter from \"" + choices + "\"");
+			}
 		}
 	}
 
@@ -788,16 +846,33 @@ public class BlackJack {
 		out.println(" - Resplit to 4");
 		out.println(" - After splitting aces, only one card will be dealt to each ace");
 		out.println(" - Cannot surrender after splitting your hand");
-		out.println();
 
-		Scan.useDefaults();
-		int numDecks = Scan.readBet("How many decks in the shoe", 1, 8);
-		int minBet = 10; // Scan.readInt("Min bet", 10);
-		int maxBet = Scan.readInt("Max bet", minBet * 2);
-		boolean showValues = Scan.readBoolean("Show hand values", true);
-		int numPlayers = Scan.readInt("How many players", 1);
-		int defBalance = minBet * 10;
-		int numBalance = Scan.readInt("Starting balance", defBalance);
+		int numDecks;
+		int minBet;
+		int maxBet;
+		boolean showValues;
+		int numPlayers;
+		int defBalance;
+		int numBalance;
+
+		Scan.setDefaults(true);
+
+		while (true) {
+			out.println();
+			numDecks = Scan.readBet("How many decks in the shoe", 1, 8);
+			minBet = 10; // Scan.readInt("Min bet", 10);
+			maxBet = Scan.readInt("Max bet", minBet * 2);
+			showValues = Scan.readBoolean("Show hand values", true);
+			numPlayers = Scan.readInt("How many players", 1);
+			defBalance = minBet * 10;
+			numBalance = Scan.readInt("Starting balance", defBalance);
+			Scan.setDefaults(false);
+			out.println();
+			Scan.setDefaults(Scan.readBoolean("Use these defaults", true));
+			if (Scan.getDefaults()) {
+				break;
+			}
+		}
 
 		for (int i = 1; i <= numPlayers; i++) {
 			String name = Scan.readName("Player " + i + " name (player" + i + ")? ", players, "player" + i);
