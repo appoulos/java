@@ -381,7 +381,7 @@ class Dealer {
 						player.giveCard(shoe.getCard(), handNum);
 						if (player.getHandValue(handNum) > 21) {
 							out.println(player.print(showValues)); // + (showValues ? ", Value: " + player.getHandValue() : ""));
-							out.println("Player " + player.name + " busts");
+							out.println("\n***** Player " + player.name + " busts *****");
 							break;
 						}
 						handNum--;
@@ -885,6 +885,7 @@ public class BlackJack {
 				break;
 			}
 		}
+		Scan.setDefaults(false);
 
 		Dealer dealer = new Dealer("Bob", players, numDecks, minBet, maxBet, showValues);
 		int round = 0;
