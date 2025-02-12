@@ -69,11 +69,14 @@ class Deck {
 
 		// Shuffle
 		out.println("\n***** Shuffling deck(s) *****\n");
-		Collections.shuffle(cards);
-		// for (int i = cards.size(); i > 0; i--) {
-		// int rand = (int) (Math.random() * i);
-		// cards.add(cards.remove(rand));
-		// }
+		// Collections.shuffle(cards);
+		int rand;
+		for (int i = cards.size()-1; i > 0; i--) {
+			rand = (int) (Math.random() * i);
+			Card temp = cards.get(i);
+			cards.set(i, cards.get(rand));
+			cards.set(rand, temp);
+		}
 	}
 
 	Card getCard() {
@@ -232,19 +235,22 @@ class Dealer {
 	boolean newRound() {
 		hand.clear();
 
-		// bounce players with insufficient funds
+		// Bounce players with insufficient funds
 		for (int i = players.size() - 1; i >= 0; i--) {
 			Player player = players.get(i);
 			if (player.getBalance() < minBet) {
 				out.println("Player " + player.getName()
 						+ " has insufficient balance. Removed from table with balance " + player.getBalance());
 				players.remove(i);
-			} else {
-				int bet = Scan.readBet("" + player.getName() + " bet", minBet,
-						Math.min(maxBet, player.getBalance()));
-				player.addBalance(-bet);
-				player.setBet(bet);
 			}
+		}
+
+		// Get player bets
+		for (Player player : players) {
+			int bet = Scan.readBet("" + player.getName() + " bet", minBet,
+					Math.min(maxBet, player.getBalance()));
+			player.addBalance(-bet);
+			player.setBet(bet);
 		}
 
 		if (players.size() == 0) {
@@ -293,7 +299,7 @@ class Dealer {
 				out.println(player.getHand(handNum, showValues));
 
 				if (player.getHandValue(handNum) == 21) {
-					out.println("Player " + player.name + (playerHand.blackJack() ? " blackjack!" : " 21"));
+					out.println("\n***** Player " + player.name + (playerHand.blackJack() ? " blackjack!" : " 21 *****"));
 					Scan.readPause();
 					break;
 				}
@@ -511,7 +517,7 @@ class Player {
 	int balance;
 	int bet;
 	boolean surrender;
-	boolean doubleDown;
+	boolean doubleDown; // TODO: Move to Hand
 
 	Player(String name, int balance) {
 		this.name = name;
