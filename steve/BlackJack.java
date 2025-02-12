@@ -43,6 +43,10 @@ class Card {
 		}
 		return str; // + " of " + suit;
 	}
+
+	String getRank() {
+		return rank;
+	}
 }
 
 class Deck {
@@ -69,14 +73,14 @@ class Deck {
 
 		// Shuffle
 		out.println("\n***** Shuffling deck(s) *****\n");
-		// Collections.shuffle(cards);
-		int rand;
-		for (int i = cards.size()-1; i > 0; i--) {
-			rand = (int) (Math.random() * i);
-			Card temp = cards.get(i);
-			cards.set(i, cards.get(rand));
-			cards.set(rand, temp);
-		}
+		Collections.shuffle(cards);
+		// int rand;
+		// for (int i = cards.size()-1; i > 0; i--) {
+		// rand = (int) (Math.random() * i);
+		// Card temp = cards.get(i);
+		// cards.set(i, cards.get(rand));
+		// cards.set(rand, temp);
+		// }
 	}
 
 	Card getCard() {
@@ -114,6 +118,8 @@ class Shoe {
 class Hand {
 	ArrayList<Card> cards;
 	boolean split;
+	int bet;
+	boolean doubleDown;
 
 	Hand() {
 		cards = new ArrayList<>();
@@ -135,7 +141,7 @@ class Hand {
 		if (cards.size() != 2) {
 			return false;
 		}
-		return cards.get(0).getValue() == cards.get(1).getValue();
+		return cards.get(0).getRank() == cards.get(1).getRank();
 	}
 
 	boolean blackJack() {
@@ -307,16 +313,6 @@ class Dealer {
 				ArrayList<String> choices = new ArrayList<>();
 				ArrayList<Character> keys = new ArrayList<>();
 
-				// split ace cannot be hit
-				// String hitPrompt = "(h)it, ";
-				// String hitkey = "h";
-
-				// if (playerHand.getSplit()
-				// && playerHand.getFirst().rank == "Ace") {
-				// hitPrompt = "";
-				// hitkey = "";
-				// }
-
 				if (!playerHand.getSplit()
 						|| playerHand.getFirst().rank != "Ace") {
 					choices.add("(h)it");
@@ -337,49 +333,23 @@ class Dealer {
 					twoCards = true;
 				}
 
-				// Double down option
-				// String doubleDownPrompt = "";
-				// String doubleDownkey = "";
-				// if (twoCards && !player.getDoubleDown() && enoughBalance && turn == 1) {
-				// doubleDownPrompt = "(d)ouble down, ";
-				// doubleDownkey = "d";
-				// }
-
-				if (twoCards && !player.getDoubleDown() && enoughBalance && turn == 1) {
+				// This option allows you to double your initial bet and receive only
+				// one additional card, but you can only double down on your initial
+				// two cards, not after splitting
+				if (handNum == 1 && twoCards && !player.getDoubleDown() && enoughBalance && turn == 1) {
 					choices.add("(d)ouble down");
 					keys.add('d');
 				}
-
-				// Split option
-				// String splitPrompt = "";
-				// String splitKey = "";
-				// if (twoCards && enoughBalance && player.numHands() < 4 &&
-				// playerHand.splitOption()) {
-				// splitPrompt = "sp(l)it, ";
-				// splitKey = "l";
-				// }
 
 				if (twoCards && enoughBalance && player.numHands() < 4 && playerHand.splitOption()) {
 					choices.add("sp(l)it");
 					keys.add('l');
 				}
 
-				// Surrender option
-				// String surrenderPrompt = "";
-				// String surrenderKey = "";
-				// if (twoCards && player.numHands() < 2) {
-				// surrenderPrompt = "s(u)rrender";
-				// surrenderKey = "u";
-				// }
-
 				if (twoCards && player.numHands() < 2) {
 					choices.add("s(u)rrender");
 					keys.add('u');
 				}
-
-				// choice = Scan.readChoice(
-				// hitPrompt + "(s)tand, " + doubleDownPrompt + splitPrompt + surrenderPrompt,
-				// hitkey + "s" + doubleDownkey + splitKey + surrenderKey);
 
 				choice = Scan.readChoice2(choices, keys);
 
@@ -516,14 +486,15 @@ class Player {
 	ArrayList<Hand> hands;
 	int balance;
 	int bet;
+	boolean split;
 	boolean surrender;
-	boolean doubleDown; // TODO: Move to Hand
+	boolean doubleDown;
 
 	Player(String name, int balance) {
 		this.name = name;
 		this.balance = balance;
 		hands = new ArrayList<Hand>();
-		balance = 1;
+		split = false;
 		surrender = false;
 		doubleDown = false;
 	}
@@ -566,6 +537,7 @@ class Player {
 
 	void split(int numHand) {
 		Hand newHand = new Hand();
+		split = true;
 		newHand.setSplit();
 		newHand.addCard(hands.get(numHand).removeSecond());
 		hands.add(numHand + 1, newHand);
@@ -599,7 +571,14 @@ class Player {
 		hands.get(numHand).addCard(card);
 	}
 
+	boolean getSplit() {
+		return split;
+	}
+
 	void clearHand() {
+		split = false;
+		doubleDown = false;
+		surrender = false;
 		hands.clear();
 		hands.add(new Hand());
 	}
