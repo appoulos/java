@@ -605,7 +605,11 @@ class Scan {
 	}
 
 	public static int readBet(String prompt, int min, int max) {
-		prompt += prompt + " (" + min + "-" + max + ")? ";
+		String minToMax = min+"-"+max;
+		if (min==max) {
+			minToMax = ""+min;
+		}
+		prompt = prompt + " (" + minToMax + ")? ";
 		if (useDefaults) {
 			out.println(prompt + min);
 			return min;
