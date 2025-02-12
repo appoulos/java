@@ -294,6 +294,7 @@ class Dealer {
 
 				if (player.getHandValue(handNum) == 21) {
 					out.println("Player " + player.name + (playerHand.blackJack() ? " blackjack!" : " 21"));
+					Scan.readPause();
 					break;
 				}
 
@@ -382,6 +383,7 @@ class Dealer {
 						if (player.getHandValue(handNum) > 21) {
 							out.println(player.print(showValues)); // + (showValues ? ", Value: " + player.getHandValue() : ""));
 							out.println("\n***** Player " + player.name + " busts *****");
+							Scan.readPause();
 							break;
 						}
 						handNum--;
@@ -840,6 +842,9 @@ class Scan {
 		}
 	}
 
+	public static void readPause() {
+		readLine("Press enter to continue...");
+	}
 }
 
 public class BlackJack {
@@ -868,7 +873,7 @@ public class BlackJack {
 			out.println();
 			numDecks = Scan.readBet("How many decks in the shoe", 1, 8);
 			minBet = 10; // Scan.readInt("Min bet", 10);
-			maxBet = Scan.readInt("Max bet", minBet * 2);
+			maxBet = Scan.readInt("Max bet", minBet * 100);
 			showValues = Scan.readBoolean("Show hand values", true);
 			defBalance = minBet * 10;
 			numBalance = Scan.readInt("Starting balance", defBalance);
@@ -901,7 +906,7 @@ public class BlackJack {
 				out.println("\nNo players with sufficient balance to play another round");
 				break;
 			}
-			String again = Scan.readLine("\nAgain (Y/n)? ");
+			String again = Scan.readLine("\nAnother round (Y/n)? ");
 			if (again.equals("n")) {
 				break;
 			}
