@@ -1,6 +1,7 @@
 import static java.lang.System.out;
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Collections;
 
 class Card {
 	String rank;
@@ -67,12 +68,12 @@ class Deck {
 		}
 
 		// Shuffle
-		int deckSize = cards.size();
-		for (int i = 0; i < deckSize; i++) {
-			Card temp = cards.get(i);
-			cards.set((int) (Math.random() * deckSize), cards.get(i));
-			cards.set(i, temp);
-		}
+		out.println("\n***** Shuffling deck(s) *****\n");
+		Collections.shuffle(cards);
+		// for (int i = cards.size(); i > 0; i--) {
+		// int rand = (int) (Math.random() * i);
+		// cards.add(cards.remove(rand));
+		// }
 	}
 
 	Card getCard() {
@@ -229,6 +230,8 @@ class Dealer {
 	 * @return false if no player has more than ante balance
 	 */
 	boolean newRound() {
+		hand.clear();
+
 		// bounce players with insufficient funds
 		for (int i = players.size() - 1; i >= 0; i--) {
 			Player player = players.get(i);
@@ -683,7 +686,7 @@ class Scan {
 		if (min == max) {
 			minToMax = "" + min;
 		} else {
-			minToMax = "("+min + ")-" + max;
+			minToMax = "(" + min + ")-" + max;
 		}
 		prompt = prompt + " [" + minToMax + "]? ";
 		if (useDefaults) {
@@ -838,7 +841,6 @@ class Scan {
 public class BlackJack {
 
 	public static void main(String[] args) {
-		ArrayList<Player> players = new ArrayList<>();
 		out.println("Welcome to Blackjack\n");
 		out.println("Rules:");
 		out.println(" - Minimum bet 10");
@@ -854,6 +856,7 @@ public class BlackJack {
 		int numPlayers;
 		int defBalance;
 		int numBalance;
+		ArrayList<Player> players = new ArrayList<>();
 
 		Scan.setDefaults(true);
 
@@ -863,9 +866,14 @@ public class BlackJack {
 			minBet = 10; // Scan.readInt("Min bet", 10);
 			maxBet = Scan.readInt("Max bet", minBet * 2);
 			showValues = Scan.readBoolean("Show hand values", true);
-			numPlayers = Scan.readInt("How many players", 1);
 			defBalance = minBet * 10;
 			numBalance = Scan.readInt("Starting balance", defBalance);
+			numPlayers = Scan.readInt("How many players", 1);
+			players.clear();
+			for (int i = 1; i <= numPlayers; i++) {
+				String name = Scan.readName("Player " + i + " name (player" + i + ")? ", players, "player" + i);
+				players.add(new Player(name, numBalance));
+			}
 			Scan.setDefaults(false);
 			out.println();
 			Scan.setDefaults(Scan.readBoolean("Use these defaults", true));
@@ -874,16 +882,10 @@ public class BlackJack {
 			}
 		}
 
-		for (int i = 1; i <= numPlayers; i++) {
-			String name = Scan.readName("Player " + i + " name (player" + i + ")? ", players, "player" + i);
-			players.add(new Player(name, numBalance));
-		}
-
-		Dealer dealer;
+		Dealer dealer = new Dealer("Bob", players, numDecks, minBet, maxBet, showValues);
 		int round = 0;
 		while (true) {
 			round++;
-			dealer = new Dealer("Bob", players, numDecks, minBet, maxBet, showValues);
 			if (!dealer.newRound()) {
 				break;
 			}
