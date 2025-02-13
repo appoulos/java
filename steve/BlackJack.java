@@ -224,7 +224,15 @@ class Hand {
 	}
 
 	public String valueString(boolean showValue) {
-		return "(" + this.value() + ")";
+		return "(" + this.value() + ") " + this;
+	}
+
+	public boolean isDoubleDown() {
+		return doubleDown;
+	}
+
+	public void setDoubleDown() {
+		doubleDown = true;
 	}
 }
 
@@ -282,24 +290,23 @@ class Dealer {
 			}
 		}
 
+		if (players.size() == 0) {
+			return false;
+		}
+
 		// Get player bets
 		for (Player player : players) {
 			int bet = Scan.readBet("" + player.getName() + " bet", minBet,
 					Math.min(maxBet, player.getBalance()));
 			player.addBalance(-bet);
 			player.setBet(bet);
-		}
 
-		if (players.size() == 0) {
-			return false;
-		}
-
-		// deal two cards to every player
-		for (Player player : players) {
-			player.clearHand();
+			// deal two cards to every player
+			player.clearHand(bet);
 			player.giveCard(shoe.getCard(), 0);
 			player.giveCard(shoe.getCard(), 0);
 		}
+
 		// dealer gets two cards
 		hand.addCard(shoe.getCard());
 		hand.addCard(shoe.getCard());
@@ -367,7 +374,7 @@ class Dealer {
 					// This option allows you to double your initial bet and receive only
 					// one additional card, but you can only double down on your initial
 					// two cards, not after splitting
-					if (handNum == 1 && twoCards && !player.isDoubleDown() && enoughBalance && turn == 1) {
+					if (handNum == 1 && twoCards && !playerHand.isDoubleDown() && enoughBalance && turn == 1) {
 						choices.add("(d)ouble down");
 						keys.add('d');
 					}
@@ -399,8 +406,8 @@ class Dealer {
 							break;
 						case 'd':
 							player.addBalance(-player.getBet());
-							player.setBet(player.getBet() * 2);
-							player.setDoubleDown();
+							playerHand.setBet(player.getBet() * 2);
+							playerHand.setDoubleDown();
 							playerHand.addCard(shoe.getCard());
 							// player.giveCard(shoe.getCard(), handNum);
 							out.println("New balance: " + player.getBalance());
@@ -432,7 +439,7 @@ class Dealer {
 		for (Player player : players) {
 			for (Hand playerHand : player.getHands()) {
 				int score = playerHand.value();
-				if (score <= 21 && !player.getSurrender()) {
+				if (score <= 21 && !playerHand.isSurrender()) {
 					possibleWinners = true;
 				}
 			}
@@ -447,15 +454,17 @@ class Dealer {
 		}
 
 		// Dealers turn
-		out.println("\n***** Dealers turn *****");
-		out.println(this.toString(showValues));
-		// Dealer rule must hit below 17
-		while (hand.value() < 17) {
-			out.println("Dealer hits");
-			hand.addCard(shoe.getCard());
+		if (!blackjack()) {
+			out.println("\n***** Dealers turn *****");
 			out.println(this.toString(showValues));
-			if (hand.value() > 21) {
-				out.println("\n***** Dealer busts *****");
+			// Dealer rule must hit below 17
+			while (hand.value() < 17) {
+				out.println("Dealer hits");
+				hand.addCard(shoe.getCard());
+				out.println(this.toString(showValues));
+				if (hand.value() > 21) {
+					out.println("\n***** Dealer busts *****");
+				}
 			}
 		}
 
@@ -534,8 +543,8 @@ class Player {
 	int balance;
 	int bet;
 	boolean split;
-	boolean surrender;
-	boolean doubleDown;
+	// boolean surrender;
+	// boolean doubleDown;
 
 	Player(String name, int balance) {
 		this.name = name;
@@ -543,24 +552,24 @@ class Player {
 		hands = new ArrayList<Hand>();
 		split = false;
 		// surrender = false;
-		doubleDown = false;
+		// doubleDown = false;
 	}
 
 	public void surrender(int handNum) {
 		hands.get(handNum).setSurrender();
 	}
 
-	boolean isDoubleDown() {
-		return doubleDown;
-	}
+	// boolean isDoubleDown() {
+	// return doubleDown;
+	// }
 
-	void setDoubleDown() {
-		doubleDown = true;
-	}
+	// void setDoubleDown() {
+	// doubleDown = true;
+	// }
 
-	boolean getSurrender() {
-		return surrender;
-	}
+	// boolean getSurrender() {
+	// return surrender;
+	// }
 
 	String getName() {
 		return name;
@@ -622,10 +631,11 @@ class Player {
 		return split;
 	}
 
-	void clearHand() {
+	void clearHand(int bet) {
+		this.bet = bet;
 		split = false;
-		doubleDown = false;
-		surrender = false;
+		// doubleDown = false;
+		// surrender = false;
 		hands.clear();
 		hands.add(new Hand());
 	}
