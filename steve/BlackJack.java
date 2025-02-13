@@ -120,9 +120,32 @@ class Hand {
 	boolean split;
 	int bet;
 	boolean doubleDown;
+	boolean surrender;
 
 	Hand() {
 		cards = new ArrayList<>();
+		doubleDown = false;
+		surrender = false;
+	}
+
+	int getCardNum() {
+		return cards.size();
+	}
+
+	boolean isSurrender() {
+		return surrender;
+	}
+
+	void setSurrender(boolean surrender) {
+		this.surrender = surrender;
+	}
+
+	int getBet() {
+		return bet;
+	}
+
+	void setBet(int bet) {
+		this.bet = bet;
 	}
 
 	void setSplit() {
@@ -194,6 +217,14 @@ class Hand {
 			sep = ", ";
 		}
 		return str;
+	}
+
+	public void setSurrender() {
+		surrender = true;
+	}
+
+	public String valueString(boolean showValue) {
+		return "(" + this.value() + ")";
 	}
 }
 
@@ -286,110 +317,113 @@ class Dealer {
 		if (blackjack()) {
 			out.println(this + " blackjack!");
 		} else {
-			out.println("Dealer: " + hand.getFirst() + ", \uf656");
-		}
+			out.println("Dealer: " + "\uf656, " + hand.getFirst());
 
-		// start hit/stand for each player
-		char choice;
-		for (Player player : players) {
-			out.println("\n***** Player " + player.getName() + "'s turn *****");
+			// start hit/stand for each player
+			char choice;
+			for (Player player : players) {
+				out.println("\n***** Player " + player.getName() + "'s turn *****");
 
-			int turn = 0;
-			for (int handNum = 0; handNum < player.getHands().size(); handNum++) {
-				Hand playerHand = player.getHand(handNum);
-				turn++;
-				if (handNum > 0) {
-					out.println("Hand number: " + (handNum + 1));
-				}
+				int turn = 0;
+				for (int handNum = 0; handNum < player.getHands().size(); handNum++) {
+					Hand playerHand = player.getHand(handNum);
+					turn++;
+					if (handNum > 0) {
+						out.println("Hand number: " + (handNum + 1));
+					}
 
-				out.println(player.getHand(handNum, showValues));
+					// out.println(player.getHand(handNum, showValues));
+					out.println(playerHand.valueString(showValues));
 
-				if (player.getHandValue(handNum) == 21) {
-					out.println("\n***** Player " + player.name + (playerHand.blackJack() ? " blackjack!" : " 21 *****"));
-					Scan.readPause();
-					break;
-				}
+					if (playerHand.value() == 21) {
+						out.println("\n***** Player " + player.name + (playerHand.blackJack() ? " blackjack!" : " 21 *****"));
+						Scan.readPause();
+						break;
+					}
 
-				ArrayList<String> choices = new ArrayList<>();
-				ArrayList<Character> keys = new ArrayList<>();
+					ArrayList<String> choices = new ArrayList<>();
+					ArrayList<Character> keys = new ArrayList<>();
 
-				if (!playerHand.getSplit()
-						|| playerHand.getFirst().rank != "Ace") {
-					choices.add("(h)it");
-					keys.add('h');
-				}
+					if (!playerHand.getSplit()
+							|| playerHand.getFirst().rank != "Ace") {
+						choices.add("(h)it");
+						keys.add('h');
+					}
 
-				choices.add("(s)tay");
-				keys.add('s');
+					choices.add("(s)tay");
+					keys.add('s');
 
-				// Balance required for split or double down
-				boolean enoughBalance = false;
-				if (player.getBalance() >= player.getBet()) {
-					enoughBalance = true;
-				}
+					// Balance required for split or double down
+					boolean enoughBalance = false;
+					if (player.getBalance() >= player.getBet()) {
+						enoughBalance = true;
+					}
 
-				boolean twoCards = false;
-				if (playerHand.cards.size() == 2) {
-					twoCards = true;
-				}
+					boolean twoCards = false;
+					if (playerHand.getCardNum() == 2) {
+						twoCards = true;
+					}
 
-				// This option allows you to double your initial bet and receive only
-				// one additional card, but you can only double down on your initial
-				// two cards, not after splitting
-				if (handNum == 1 && twoCards && !player.getDoubleDown() && enoughBalance && turn == 1) {
-					choices.add("(d)ouble down");
-					keys.add('d');
-				}
+					// This option allows you to double your initial bet and receive only
+					// one additional card, but you can only double down on your initial
+					// two cards, not after splitting
+					if (handNum == 1 && twoCards && !player.isDoubleDown() && enoughBalance && turn == 1) {
+						choices.add("(d)ouble down");
+						keys.add('d');
+					}
 
-				if (twoCards && enoughBalance && player.numHands() < 4 && playerHand.splitOption()) {
-					choices.add("sp(l)it");
-					keys.add('l');
-				}
+					if (twoCards && enoughBalance && player.numHands() < 4 && playerHand.splitOption()) {
+						choices.add("sp(l)it");
+						keys.add('l');
+					}
 
-				if (twoCards && player.numHands() < 2) {
-					choices.add("s(u)rrender");
-					keys.add('u');
-				}
+					if (twoCards && player.numHands() < 2) {
+						choices.add("s(u)rrender");
+						keys.add('u');
+					}
 
-				choice = Scan.readChoice2(choices, keys);
+					choice = Scan.readChoice2(choices, keys);
 
-				switch (choice) {
-					case 'h':
-						player.giveCard(shoe.getCard(), handNum);
-						if (player.getHandValue(handNum) > 21) {
-							out.println(player.print(showValues)); // + (showValues ? ", Value: " + player.getHandValue() : ""));
-							out.println("\n***** Player " + player.name + " busts *****");
-							Scan.readPause();
+					switch (choice) {
+						case 'h':
+							player.giveCard(shoe.getCard(), handNum);
+							if (playerHand.value() > 21) {
+								out.println(player.print(showValues)); // + (showValues ? ", Value: " + player.getHandValue() : ""));
+								out.println("\n***** Player " + player.name + " busts *****");
+								Scan.readPause();
+								break;
+							}
+							handNum--; // Don't go to next hand
 							break;
-						}
-						handNum--;
-						break;
-					case 's':
-						break;
-					case 'd':
-						player.addBalance(-player.getBet());
-						player.setBet(player.getBet() * 2);
-						player.setDoubleDown();
-						out.println("New balance: " + player.getBalance());
-						out.println("New bet: " + player.getBet());
-						handNum--;
-						turn--;
-						break;
-					case 'l':
-						player.split(handNum);
-						player.giveCard(shoe.getCard(), handNum);
-						player.giveCard(shoe.getCard(), handNum + 1);
-						handNum--;
-						turn--;
-						break;
-					case 'u': // NOTE: test don't allow after splitting
-						player.setSurrender(true);
-						player.addBalance(-(player.getBet() / 2)); // NOTE: correct value?
-						out.println("New balance: " + player.getBalance());
-						break;
-					default:
-						out.println("Error: unreachable switch: " + choice);
-						System.exit(1);
+						case 's':
+							break;
+						case 'd':
+							player.addBalance(-player.getBet());
+							player.setBet(player.getBet() * 2);
+							player.setDoubleDown();
+							playerHand.addCard(shoe.getCard());
+							// player.giveCard(shoe.getCard(), handNum);
+							out.println("New balance: " + player.getBalance());
+							out.println("New bet: " + player.getBet());
+							handNum--; // Don't go to next hand
+							turn--;
+							break;
+						case 'l':
+							player.split(handNum);
+							// playerHand.addCard(shoe.getCard());
+							player.giveCard(shoe.getCard(), handNum);
+							player.giveCard(shoe.getCard(), handNum + 1);
+							handNum--; // Don't go to next hand
+							turn--;
+							break;
+						case 'u': // NOTE: test don't allow after splitting
+							playerHand.setSurrender();
+							// out.println("New balance: " + player.getBalance());
+							break;
+						default:
+							out.println("Error: unreachable switch: " + choice);
+							System.exit(1);
+					}
 				}
 			}
 		}
@@ -406,51 +440,62 @@ class Dealer {
 
 		// if (maxScore < hand.value()) {
 		if (!possibleWinners) {
+			for (Player player : players) {
+				out.println(player.getName() + " forfeits bet");
+			}
 			return true;
 		}
 
 		// Dealers turn
 		out.println("\n***** Dealers turn *****");
-		out.println(this + (showValues ? ", Value: " + hand.value() : ""));
+		out.println(this.toString(showValues));
 		// Dealer rule must hit below 17
 		while (hand.value() < 17) {
 			out.println("Dealer hits");
 			hand.addCard(shoe.getCard());
-			out.println(this + (showValues ? ", Value: " + hand.value() : ""));
+			out.println(this.toString(showValues));
 			if (hand.value() > 21) {
 				out.println("\n***** Dealer busts *****");
 			}
 		}
 
-		out.println("\n***** Winnings *****");
+		out.println("\n***** Results *****");
 		// if (hand.value() <= 21) {
-		int dealerValue = hand.value();
+		int dealerHandValue = hand.value();
 
 		for (Player player : players) {
-			if (player.getSurrender()) {
-				continue;
-			}
+			out.println(" - " + player.getName());
 			for (Hand playerHand : player.getHands()) {
-				int playerValue = playerHand.value();
-				if (playerValue > 21) {
+				out.print("    - " + playerHand + ": ");
+				if (playerHand.isSurrender() == true) {
+					int bal = player.getBet() / 2;
+					out.println("surrender awarded half bet " + bal);
+					player.addBalance(-bal); // NOTE: correct value?
 					continue;
 				}
-				// if (dealerValue > playerValue && dealerValue <= 21) {
+				int playerHandValue = playerHand.value();
+				if (playerHandValue > 21) {
+					out.println("forfeits bet");
+					continue;
+				}
+				// if (dealerHandValue > playerHandValue && dealerHandValue <= 21) {
 				// continue;
 				// }
-				if (playerValue > dealerValue || dealerValue > 21) {
+				if (playerHandValue > dealerHandValue || dealerHandValue > 21) {
 					float payout = 2.0f; // 1:1
 					if (playerHand.blackJack()) {
 						payout = 2.5f; // 3:2
 					}
 					int winnings = (int) (player.getBet() * payout);
-					out.println("Awarding " + winnings + " to player " + player.getName());
+					out.println("awarding " + winnings);
 					player.addBalance(winnings);
-				} else if (playerValue == dealerValue) {
-					if (blackjack() && playerHand.blackJack() || playerValue < 21) {
-						out.println("Push " + player.getBet() + " to player " + player.getName());
+				} else if (playerHandValue == dealerHandValue) {
+					if (blackjack() && playerHand.blackJack() || playerHandValue < 21) {
+						out.println("push " + player.getBet() + " to player " + player.getName());
 						player.addBalance(player.getBet());
 					}
+				} else {
+					out.println("losses bet" + playerHand.getBet());
 				}
 			}
 		}
@@ -464,16 +509,18 @@ class Dealer {
 		}
 		out.println("\n***** Round " + round + " results *****");
 		for (Player player : players) {
-			// out.println(player);
-			out.println(player.print(showValues)); // + (showValues ? ", Value: " + player.getHandValue() : ""));
+			out.println(player.print(showValues));
 		}
-		out.println(this + ", value: " + hand.value());
 	}
 
 	// void String holeHand() {
 	// // String str="";
 	// return "Dealer: "+name+", hand: "+hand;
 	// }
+
+	String toString(boolean showValue) {
+		return "Dealer: " + name + ", hand " + hand.valueString(showValue) + ": " + hand;
+	}
 
 	@Override
 	public String toString() {
@@ -495,11 +542,15 @@ class Player {
 		this.balance = balance;
 		hands = new ArrayList<Hand>();
 		split = false;
-		surrender = false;
+		// surrender = false;
 		doubleDown = false;
 	}
 
-	boolean getDoubleDown() {
+	public void surrender(int handNum) {
+		hands.get(handNum).setSurrender();
+	}
+
+	boolean isDoubleDown() {
 		return doubleDown;
 	}
 
@@ -509,10 +560,6 @@ class Player {
 
 	boolean getSurrender() {
 		return surrender;
-	}
-
-	void setSurrender(boolean b) {
-		surrender = b;
 	}
 
 	String getName() {
@@ -590,12 +637,12 @@ class Player {
 	String print(boolean showValues) {
 		String str;
 		str = "Player: " + name + ", balance: " + balance;
-		for (Hand hand : hands) {
-			str += ", hand: " + hand;
-			if (showValues) {
-				str += ", value: " + hand.value();
-			}
-		}
+		// for (Hand hand : hands) {
+		// str += ", hand: " + hand;
+		// if (showValues) {
+		// str += ", value: " + hand.value();
+		// }
+		// }
 		return str;
 	}
 
@@ -839,9 +886,11 @@ public class BlackJack {
 		out.println("Rules:");
 		out.println(" - Minimum bet 10");
 		out.println(" - Betting in increments of 10");
-		out.println(" - Resplit to 4");
-		out.println(" - After splitting aces, only one card will be dealt to each ace");
+		out.println(" - Resplit to 4 hands");
+		out.println(" - After splitting aces, only one card will be dealt to each ace (no blackjacks)");
 		out.println(" - Cannot surrender after splitting your hand");
+		out.println(" - Double down after split");
+		out.println(" - Double down if first two cards are 11 or less (rule or suggestion?)");
 
 		int numDecks;
 		int minBet;
