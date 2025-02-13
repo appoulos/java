@@ -924,7 +924,7 @@ public class BlackJack {
 		while (true) {
 			out.println();
 			numDecks = Scan.readBet("How many decks in the shoe", 4, 8);
-			minBet = 10; // Scan.readInt("Min bet", 10);
+			minBet = 10; // 3:2 return will keep integers balances with minBet of 10
 			maxBet = Scan.readInt("Max bet", minBet * 100);
 			showValues = Scan.readBoolean("Show hand values", true);
 			defBalance = minBet * 10;
