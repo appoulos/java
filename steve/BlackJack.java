@@ -122,10 +122,11 @@ class Hand {
 	boolean doubleDown;
 	boolean surrender;
 
-	Hand() {
+	Hand(int bet) {
 		cards = new ArrayList<>();
 		doubleDown = false;
 		surrender = false;
+		this.bet = bet;
 	}
 
 	int getCardNum() {
@@ -208,6 +209,10 @@ class Hand {
 		cards.add(c);
 	}
 
+	void hit(Shoe shoe) {
+		cards.add(shoe.getCard());
+	}
+
 	@Override
 	public String toString() {
 		String str = "";
@@ -223,7 +228,7 @@ class Hand {
 		surrender = true;
 	}
 
-	public String valueString(boolean showValue) {
+	public String toString(boolean showValue) {
 		return "(" + this.value() + ") " + this;
 	}
 
@@ -248,7 +253,7 @@ class Dealer {
 	Dealer(String name, ArrayList<Player> players, int numDecks, int minBet, int maxBet, boolean showValues) {
 		this.name = name;
 		this.players = players;
-		hand = new Hand();
+		hand = new Hand(0);
 		shoe = new Shoe(numDecks);
 		this.minBet = minBet;
 		this.maxBet = maxBet;
@@ -302,9 +307,7 @@ class Dealer {
 			player.setBet(bet);
 
 			// deal two cards to every player
-			player.clearHand(bet);
-			player.giveCard(shoe.getCard(), 0);
-			player.giveCard(shoe.getCard(), 0);
+			player.newHand(shoe, bet);
 		}
 
 		// dealer gets two cards
@@ -316,7 +319,7 @@ class Dealer {
 		for (Player player : players) {
 			// out.println(player); // + (showValues ? ", Value: " + player.getHandValues()
 			// : ""));
-			out.println(player.print(showValues)); // + (showValues ? ", Value: " + player.getHandValue() : ""));
+			out.println(player.toString(showValues)); // + (showValues ? ", Value: " + player.getHandValue() : ""));
 		}
 
 		// dealer hand hide one card
@@ -340,7 +343,7 @@ class Dealer {
 					}
 
 					// out.println(player.getHand(handNum, showValues));
-					out.println(playerHand.valueString(showValues));
+					out.println(playerHand.toString(showValues));
 
 					if (playerHand.value() == 21) {
 						out.println("\n***** Player " + player.name + (playerHand.blackJack() ? " blackjack!" : " 21 *****"));
@@ -393,9 +396,10 @@ class Dealer {
 
 					switch (choice) {
 						case 'h':
-							player.giveCard(shoe.getCard(), handNum);
+							playerHand.hit(shoe);
+							// playerHand.addCard(shoe.getCard());
 							if (playerHand.value() > 21) {
-								out.println(player.print(showValues)); // + (showValues ? ", Value: " + player.getHandValue() : ""));
+								out.println(player.toString(showValues)); // + (showValues ? ", Value: " + player.getHandValue() : ""));
 								out.println("\n***** Player " + player.name + " busts *****");
 								Scan.readPause();
 								break;
@@ -408,18 +412,19 @@ class Dealer {
 							player.addBalance(-player.getBet());
 							playerHand.setBet(player.getBet() * 2);
 							playerHand.setDoubleDown();
-							playerHand.addCard(shoe.getCard());
+							playerHand.hit(shoe);
+							// playerHand.addCard(shoe.getCard());
 							// player.giveCard(shoe.getCard(), handNum);
 							out.println("New balance: " + player.getBalance());
 							out.println("New bet: " + player.getBet());
-							handNum--; // Don't go to next hand
+							// handNum--; // Don't go to next hand
 							turn--;
 							break;
 						case 'l':
-							player.split(handNum);
+							player.split(shoe, handNum);
 							// playerHand.addCard(shoe.getCard());
-							player.giveCard(shoe.getCard(), handNum);
-							player.giveCard(shoe.getCard(), handNum + 1);
+							// player.giveCard(shoe.getCard(), handNum);
+							// player.giveCard(shoe.getCard(), handNum + 1);
 							handNum--; // Don't go to next hand
 							turn--;
 							break;
@@ -504,7 +509,7 @@ class Dealer {
 						player.addBalance(player.getBet());
 					}
 				} else {
-					out.println("losses bet" + playerHand.getBet());
+					out.println("looses bet " + playerHand.getBet());
 				}
 			}
 		}
@@ -518,7 +523,7 @@ class Dealer {
 		}
 		out.println("\n***** Round " + round + " results *****");
 		for (Player player : players) {
-			out.println(player.print(showValues));
+			out.println(player.toString(showValues));
 		}
 	}
 
@@ -528,7 +533,7 @@ class Dealer {
 	// }
 
 	String toString(boolean showValue) {
-		return "Dealer: " + name + ", hand " + hand.valueString(showValue) + ": " + hand;
+		return "Dealer: " + name + ", hand " + hand.toString(showValue) + ": " + hand;
 	}
 
 	@Override
@@ -591,28 +596,24 @@ class Player {
 		return hands.size();
 	}
 
-	void split(int numHand) {
-		Hand newHand = new Hand();
+	void split(Shoe shoe, int numHand) {
 		split = true;
-		newHand.setSplit();
-		newHand.addCard(hands.get(numHand).removeSecond());
+
+		Hand hand = hands.get(numHand);
+
+		Hand newHand = new Hand(hand.getBet());
+		newHand.addCard(hand.removeSecond());
+		newHand.addCard(shoe.getCard());
 		hands.add(numHand + 1, newHand);
-		hands.get(numHand).setSplit();
+
+		hand.addCard(shoe.getCard());
+
+		hand.setSplit();
+		newHand.setSplit();
 	}
 
 	ArrayList<Hand> getHands() {
 		return hands;
-	}
-
-	String getHand(int numHand, boolean showValues) {
-		String str = "";
-		Hand hand = hands.get(numHand);
-		str += hand;
-
-		if (showValues) {
-			str += ", value: " + hand.value();
-		}
-		return str;
 	}
 
 	Hand getHand(int numHand) {
@@ -623,28 +624,27 @@ class Player {
 		return hands.get(numHand).value();
 	}
 
-	void giveCard(Card card, int numHand) {
-		hands.get(numHand).addCard(card);
-	}
-
 	boolean getSplit() {
 		return split;
 	}
 
-	void clearHand(int bet) {
+	void newHand(Shoe shoe, int bet) {
 		this.bet = bet;
 		split = false;
 		// doubleDown = false;
 		// surrender = false;
 		hands.clear();
-		hands.add(new Hand());
+		Hand hand = new Hand(bet);
+		hand.addCard(shoe.getCard());
+		hand.addCard(shoe.getCard());
+		hands.add(hand);
 	}
 
 	void addBalance(int add) {
 		balance += add;
 	}
 
-	String print(boolean showValues) {
+	String toString(boolean showValues) {
 		String str;
 		str = "Player: " + name + ", balance: " + balance;
 		// for (Hand hand : hands) {
@@ -671,7 +671,7 @@ class Scan {
 	static Scanner scan = new Scanner(System.in);
 	private static boolean useDefaults = false;
 
-	public static boolean getDefaults() {
+	public static boolean isDefaults() {
 		return useDefaults;
 	}
 
@@ -889,6 +889,36 @@ class Scan {
 	}
 }
 
+class Game {
+	int round;
+	Dealer dealer;
+
+	Game(String dealerName, ArrayList<Player> players, int numDecks, int minBet, int maxBet, boolean showValues) {
+		dealer = new Dealer("Bob", players, numDecks, minBet, maxBet, showValues);
+	}
+
+	void newGame() {
+		int round = 0;
+		while (true) {
+			round++;
+
+			if (!dealer.newRound()) {
+				break;
+			}
+
+			dealer.showResults(round);
+
+			if (!dealer.checkBalances()) {
+				out.println("\nNo players with sufficient balance to play another round");
+				break;
+			}
+			if (!Scan.readBoolean("\nAnother round", true)) {
+				break;
+			}
+		}
+	}
+}
+
 public class BlackJack {
 
 	public static void main(String[] args) {
@@ -930,31 +960,14 @@ public class BlackJack {
 			Scan.setDefaults(false);
 			out.println();
 			Scan.setDefaults(Scan.readBoolean("Use these defaults", true));
-			if (Scan.getDefaults()) {
+			if (Scan.isDefaults()) {
 				break;
 			}
 		}
 		Scan.setDefaults(false);
 
-		Dealer dealer = new Dealer("Bob", players, numDecks, minBet, maxBet, showValues);
-		int round = 0;
-		while (true) {
-			round++;
-			if (!dealer.newRound()) {
-				break;
-			}
-
-			dealer.showResults(round);
-
-			if (!dealer.checkBalances()) {
-				out.println("\nNo players with sufficient balance to play another round");
-				break;
-			}
-			String again = Scan.readLine("\nAnother round (Y/n)? ");
-			if (again.equals("n")) {
-				break;
-			}
-		}
+		Game game = new Game("Bob", players, numDecks, minBet, maxBet, showValues);
+		game.newGame();
 
 		out.println("\nThank you for playing");
 	}
