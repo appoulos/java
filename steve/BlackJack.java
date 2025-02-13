@@ -397,7 +397,8 @@ class Dealer {
 					// This option allows you to double your initial bet and receive only
 					// one additional card, but you can only double down on your initial
 					// two cards, not after splitting
-					if (handNum == 1 && twoCards && !playerHand.isDoubleDown() && enoughBalance && turn == 1) {
+					// if (handNum == 1 && twoCards && !playerHand.isDoubleDown() && enoughBalance && turn == 1) {
+					if (twoCards && !playerHand.isDoubleDown() && enoughBalance) {
 						choices.add("(d)ouble down");
 						keys.add('d');
 					}
@@ -585,6 +586,7 @@ class Player {
 		newHand.addCard(hand.removeSecond());
 		newHand.addCard(shoe.getCard());
 		hands.add(numHand + 1, newHand);
+		balance -= hand.bet;
 
 		hand.addCard(shoe.getCard());
 
