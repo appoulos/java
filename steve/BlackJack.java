@@ -97,7 +97,7 @@ class Deck {
 		String sep = "";
 		for (Card card : cards) {
 			str = sep + card;
-			sep = ", ";
+			sep = " ";
 		}
 		return str;
 	}
@@ -192,14 +192,21 @@ class Hand {
 	}
 
 	Card removeSecond() {
-		if (cards.size() > 1) {
+		if (cards.size() >= 2) {
 			return cards.remove(1);
 		}
 		return null;
 	}
 
+	Card getSecond() {
+		if (cards.size() >= 2) {
+			return cards.get(1);
+		}
+		return null;
+	}
+
 	Card getFirst() {
-		if (cards.size() > 0) {
+		if (cards.size() >= 1) {
 			return cards.get(0);
 		}
 		return null;
@@ -219,7 +226,7 @@ class Hand {
 		String sep = "";
 		for (Card card : cards) {
 			str += sep + card;
-			sep = ", ";
+			sep = " ";
 		}
 		return str;
 	}
@@ -327,7 +334,7 @@ class Dealer {
 		if (blackjack()) {
 			out.println(this + " blackjack!");
 		} else {
-			out.println("Dealer: " + "\uf656, " + hand.getFirst());
+			out.println("Dealer: " + "\uf656 " + hand.getSecond());
 
 			// start hit/stand for each player
 			char choice;
@@ -444,22 +451,22 @@ class Dealer {
 		for (Player player : players) {
 			for (Hand playerHand : player.getHands()) {
 				int score = playerHand.value();
-				if (score <= 21 && !playerHand.isSurrender()) {
+				if (score <= 21) { // && !playerHand.isSurrender()) {
 					possibleWinners = true;
 				}
 			}
 		}
 
 		// if (maxScore < hand.value()) {
-		if (!possibleWinners) {
-			for (Player player : players) {
-				out.println(player.getName() + " forfeits bet");
-			}
-			return true;
-		}
+		// if (!possibleWinners) {
+		// 	for (Player player : players) {
+		// 		out.println(player.getName() + " forfeits bet");
+		// 	}
+		// 	return true;
+		// }
 
 		// Dealers turn
-		if (!blackjack()) {
+		if (!blackjack() && possibleWinners) {
 			out.println("\n***** Dealers turn *****");
 			out.println(this.toString(showValues));
 			// Dealer rule must hit below 17
@@ -480,8 +487,8 @@ class Dealer {
 		for (Player player : players) {
 			out.println(" - " + player.getName());
 			for (Hand playerHand : player.getHands()) {
-				out.print("    - " + playerHand + ": ");
-				if (playerHand.isSurrender() == true) {
+				out.print("   " + playerHand + ": ");
+				if (playerHand.isSurrender()) {
 					int bal = player.getBet() / 2;
 					out.println("surrender awarded half bet " + bal);
 					player.addBalance(-bal); // NOTE: correct value?
@@ -527,13 +534,8 @@ class Dealer {
 		}
 	}
 
-	// void String holeHand() {
-	// // String str="";
-	// return "Dealer: "+name+", hand: "+hand;
-	// }
-
 	String toString(boolean showValue) {
-		return "Dealer: " + name + ", hand " + hand.toString(showValue) + ": " + hand;
+		return "Dealer: " + name + ", " +hand.toString(showValue);
 	}
 
 	@Override
