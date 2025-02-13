@@ -71,6 +71,8 @@ class Deck {
 			}
 		}
 
+		for (int i = 0; i < 16; i++)
+			cards.remove(0);
 		// Shuffle
 		// out.println("\n***** Shuffling deck(s) *****\n");
 		// Collections.shuffle(cards);
@@ -247,7 +249,7 @@ class Hand {
 	}
 
 	public String toString(boolean showValues) {
-		return "(" + this.value() + ") " + this;
+		return "Bet " + bet + ", (" + this.value() + ") " + this;
 	}
 
 	public boolean isDoubleDown() {
@@ -349,7 +351,7 @@ class Dealer {
 			for (Player player : players) {
 				out.println("\n***** Player " + player.getName() + "'s turn *****");
 
-				int turn = 0;
+				// int turn = 0;
 				for (int handNum = 0; handNum < player.getHands().size(); handNum++) {
 					Hand playerHand = player.getHand(handNum);
 
@@ -357,7 +359,7 @@ class Dealer {
 						continue;
 					}
 
-					turn++;
+					// turn++;
 					// if (handNum > 0) {
 					// out.println("Hand number: " + (handNum + 1));
 					// }
@@ -373,12 +375,11 @@ class Dealer {
 					ArrayList<String> choices = new ArrayList<>();
 					ArrayList<Character> keys = new ArrayList<>();
 
-					// TODO: allow multiple splits
-					if (!playerHand.getSplit()
-							|| playerHand.getFirst().rank != "Ace") {
-						choices.add("(h)it");
-						keys.add('h');
-					}
+					// NOTE: allow multiple splits
+					// if (!playerHand.getSplit() || playerHand.getFirst().rank != "Ace") {
+					choices.add("(h)it");
+					keys.add('h');
+					// }
 
 					choices.add("(s)tay");
 					keys.add('s');
@@ -397,7 +398,8 @@ class Dealer {
 					// This option allows you to double your initial bet and receive only
 					// one additional card, but you can only double down on your initial
 					// two cards, not after splitting
-					// if (handNum == 1 && twoCards && !playerHand.isDoubleDown() && enoughBalance && turn == 1) {
+					// if (handNum == 1 && twoCards && !playerHand.isDoubleDown() && enoughBalance
+					// && turn == 1) {
 					if (twoCards && !playerHand.isDoubleDown() && enoughBalance) {
 						choices.add("(d)ouble down");
 						keys.add('d');
@@ -433,15 +435,17 @@ class Dealer {
 							playerHand.setBet(player.getBet() * 2);
 							playerHand.setDoubleDown();
 							playerHand.hit(shoe);
-							out.println("New balance: " + player.getBalance());
-							out.println("New bet: " + player.getBet());
+							playerHand.setDone();
+							// out.println("New balance: " + player.getBalance());
+							// out.println("New bet: " + player.getBet());
+							out.println(playerHand.toString(showValues));
 							// handNum--; // Don't go to next hand
-							turn--;
+							// turn--;
 							break;
 						case 'l':
 							player.split(shoe, handNum, showValues);
 							handNum--; // Don't go to next hand
-							turn--;
+							// turn--;
 							break;
 						case 'u': // NOTE: test don't allow after splitting
 							playerHand.setSurrender();
@@ -597,7 +601,7 @@ class Player {
 		if (hand.getFirst().rank == "Ace") {
 			hand.setDone();
 			newHand.setDone();
-			out.println("Hand " + (numHand+1) + ": " + hand.toString(showValues));
+			out.println("Hand " + (numHand + 1) + ": " + hand.toString(showValues));
 			out.println("Hand " + (numHand + 2) + ": " + newHand.toString(showValues));
 		}
 	}
