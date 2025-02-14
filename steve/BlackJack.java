@@ -252,6 +252,10 @@ class Hand {
 		return "Bet " + bet + ", (" + this.value() + ") " + this;
 	}
 
+	public String toDealerString(boolean showValues) {
+		return "(" + this.value() + ") " + this;
+	}
+
 	public boolean isDoubleDown() {
 		return doubleDown;
 	}
@@ -437,6 +441,11 @@ class Dealer {
 							playerHand.hit(shoe);
 							playerHand.setDone();
 							out.println(playerHand.toString(showValues));
+							if (playerHand.value() > 21) {
+								out.println("\n***** Player " + player.getName() + " busts *****");
+								// Scan.readPause();
+								break;
+							}
 							break;
 						case 'l':
 							player.split(shoe, handNum, showValues);
@@ -529,7 +538,7 @@ class Dealer {
 	}
 
 	public String toString(boolean showValue) {
-		return "Dealer: " + name + ", " + hand.toString(showValue);
+		return "Dealer: " + name + ", " + hand.toDealerString(showValue);
 	}
 
 	@Override
