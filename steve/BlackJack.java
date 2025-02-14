@@ -249,7 +249,7 @@ class Hand {
 	}
 
 	public String toString(boolean showValues) {
-		return "Bet " + bet + ", (" + this.value() + ") " + this;
+		return "$" + bet + ", (" + this.value() + ") " + this;
 	}
 
 	public String toDealerString(boolean showValues) {
@@ -314,7 +314,8 @@ class Dealer {
 			Player player = players.get(i);
 			if (player.getBalance() < minBet) {
 				out.println("Player " + player.getName()
-						+ " has insufficient balance. Removed from table with balance " + player.getBalance());
+						+ " has insufficient balance. Removed from table with balance $"
+						+ player.getBalance());
 				players.remove(i);
 			}
 		}
@@ -496,7 +497,7 @@ class Dealer {
 				out.print("   " + playerHand.toString(showValues) + ": ");
 				if (playerHand.isSurrender()) {
 					int payment = player.getBet() / 2;
-					out.println("surrender awarded half bet " + payment);
+					out.println("surrender half $"+ payment);
 					player.addBalance(-payment);
 					continue;
 				}
@@ -511,7 +512,7 @@ class Dealer {
 						payout = 2.5f; // 3:2
 					}
 					int winnings = (int) (player.getBet() * payout);
-					out.println("awarding " + winnings);
+					out.println("awarding $" + winnings);
 					player.addBalance(winnings);
 				} else if (playerHandValue == dealerHandValue) {
 					if (blackjack() && playerHand.blackJack() || playerHandValue < 21) {
@@ -720,6 +721,7 @@ class Scan {
 
 	public static int readBet(String prompt, int min, int max) {
 		String minToMax;
+		max = max/10*10;
 		if (min == max) {
 			minToMax = "" + min;
 		} else {
