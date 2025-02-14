@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 class Card {
-	String rank;
-	String suit;
+	private String rank;
+	private String suit;
 
-	Card(String rank, String suit) {
+	public Card(String rank, String suit) {
 		this.rank = rank;
 		this.suit = suit;
 	}
 
-	int getValue() {
+	public int getValue() {
 		switch (rank) {
 			case "Ace":
 				return 1;
@@ -44,24 +44,24 @@ class Card {
 		return str;
 	}
 
-	String getRank() {
+	public String getRank() {
 		return rank;
 	}
 }
 
 class Deck {
-	ArrayList<Card> cards;
-	int numDecks;
-	static String[] ranks = { "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King" };
-	static String[] suits = { "Clubs", "Diamonds", "Hearts", "Spades" };
+	private ArrayList<Card> cards;
+	private int numDecks;
+	private static String[] ranks = { "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King" };
+	private static String[] suits = { "Clubs", "Diamonds", "Hearts", "Spades" };
 
-	Deck(int decks) {
+	public Deck(int decks) {
 		numDecks = decks;
 		cards = new ArrayList<>();
 		newDeck();
 	}
 
-	void newDeck() {
+	public void newDeck() {
 		// Fill cards with deck(s)
 		for (String rank : ranks) {
 			for (int deck = 0; deck < numDecks; deck++) {
@@ -74,8 +74,8 @@ class Deck {
 		for (int i = 0; i < 16; i++)
 			cards.remove(0);
 		// Shuffle
-		// out.println("\n***** Shuffling deck(s) *****\n");
-		// Collections.shuffle(cards);
+		out.println("\n***** Shuffling deck(s) *****\n");
+		Collections.shuffle(cards);
 
 		// int rand;
 		// for (int i = cards.size()-1; i > 0; i--) {
@@ -86,7 +86,7 @@ class Deck {
 		// }
 	}
 
-	Card getCard() {
+	public Card getCard() {
 		if (cards.size() < 52 * numDecks / 4) { // cards left less than 25% restock shoe
 			out.println("***** New decks filled in shoe *****");
 			newDeck();
@@ -107,26 +107,26 @@ class Deck {
 }
 
 class Shoe {
-	Deck deck;
+	private Deck deck;
 
-	Shoe(int decks) {
+	public Shoe(int decks) {
 		deck = new Deck(decks);
 	}
 
-	Card getCard() {
+	public Card getCard() {
 		return deck.getCard();
 	}
 }
 
 class Hand {
-	ArrayList<Card> cards;
-	boolean split;
-	int bet;
-	boolean doubleDown;
-	boolean surrender;
-	boolean done;
+	private ArrayList<Card> cards;
+	private boolean split;
+	private int bet;
+	private boolean doubleDown;
+	private boolean surrender;
+	private boolean done;
 
-	Hand(int bet) {
+	public Hand(int bet) {
 		cards = new ArrayList<>();
 		doubleDown = false;
 		surrender = false;
@@ -134,61 +134,61 @@ class Hand {
 		this.bet = bet;
 	}
 
-	boolean isDone() {
+	public boolean isDone() {
 		return done;
 	}
 
-	void setDone() {
+	public void setDone() {
 		done = true;
 	}
 
-	int getCardNum() {
+	public int getCardNum() {
 		return cards.size();
 	}
 
-	boolean isSurrender() {
+	public boolean isSurrender() {
 		return surrender;
 	}
 
-	void setSurrender(boolean surrender) {
+	public void setSurrender(boolean surrender) {
 		this.surrender = surrender;
 	}
 
-	int getBet() {
+	public int getBet() {
 		return bet;
 	}
 
-	void setBet(int bet) {
+	public void setBet(int bet) {
 		this.bet = bet;
 	}
 
-	void setSplit() {
+	public void setSplit() {
 		split = true;
 	}
 
-	boolean getSplit() {
+	public boolean getSplit() {
 		return split;
 	}
 
-	void clear() {
+	public void clear() {
 		cards.clear();
 	}
 
-	boolean splitOption() {
+	public boolean splitOption() {
 		if (cards.size() != 2) {
 			return false;
 		}
 		return cards.get(0).getRank() == cards.get(1).getRank();
 	}
 
-	boolean blackJack() {
+	public boolean blackJack() {
 		if (!split && value() == 21 && cards.size() == 2) {
 			return true;
 		}
 		return false;
 	}
 
-	int value() {
+	public int value() {
 		int sum = 0;
 		int aces = 0;
 		for (Card card : cards) {
@@ -204,32 +204,32 @@ class Hand {
 		return sum;
 	}
 
-	Card removeSecond() {
+	public Card removeSecond() {
 		if (cards.size() >= 2) {
 			return cards.remove(1);
 		}
 		return null;
 	}
 
-	Card getSecond() {
+	public Card getSecond() {
 		if (cards.size() >= 2) {
 			return cards.get(1);
 		}
 		return null;
 	}
 
-	Card getFirst() {
+	public Card getFirst() {
 		if (cards.size() >= 1) {
 			return cards.get(0);
 		}
 		return null;
 	}
 
-	void addCard(Card c) {
+	public void addCard(Card c) {
 		cards.add(c);
 	}
 
-	void hit(Shoe shoe) {
+	public void hit(Shoe shoe) {
 		cards.add(shoe.getCard());
 	}
 
@@ -262,15 +262,15 @@ class Hand {
 }
 
 class Dealer {
-	String name;
-	ArrayList<Player> players;
-	Hand hand;
-	Shoe shoe;
-	int minBet;
-	int maxBet;
-	boolean showValues;
+	private String name;
+	private ArrayList<Player> players;
+	private Hand hand;
+	private Shoe shoe;
+	private int minBet;
+	private int maxBet;
+	private boolean showValues;
 
-	Dealer(String name, ArrayList<Player> players, int numDecks, int minBet, int maxBet, boolean showValues) {
+	public Dealer(String name, ArrayList<Player> players, int numDecks, int minBet, int maxBet, boolean showValues) {
 		this.name = name;
 		this.players = players;
 		hand = new Hand(0);
@@ -280,7 +280,7 @@ class Dealer {
 		this.showValues = showValues;
 	}
 
-	boolean checkBalances() {
+	public boolean checkBalances() {
 		for (Player player : players) {
 			if (player.getBalance() >= minBet) {
 				return true;
@@ -289,7 +289,7 @@ class Dealer {
 		return false;
 	}
 
-	boolean blackjack() {
+	public boolean blackjack() {
 		if (hand.blackJack()) {
 			return true;
 		}
@@ -302,7 +302,7 @@ class Dealer {
 	 * @return true if any player has more than ante balance to start another round
 	 * @return false if no player has more than ante balance
 	 */
-	boolean newRound() {
+	public boolean newRound() {
 		hand.clear();
 
 		// Bounce players with insufficient funds
@@ -421,8 +421,8 @@ class Dealer {
 						case 'h':
 							playerHand.hit(shoe);
 							if (playerHand.value() > 21) {
-								out.println(player.toString(showValues));
-								out.println("\n***** Player " + player.name + " busts *****");
+								out.println(playerHand.toString(showValues));
+								out.println("\n***** Player " + player.getName() + " busts *****");
 								// Scan.readPause();
 								break;
 							}
@@ -493,7 +493,7 @@ class Dealer {
 				}
 				int playerHandValue = playerHand.value();
 				if (playerHandValue > 21) {
-					out.println("forfeits bet");
+					out.println("loses bet");
 					continue;
 				}
 				if (playerHandValue > dealerHandValue || dealerHandValue > 21) {
@@ -506,11 +506,11 @@ class Dealer {
 					player.addBalance(winnings);
 				} else if (playerHandValue == dealerHandValue) {
 					if (blackjack() && playerHand.blackJack() || playerHandValue < 21) {
-						out.println("push " + player.getBet() + " to player " + player.getName());
+						out.println("push");
 						player.addBalance(player.getBet());
 					}
 				} else {
-					out.println("looses bet " + playerHand.getBet());
+					out.println("loses bet");
 				}
 			}
 		}
@@ -518,7 +518,7 @@ class Dealer {
 		return true;
 	}
 
-	void showResults(int round) {
+	public void showResults(int round) {
 		if (players.size() == 0) {
 			return;
 		}
@@ -528,7 +528,7 @@ class Dealer {
 		}
 	}
 
-	String toString(boolean showValue) {
+	public String toString(boolean showValue) {
 		return "Dealer: " + name + ", " + hand.toString(showValue);
 	}
 
@@ -539,13 +539,13 @@ class Dealer {
 }
 
 class Player {
-	String name;
-	ArrayList<Hand> hands;
-	int balance;
-	int bet;
-	boolean split;
+	private String name;
+	private ArrayList<Hand> hands;
+	private int balance;
+	private int bet;
+	private boolean split;
 
-	Player(String name, int balance) {
+	public Player(String name, int balance) {
 		this.name = name;
 		this.balance = balance;
 		hands = new ArrayList<Hand>();
@@ -556,27 +556,27 @@ class Player {
 		hands.get(handNum).setSurrender();
 	}
 
-	String getName() {
+	public String getName() {
 		return name;
 	}
 
-	int getBet() {
+	public int getBet() {
 		return bet;
 	}
 
-	void setBet(int bet) {
+	public void setBet(int bet) {
 		this.bet = bet;
 	}
 
-	int getBalance() {
+	public int getBalance() {
 		return balance;
 	}
 
-	int numHands() {
+	public int numHands() {
 		return hands.size();
 	}
 
-	void split(Shoe shoe, int numHand, boolean showValues) {
+	public void split(Shoe shoe, int numHand, boolean showValues) {
 		split = true;
 
 		Hand hand = hands.get(numHand);
@@ -584,7 +584,7 @@ class Player {
 		newHand.addCard(hand.removeSecond());
 		newHand.addCard(shoe.getCard());
 		hands.add(numHand + 1, newHand);
-		balance -= hand.bet;
+		balance -= hand.getBet();
 
 		hand.addCard(shoe.getCard());
 
@@ -592,7 +592,7 @@ class Player {
 		newHand.setSplit();
 
 		// Only one card with split Ace's
-		if (hand.getFirst().rank == "Ace") {
+		if (hand.getFirst().getRank() == "Ace") {
 			hand.setDone();
 			newHand.setDone();
 			out.println("Hand " + (numHand + 1) + ": " + hand.toString(showValues));
@@ -600,23 +600,23 @@ class Player {
 		}
 	}
 
-	ArrayList<Hand> getHands() {
+	public ArrayList<Hand> getHands() {
 		return hands;
 	}
 
-	Hand getHand(int numHand) {
+	public Hand getHand(int numHand) {
 		return hands.get(numHand);
 	}
 
-	int getHandValue(int numHand) {
+	public int getHandValue(int numHand) {
 		return hands.get(numHand).value();
 	}
 
-	boolean getSplit() {
+	public boolean getSplit() {
 		return split;
 	}
 
-	void newHand(Shoe shoe, int bet) {
+	public void newHand(Shoe shoe, int bet) {
 		this.bet = bet;
 		split = false;
 		hands.clear();
@@ -626,11 +626,11 @@ class Player {
 		hands.add(hand);
 	}
 
-	void addBalance(int add) {
+	public void addBalance(int add) {
 		balance += add;
 	}
 
-	String toString(boolean showValues) {
+	public String toString(boolean showValues) {
 		String str;
 		str = "Player: " + name + ", balance: " + balance;
 		return str;
@@ -843,39 +843,20 @@ class Scan {
 		}
 	}
 
-	public static char readChoice(String prompt, String choices) {
-		String input;
-		char[] charArray = choices.toCharArray();
-		while (true) {
-			input = readLine(prompt + "? ").trim();
-			switch (input.length()) {
-				case 1:
-					for (char choice : charArray) {
-						if (input.charAt(0) == choice) {
-							return choice;
-						}
-					}
-					break;
-				default:
-					out.println("Invalid input. Please enter one letter from \"" + choices + "\"");
-			}
-		}
-	}
-
 	public static void readPause() {
 		readLine("Press enter to continue...");
 	}
 }
 
 class Game {
-	int round;
-	Dealer dealer;
+	// private int round;
+	private Dealer dealer;
 
-	Game(String dealerName, ArrayList<Player> players, int numDecks, int minBet, int maxBet, boolean showValues) {
+	public Game(String dealerName, ArrayList<Player> players, int numDecks, int minBet, int maxBet, boolean showValues) {
 		dealer = new Dealer("Bob", players, numDecks, minBet, maxBet, showValues);
 	}
 
-	void newGame() {
+	public void newGame() {
 		int round = 0;
 		while (true) {
 			round++;
@@ -898,7 +879,6 @@ class Game {
 }
 
 public class BlackJack {
-
 	public static void main(String[] args) {
 		out.println("Welcome to Blackjack\n");
 		out.println("Rules:");
