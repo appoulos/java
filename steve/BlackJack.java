@@ -436,20 +436,14 @@ class Dealer {
 							playerHand.setDoubleDown();
 							playerHand.hit(shoe);
 							playerHand.setDone();
-							// out.println("New balance: " + player.getBalance());
-							// out.println("New bet: " + player.getBet());
 							out.println(playerHand.toString(showValues));
-							// handNum--; // Don't go to next hand
-							// turn--;
 							break;
 						case 'l':
 							player.split(shoe, handNum, showValues);
 							handNum--; // Don't go to next hand
-							// turn--;
 							break;
 						case 'u': // NOTE: test don't allow after splitting
 							playerHand.setSurrender();
-							// out.println("New balance: " + player.getBalance());
 							break;
 						default:
 							out.println("Error: unreachable switch: " + choice);
