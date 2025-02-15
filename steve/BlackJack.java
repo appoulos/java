@@ -50,10 +50,10 @@ class Card {
 }
 
 class Deck {
-	private ArrayList<Card> cards;
-	private int numDecks;
 	private static String[] ranks = { "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King" };
 	private static String[] suits = { "Clubs", "Diamonds", "Hearts", "Spades" };
+	private ArrayList<Card> cards;
+	private int numDecks;
 
 	public Deck(int decks) {
 		numDecks = decks;
