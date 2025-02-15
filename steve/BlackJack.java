@@ -498,7 +498,7 @@ class Dealer {
 				if (playerHand.isSurrender()) {
 					int payment = player.getBet() / 2;
 					out.println("surrender half $"+ payment);
-					player.addBalance(-payment);
+					player.addBalance(payment);
 					continue;
 				}
 				int playerHandValue = playerHand.value();
