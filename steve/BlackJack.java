@@ -178,7 +178,7 @@ class Hand {
 		if (cards.size() != 2) {
 			return false;
 		}
-		return cards.get(0).getRank() == cards.get(1).getRank();
+		return cards.get(0).getValue() == cards.get(1).getValue();
 	}
 
 	public boolean blackJack() {
@@ -497,7 +497,7 @@ class Dealer {
 				out.print("   " + playerHand.toString(showValues) + ": ");
 				if (playerHand.isSurrender()) {
 					int payment = player.getBet() / 2;
-					out.println("surrender half $"+ payment);
+					out.println("surrender half $" + payment);
 					player.addBalance(payment);
 					continue;
 				}
@@ -512,7 +512,7 @@ class Dealer {
 						payout = 2.5f; // 3:2
 					}
 					int winnings = (int) (player.getBet() * payout);
-					out.println("awarding $" + winnings);
+					out.println("receive $" + winnings);
 					player.addBalance(winnings);
 				} else if (playerHandValue == dealerHandValue) {
 					if (blackjack() && playerHand.blackJack() || playerHandValue < 21) {
@@ -721,7 +721,7 @@ class Scan {
 
 	public static int readBet(String prompt, int min, int max) {
 		String minToMax;
-		max = max-max%10;
+		max = max - max % 10;
 		if (min == max) {
 			minToMax = "" + min;
 		} else {
@@ -914,8 +914,8 @@ public class BlackJack {
 
 		while (true) {
 			out.println();
-			numDecks = Scan.readBet("How many decks in the shoe", 4, 8);
-			minBet = 10; // 3:2 return will keep integers balances with minBet of 10
+			numDecks = Scan.readInt("How many decks in the shoe", 4, 8);
+			minBet = 10; // minBet of 10: 3:2 return will keep integers
 			maxBet = Scan.readInt("Max bet", minBet * 100);
 			showValues = Scan.readBoolean("Show hand values", true);
 			defBalance = minBet * 10;
