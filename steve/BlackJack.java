@@ -721,7 +721,6 @@ class Scan {
 
 	public static int readBet(String prompt, int min, int max) {
 		String minToMax;
-		max = max/10*10;
 		if (min == max) {
 			minToMax = "" + min;
 		} else {
