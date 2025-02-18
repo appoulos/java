@@ -4,6 +4,13 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import java.io.BufferedWriter;
+import java.io.BufferedReader;
+import java.io.FileWriter;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.List;
+
 class Card {
 	private String rank;
 	private String suit;
@@ -31,16 +38,16 @@ class Card {
 		String str = rank;
 		switch (suit) {
 			case "Clubs":
-				str += "\u2663";
+				str += "\u2663 ";
 				break;
 			case "Diamonds":
-				str += "\u2666";
+				str += "\u2666 ";
 				break;
 			case "Hearts":
-				str += "\uf004";
+				str += "\uf004 ";
 				break;
 			case "Spades":
-				str += "\u2660";
+				str += "\u2660 ";
 		}
 		return str;
 	}
@@ -72,19 +79,95 @@ class BlkJckArrayList {
 		for (Card card : cards)
 			out.print(card);
 		int dealerSum = handValue(cards);
-		out.println(" (" + dealerSum + ")");
+		out.println("(" + dealerSum + ")");
 	}
 
-	static void quit(int balance) {
+	static void quit(String name, int balance) {
 		out.println("Thank you for playing");
 		out.println("Final balance " + balance);
+		updatePlayersDb(name, balance);
+		out.println(playersDb + " file contents:");
+		for (String line : readListFromFile(playersDb)) {
+			out.println(line);
+		}
 		System.exit(0);
 	}
 
+	public static void writeListToFile(ArrayList<String> list, String filePath) {
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+			for (String str : list) {
+				writer.write(str);
+				writer.newLine();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static List<String> readListFromFile(String filePath) {
+		List<String> stringList = new ArrayList<>();
+		try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+			String line;
+			while ((line = reader.readLine()) != null) {
+				stringList.add(line);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+		return stringList;
+	}
+
+	public static String playersDb = "players.txt";
+
+	public static void printPlayersDb() {
+		List<String> stringList = readListFromFile(playersDb);
+		int cnt = 0;
+
+		if (stringList != null) {
+			out.println("Balance Name");
+			for (String line : stringList) {
+				if (cnt++ % 2 == 0) {
+					out.printf("%7s ", line);
+				} else {
+					out.println(line);
+				}
+			}
+		}
+	}
+
+	public static void updatePlayersDb(String name, int balance) {
+		// String playerBalance = "";
+		String playerName = "";
+		int cnt = 0;
+		boolean found = false;
+		for (String line : players) {
+			if (cnt % 2 == 0) {
+				// playerBalance = line;
+			} else {
+				playerName = line;
+				if (playerName.equals(name)) {
+					players.set(cnt - 1, "" + balance);
+					found = true;
+				}
+			}
+			cnt++;
+		}
+		if (!found) {
+			players.add("" + balance);
+			players.add(name);
+		}
+		writeListToFile(players, playersDb);
+	}
+
+	public static ArrayList<String> players = new ArrayList<>();
+
 	public static void main(String[] args) {
+
 		ArrayList<Card> shoe = new ArrayList<>();
 		ArrayList<Card> playerHand = new ArrayList<>();
 		ArrayList<Card> dealerHand = new ArrayList<>();
+		String name = "";
 		int bet = 0;
 
 		// Configuration
@@ -101,6 +184,10 @@ class BlkJckArrayList {
 		}
 
 		out.println("Welcome to Blackjack (q to quit)");
+		printPlayersDb();
+		out.print("Enter your name: ");
+		name = scan.nextLine();
+
 		while (true) {
 			while (true) {
 				// Get player bet
@@ -108,7 +195,7 @@ class BlkJckArrayList {
 				String input = scan.nextLine();
 				try {
 					if (input.equals("q")) {
-						quit(balance);
+						quit(name, balance);
 					}
 					if (input.equals("")) {
 						bet = 10;
@@ -173,7 +260,7 @@ class BlkJckArrayList {
 
 					String input = scan.nextLine();
 					if (input.equals("q")) {
-						quit(balance);
+						quit(name, balance);
 					}
 
 					switch (input) {
@@ -231,6 +318,8 @@ class BlkJckArrayList {
 								continue_ = false;
 								dealerBust = true;
 							}
+						} else if (dealerSum == 21) {
+							out.println("Dealer has 21");
 						} else {
 							out.println("Dealer stays with " + dealerSum);
 							continue_ = false;
@@ -269,13 +358,13 @@ class BlkJckArrayList {
 			// Round completed
 			if (balance < 10) {
 				out.println("Not enough balance to continue.");
-				quit(balance);
+				quit(name, balance);
 			}
 
 			out.println("Balance " + balance);
 			out.print("(q)uit? ");
 			if (scan.nextLine().equals("q")) {
-				quit(balance);
+				quit(name, balance);
 			}
 		}
 	}
