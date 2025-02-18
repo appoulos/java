@@ -177,20 +177,24 @@ class BlkJck {
 			if (!dealerBlackjack) {
 				out.println("Dealer shows " + dealerHand[1]);
 
-				boolean continue_ = true;
 				playerBust = false;
 				dealerBust = false;
+
+				boolean continue_ = true;
 				while (continue_) {
 					showHand(playerHand, playerHandSize);
 					out.print("(h)it, (s)tay");
+
 					if (playerHandSize == 2) {
 						out.print(", (d)ouble down");
 					}
 					out.print("? ");
+
 					String input = scan.nextLine();
 					if (input.equals("q")) {
 						quit(balance);
 					}
+
 					switch (input) {
 						case "d": // double down
 							continue_ = false;
