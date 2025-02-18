@@ -74,6 +74,12 @@ class BlkJck {
 		out.println("(" + dealerSum + ")");
 	}
 
+	static void quit(int balance) {
+		out.println("Thank you for playing");
+		out.println("Final balance " + balance);
+		System.exit(0);
+	}
+
 	public static void main(String[] args) {
 		Card[] shoe, playerHand, dealerHand;
 		int playerHandSize = 0;
@@ -87,7 +93,7 @@ class BlkJck {
 
 		// Configuration
 		int numDecks = 4;
-		int playerBalance = 100;
+		int balance = 100;
 
 		for (String rank : ranks) {
 			for (int deck = 0; deck < numDecks; deck++) {
@@ -100,16 +106,15 @@ class BlkJck {
 		out.println("Welcome to Blackjack (q to quit)");
 		while (true) {
 			while (true) {
-				if (playerBalance < 10) {
+				if (balance < 10) {
 					out.println("Not enough balance to continue. Thanks for playing.");
 					System.exit(0);
 				}
-				out.print("Bet (" + playerBalance + ")? ");
+				out.print("Bet (default 10, max " + balance + ")? ");
 				String input = scan.nextLine();
 				try {
 					if (input.equals("q")) {
-						out.println("Thank you for playing");
-						System.exit(0);
+						quit(balance);
 					}
 					if (input.equals("")) {
 						bet = 10;
@@ -120,11 +125,11 @@ class BlkJck {
 						out.println("Bets must be multiples of 10");
 						continue;
 					}
-					if (bet > playerBalance) {
-						out.println("Maximum bet is " + playerBalance);
+					if (bet > balance) {
+						out.println("Maximum bet is " + balance);
 						continue;
 					}
-					playerBalance -= bet;
+					balance -= bet;
 					break;
 				} catch (NumberFormatException e) {
 					out.println("Invalid input. Please enter a number");
@@ -176,13 +181,12 @@ class BlkJck {
 					out.print("? ");
 					String input = scan.nextLine();
 					if (input.equals("q")) {
-						out.println("Thank you for playing");
-						System.exit(0);
+						quit(balance);
 					}
 					switch (input) {
 						case "d": // double down
 							continue_ = false;
-							playerBalance -= bet;
+							balance -= bet;
 							bet *= 2;
 							playerHand[playerHandSize++] = shoe[shoeCurr++];
 							playerSum = handValue(playerHand, playerHandSize);
@@ -238,28 +242,29 @@ class BlkJck {
 			if (dealerBlackjack) {
 				if (playerBlackjack) {
 					out.println("push");
-					playerBalance += bet;
+					balance += bet;
 				} else {
 					out.println("lose bet " + bet);
 				}
 			} else if (playerBlackjack) {
 				out.println("win 3:2");
-				playerBalance += 2.5 * bet;
+				balance += 2.5 * bet;
 			} else if (playerBust) {
 				out.println("lose bet " + bet);
 			} else if (dealerBust || playerSum > dealerSum) {
 				out.println("win 1:1");
-				playerBalance += 2 * bet;
+				balance += 2 * bet;
 			} else if (dealerSum == playerSum) {
 				out.println("push");
-				playerBalance += bet;
+				balance += bet;
 			} else {
 				out.println("lose bet " + bet);
 			}
-			out.println("Balance " + playerBalance);
+			out.println("Balance " + balance);
 			out.print("(q)uit? ");
-			if (scan.nextLine().equals("q"))
-				break;
+			if (scan.nextLine().equals("q")) {
+				quit(balance);
+			}
 		}
 	}
 }
