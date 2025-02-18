@@ -81,20 +81,28 @@ class BlkJck {
 	}
 
 	public static void main(String[] args) {
-		Card[] shoe, playerHand, dealerHand;
-		int playerHandSize = 0;
-		int dealerHandSize = 0;
+		final int maxDecks = 8;
+
+		Card[] shoe;
+		shoe = new Card[maxDecks * 52];
 		int shoeSize = 0;
-		playerHand = new Card[22];
+
+		Card[] playerHand;
+		playerHand = new Card[22]; // Max size of single hand (all aces) is 22
+		int playerHandSize = 0;
+
+		Card[] dealerHand;
 		dealerHand = new Card[22];
-		shoe = new Card[8 * 52];
-		int shoeCurr = 0;
+		int dealerHandSize = 0;
+
+		int shoeCurr = 0; // Next card index in array to draw from shoe
 		int bet = 0;
 
 		// Configuration
-		int numDecks = 4;
-		int balance = 100;
+		int numDecks = Math.min(4, maxDecks); // Max decks == maxDecks
+		int balance = 100; // Starting player balance
 
+		// Fill shoe with numDecks
 		for (String rank : ranks) {
 			for (int deck = 0; deck < numDecks; deck++) {
 				for (String suit : suits) {
@@ -106,10 +114,7 @@ class BlkJck {
 		out.println("Welcome to Blackjack (q to quit)");
 		while (true) {
 			while (true) {
-				if (balance < 10) {
-					out.println("Not enough balance to continue. Thanks for playing.");
-					System.exit(0);
-				}
+				// Get player bet
 				out.print("Bet (default 10, max " + balance + ")? ");
 				String input = scan.nextLine();
 				try {
@@ -150,23 +155,26 @@ class BlkJck {
 				shoeCurr = 0;
 			}
 
+			// Reset arrays (bump allocator)
 			playerHandSize = 0;
 			dealerHandSize = 0;
 
+			// Player gets two cards
 			playerHand[playerHandSize++] = shoe[shoeCurr++];
 			playerHand[playerHandSize++] = shoe[shoeCurr++];
 			int playerSum = handValue(playerHand, playerHandSize);
 
+			// Dealer gets two cards
 			dealerHand[dealerHandSize++] = shoe[shoeCurr++];
 			dealerHand[dealerHandSize++] = shoe[shoeCurr++];
 			int dealerSum = handValue(dealerHand, dealerHandSize);
+
 			boolean playerBust = false;
 			boolean dealerBust = false;
 			boolean playerBlackjack = playerSum == 21;
 			boolean dealerBlackjack = dealerSum == 21;
 
 			if (!dealerBlackjack) {
-
 				out.println("Dealer shows " + dealerHand[1]);
 
 				boolean continue_ = true;
@@ -215,6 +223,7 @@ class BlkJck {
 					}
 				}
 
+				// Dealer draws cards until 17
 				continue_ = true;
 				if (!playerBust) {
 					out.println("\n***** Dealers turn *****");
@@ -239,7 +248,10 @@ class BlkJck {
 				}
 			}
 
+			// Settle bets
 			if (dealerBlackjack) {
+				out.print("Dealer blackjack ");
+				showHand(dealerHand, dealerHandSize);
 				if (playerBlackjack) {
 					out.println("push");
 					balance += bet;
@@ -259,6 +271,10 @@ class BlkJck {
 				balance += bet;
 			} else {
 				out.println("lose bet " + bet);
+			}
+			if (balance < 10) {
+				out.println("Not enough balance to continue.");
+				quit(balance);
 			}
 			out.println("Balance " + balance);
 			out.print("(q)uit? ");
