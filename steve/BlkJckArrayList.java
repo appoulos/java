@@ -86,14 +86,14 @@ class BlkJckArrayList {
 		out.println("Thank you for playing");
 		out.println("Final balance " + balance);
 		updatePlayersDb(name, balance);
-		out.println(playersDb + " file contents:");
-		for (String line : readListFromFile(playersDb)) {
-			out.println(line);
-		}
+		// out.println(playersDb + " file contents:");
+		// for (String line : readListFromFile(playersDb)) {
+		// out.println(line);
+		// }
 		System.exit(0);
 	}
 
-	public static void writeListToFile(ArrayList<String> list, String filePath) {
+	public static void writeListToFile(List<String> list, String filePath) {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
 			for (String str : list) {
 				writer.write(str);
@@ -120,33 +120,66 @@ class BlkJckArrayList {
 
 	public static String playersDb = "players.txt";
 
-	public static void printPlayersDb() {
-		List<String> stringList = readListFromFile(playersDb);
+	public static void printPlayers() {
+		// List<String> stringList = readListFromFile(playersDb);
 		int cnt = 0;
 
-		if (stringList != null) {
-			out.println("Balance Name");
-			for (String line : stringList) {
-				if (cnt++ % 2 == 0) {
-					out.printf("%7s ", line);
-				} else {
-					out.println(line);
+		// if (stringList != null) {
+		for (String line : players) {
+			if (cnt == 0) {
+				out.println("Active players:");
+				out.println("Balance Name");
+			}
+			if (cnt++ % 2 == 0) {
+				out.printf("%7s ", line);
+			} else {
+				out.println(line);
+			}
+		}
+		// }
+	}
+
+	public static int getBalance(String name, int balance) {
+		int cnt = 0;
+		int prevBal = 0;
+		for (String line : players) {
+			if (cnt++ % 2 == 0) {
+				prevBal = Integer.valueOf(line);
+			} else {
+				if (line.equals(name)) {
+					balance = prevBal;
 				}
 			}
 		}
+		return balance;
 	}
 
 	public static void updatePlayersDb(String name, int balance) {
-		// String playerBalance = "";
-		String playerName = "";
 		int cnt = 0;
 		boolean found = false;
+		if (balance <= 0) { // Remove zero balance from playersDb if present
+			for (String line : players) {
+				if (cnt % 2 == 1 && line.equals(name)) {
+					players.remove(cnt);
+					players.remove(cnt - 1);
+					found = true;
+					break;
+				}
+				cnt++;
+			}
+			if (found) {
+				writeListToFile(players, playersDb);
+			}
+			return;
+		}
+
 		for (String line : players) {
 			if (cnt % 2 == 0) {
-				// playerBalance = line;
+				// skip balance
 			} else {
-				playerName = line;
-				if (playerName.equals(name)) {
+				// name
+				if (line.equals(name)) {
+					// out.println("Updating " + balance + " " + name);
 					players.set(cnt - 1, "" + balance);
 					found = true;
 				}
@@ -154,13 +187,18 @@ class BlkJckArrayList {
 			cnt++;
 		}
 		if (!found) {
+			// out.println("Adding " + balance + " " + name);
 			players.add("" + balance);
 			players.add(name);
 		}
+		// out.println("Players");
+		// for (String line : players) {
+		// out.println(line);
+		// }
 		writeListToFile(players, playersDb);
 	}
 
-	public static ArrayList<String> players = new ArrayList<>();
+	public static List<String> players = new ArrayList<>();
 
 	public static void main(String[] args) {
 
@@ -184,12 +222,19 @@ class BlkJckArrayList {
 		}
 
 		out.println("Welcome to Blackjack (q to quit)");
-		printPlayersDb();
+		players = readListFromFile(playersDb);
+		printPlayers();
 		out.print("Enter your name: ");
 		name = scan.nextLine();
+		balance = getBalance(name, balance);
 
 		while (true) {
 			while (true) {
+				if (balance < 10) {
+					out.println("Not enough balance to continue.");
+					quit(name, balance);
+				}
+
 				// Get player bet
 				out.print("Bet (default 10, max " + balance + ")? ");
 				String input = scan.nextLine();
@@ -253,7 +298,7 @@ class BlkJckArrayList {
 					showHand(playerHand, "Player hand ");
 					out.print("(h)it, (s)tay");
 
-					if (playerHand.size() == 2) {
+					if (playerHand.size() == 2 && balance >= bet) {
 						out.print(", (d)ouble down");
 					}
 					out.print("? ");
@@ -356,11 +401,6 @@ class BlkJckArrayList {
 			}
 
 			// Round completed
-			if (balance < 10) {
-				out.println("Not enough balance to continue.");
-				quit(name, balance);
-			}
-
 			out.println("Balance " + balance);
 			out.print("(q)uit? ");
 			if (scan.nextLine().equals("q")) {
