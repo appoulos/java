@@ -272,10 +272,13 @@ class BlkJck {
 			} else {
 				out.println("lose bet " + bet);
 			}
+
+			// Round completed
 			if (balance < 10) {
 				out.println("Not enough balance to continue.");
 				quit(balance);
 			}
+
 			out.println("Balance " + balance);
 			out.print("(q)uit? ");
 			if (scan.nextLine().equals("q")) {
