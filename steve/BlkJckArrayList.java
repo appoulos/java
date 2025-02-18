@@ -86,10 +86,6 @@ class BlkJckArrayList {
 		out.println("Thank you for playing");
 		out.println("Final balance " + balance);
 		updatePlayersDb(name, balance);
-		// out.println(playersDb + " file contents:");
-		// for (String line : readListFromFile(playersDb)) {
-		// out.println(line);
-		// }
 		System.exit(0);
 	}
 
@@ -121,10 +117,8 @@ class BlkJckArrayList {
 	public static String playersDb = "players.txt";
 
 	public static void printPlayers() {
-		// List<String> stringList = readListFromFile(playersDb);
 		int cnt = 0;
 
-		// if (stringList != null) {
 		for (String line : players) {
 			if (cnt == 0) {
 				out.println("Active players:");
@@ -136,7 +130,6 @@ class BlkJckArrayList {
 				out.println(line);
 			}
 		}
-		// }
 	}
 
 	public static int getBalance(String name, int balance) {
@@ -173,6 +166,7 @@ class BlkJckArrayList {
 			return;
 		}
 
+		// Attempt to update player balance
 		for (String line : players) {
 			if (cnt % 2 == 0) {
 				// skip balance
@@ -186,15 +180,15 @@ class BlkJckArrayList {
 			}
 			cnt++;
 		}
+
+		// Add new player if not already in players
 		if (!found) {
 			// out.println("Adding " + balance + " " + name);
 			players.add("" + balance);
 			players.add(name);
 		}
-		// out.println("Players");
-		// for (String line : players) {
-		// out.println(line);
-		// }
+		
+		// Save players to file
 		writeListToFile(players, playersDb);
 	}
 
