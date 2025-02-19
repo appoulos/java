@@ -92,6 +92,7 @@ class BlkJckArrayList {
 				ObjectInputStream ois = new ObjectInputStream(fis)) {
 			tableData = (TreeMap<String, Integer>) ois.readObject();
 		} catch (FileNotFoundException e) {
+			// Create new db file
 			saveDb(tableData);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -136,33 +137,36 @@ class BlkJckArrayList {
 		if (balance < 10) {
 			// Zero out balance
 			settleBet(-balance);
-			out.println("Not enough balance to continue, "+name+" removed from roster.");
+			out.println("Not enough balance to continue, " + name + " removed from roster.");
 			quit();
 		}
 	}
 
-	public static final int startingBalance = 100;
-
+	// On disk record of players saved after every balance change
 	public static Map<String, Integer> roster;
+
+	// Player info
 	public static String name;
 	public static int balance;
 
+	// Configuration
+	public static final int startingBalance = 100; // New player balance
+	public static final int numDecks = 4; // Decks in shoe
+
 	public static void main(String[] args) {
+		// Get/show roster
 		roster = getDb();
 		if (roster.size() > 0) {
 			out.println("Roster:");
+			out.println("Balance Name");
 			for (Map.Entry<String, Integer> entry : roster.entrySet()) {
-				out.println("name: " + entry.getKey() + ", balance: " + entry.getValue());
+				out.printf("%7s %s\n", "$" + entry.getValue(), entry.getKey());
 			}
 		}
 
 		List<Card> shoe = new ArrayList<>();
-		List<Card> playerHand = new ArrayList<>();
 		List<Card> dealerHand = new ArrayList<>();
-		int bet = 0;
-
-		// Configuration
-		int numDecks = 4; // Decks in shoe
+		List<Card> playerHand = new ArrayList<>();
 
 		// Fill shoe with numDecks
 		for (String rank : ranks) {
@@ -182,13 +186,17 @@ class BlkJckArrayList {
 				break;
 			}
 		}
+
 		out.println("Welcome to Blackjack " + name + " (q to quit)");
 		balance = getBalance();
 
+		// Start new hand
 		while (true) {
+			int bet = 0;
+
+			// Get player bet
 			while (true) {
 				checkBalance();
-				// Get player bet
 				out.print("Bet (default 10, max " + balance + ")? ");
 				String input = scan.nextLine();
 				try {
@@ -242,11 +250,9 @@ class BlkJckArrayList {
 			boolean dealerBlackjack = dealerSum == 21;
 
 			if (!dealerBlackjack && !playerBlackjack) {
-				out.println("Dealer shows " + dealerHand.get(1));
+				out.println("Dealer shows " + dealerHand.get(1)); // Second card shows, first hidden
 
-				playerBust = false;
-				dealerBust = false;
-
+				// Player's turn
 				boolean continue_ = true;
 				while (continue_) {
 					showHand(playerHand, "Player hand ");
@@ -300,7 +306,7 @@ class BlkJckArrayList {
 					}
 				}
 
-				// Dealer draws cards until 17
+				// Dealer's turn; draws cards until 17
 				continue_ = true;
 				if (!playerBust) {
 					out.println("\n***** Dealers turn *****");
@@ -341,7 +347,7 @@ class BlkJckArrayList {
 			} else if (playerBlackjack) {
 				showHand(playerHand, "Player hand ");
 				showHand(dealerHand, "Dealer hand ");
-				out.println("Player blackjack win 3:2 $" + (int)(2.5 * bet));
+				out.println("Player blackjack win 3:2 $" + (int) (2.5 * bet));
 				settleBet((int) (2.5 * bet));
 			} else if (playerBust) {
 				out.println("lose bet $" + bet);
@@ -356,7 +362,7 @@ class BlkJckArrayList {
 			}
 
 			// Round completed
-			out.println("Balance " + balance);
+			out.println("Balance $" + balance);
 			checkBalance();
 			out.print("(q)uit? ");
 			if (scan.nextLine().equals("q")) {
