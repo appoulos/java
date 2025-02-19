@@ -5,10 +5,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import java.io.BufferedWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.List;
 
 class Card {
@@ -58,7 +63,7 @@ class BlkJckArrayList {
 	private static String[] ranks = { "Ace", "2", "3", "4", "5", "6", "7", "8", "9", "10", "Jack", "Queen", "King" };
 	private static String[] suits = { "Clubs", "Diamonds", "Hearts", "Spades" };
 
-	static public int handValue(ArrayList<Card> cards) {
+	static public int handValue(List<Card> cards) {
 		int sum = 0;
 		int aces = 0;
 		for (Card card : cards) {
@@ -74,7 +79,7 @@ class BlkJckArrayList {
 		return sum;
 	}
 
-	static void showHand(ArrayList<Card> cards, String prompt) {
+	static void showHand(List<Card> cards, String prompt) {
 		out.print(prompt);
 		for (Card card : cards)
 			out.print(card);
@@ -187,18 +192,40 @@ class BlkJckArrayList {
 			players.add("" + balance);
 			players.add(name);
 		}
-		
+
 		// Save players to file
 		writeListToFile(players, playersDb);
 	}
 
 	public static List<String> players = new ArrayList<>();
 
+	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
-
-		ArrayList<Card> shoe = new ArrayList<>();
-		ArrayList<Card> playerHand = new ArrayList<>();
-		ArrayList<Card> dealerHand = new ArrayList<>();
+		List<PlayerRow> tableData = new ArrayList<>();
+		try (FileInputStream fis = new FileInputStream("table_data.ser");
+				ObjectInputStream ois = new ObjectInputStream(fis)) {
+			tableData = (ArrayList<PlayerRow>) ois.readObject();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		for (PlayerRow row : tableData) {
+			out.println("name: " + row.name + ", balance: " + row.balance);
+		}
+		// tableData.add(new PlayerRow("asdf", 5));
+		// tableData.add(new PlayerRow("uiop", 7));
+		// // Example using ObjectOutputStream
+		// try (FileOutputStream fileOut = new FileOutputStream("table_data.ser");
+		// ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
+		// objectOut.writeObject(tableData); // tableData is a List<Object> or
+		// Object[][]
+		// } catch (IOException e) {
+		// e.printStackTrace();
+		// }
+		List<Card> shoe = new ArrayList<>();
+		List<Card> playerHand = new ArrayList<>();
+		List<Card> dealerHand = new ArrayList<>();
 		String name = "";
 		int bet = 0;
 
@@ -215,11 +242,19 @@ class BlkJckArrayList {
 			}
 		}
 
-		out.println("Welcome to Blackjack (q to quit)");
 		players = readListFromFile(playersDb);
 		printPlayers();
-		out.print("Enter your name: ");
-		name = scan.nextLine();
+		while (true) {
+			out.print("Enter your name: ");
+			name = scan.nextLine();
+			name = name.replace(',', '-');
+			if (name.length() == 0) {
+				out.println("Invalid input. Try again");
+			} else {
+				break;
+			}
+		}
+		out.println("Welcome to Blackjack " + name + " (q to quit)");
 		balance = getBalance(name, balance);
 
 		while (true) {
@@ -401,5 +436,15 @@ class BlkJckArrayList {
 				quit(name, balance);
 			}
 		}
+	}
+}
+
+class PlayerRow implements Serializable {
+	String name;
+	int balance;
+
+	PlayerRow(String name, int balance) {
+		this.name = name;
+		this.balance = balance;
 	}
 }
