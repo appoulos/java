@@ -71,7 +71,7 @@ class BlkJckArrayList {
 		return sum;
 	}
 
-	static void showHand(List<Card> cards, String prompt) {
+	static void printHand(List<Card> cards, String prompt) {
 		out.print(prompt);
 		for (Card card : cards)
 			out.print(card);
@@ -154,7 +154,7 @@ class BlkJckArrayList {
 	public static final int numDecks = 4; // Decks in shoe
 
 	public static void main(String[] args) {
-		// Get/show roster
+		// Get roster
 		roster = getDb();
 
 		List<Card> shoe = new ArrayList<>();
@@ -171,6 +171,7 @@ class BlkJckArrayList {
 		}
 
 		while (true) {
+			// Print roster
 			if (roster.size() > 0) {
 				out.println("Roster:");
 				out.println("Balance Name");
