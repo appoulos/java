@@ -253,7 +253,7 @@ class BlkJckArrayList {
 					// Player's turn
 					boolean continue_ = true;
 					while (continue_) {
-						showHand(playerHand, "Player hand ");
+						printHand(playerHand, "Player hand ");
 						out.print("(h)it, (s)tay");
 
 						if (playerHand.size() == 2 && balance >= bet) {
@@ -274,7 +274,7 @@ class BlkJckArrayList {
 
 								playerHand.add(shoe.remove(0));
 								playerSum = handValue(playerHand);
-								showHand(playerHand, "Player hand ");
+								printHand(playerHand, "Player hand ");
 
 								if (playerSum == 21) {
 									out.println("Player has 21");
@@ -288,10 +288,10 @@ class BlkJckArrayList {
 								playerHand.add(shoe.remove(0));
 								playerSum = handValue(playerHand);
 								if (playerSum == 21) {
-									showHand(playerHand, "Player has 21 ");
+									printHand(playerHand, "Player has 21 ");
 									continue_ = false;
 								} else if (playerSum > 21) {
-									showHand(playerHand, "Player busts ");
+									printHand(playerHand, "Player busts ");
 									continue_ = false;
 									playerBust = true;
 								}
@@ -309,7 +309,7 @@ class BlkJckArrayList {
 					if (!playerBust) {
 						out.println("\n***** Dealers turn *****");
 						while (continue_) {
-							showHand(dealerHand, "Dealer hand ");
+							printHand(dealerHand, "Dealer hand ");
 
 							if (dealerSum < 17) {
 								out.println("Dealer hits");
@@ -317,7 +317,7 @@ class BlkJckArrayList {
 								dealerSum = handValue(dealerHand);
 								if (dealerSum > 21) {
 									out.println("\n***** Dealer busts *****");
-									showHand(dealerHand, "Dealer hand ");
+									printHand(dealerHand, "Dealer hand ");
 									continue_ = false;
 									dealerBust = true;
 								}
@@ -334,8 +334,8 @@ class BlkJckArrayList {
 
 				// Settle bets
 				if (dealerBlackjack) {
-					showHand(playerHand, "Player hand ");
-					showHand(dealerHand, "Dealer blackjack ");
+					printHand(playerHand, "Player hand ");
+					printHand(dealerHand, "Dealer blackjack ");
 					if (playerBlackjack) {
 						out.println("push $" + bet);
 						settleBet(bet);
@@ -343,8 +343,8 @@ class BlkJckArrayList {
 						out.println("lose bet $" + bet);
 					}
 				} else if (playerBlackjack) {
-					showHand(playerHand, "Player hand ");
-					showHand(dealerHand, "Dealer hand ");
+					printHand(playerHand, "Player hand ");
+					printHand(dealerHand, "Dealer hand ");
 					out.println("Player blackjack win 3:2 $" + (int) (2.5 * bet));
 					settleBet((int) (2.5 * bet));
 				} else if (playerBust) {
