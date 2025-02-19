@@ -156,13 +156,6 @@ class BlkJckArrayList {
 	public static void main(String[] args) {
 		// Get/show roster
 		roster = getDb();
-		if (roster.size() > 0) {
-			out.println("Roster:");
-			out.println("Balance Name");
-			for (Map.Entry<String, Integer> entry : roster.entrySet()) {
-				out.printf("%7s %s\n", "$" + entry.getValue(), entry.getKey());
-			}
-		}
 
 		List<Card> shoe = new ArrayList<>();
 		List<Card> dealerHand = new ArrayList<>();
@@ -178,195 +171,205 @@ class BlkJckArrayList {
 		}
 
 		while (true) {
-			out.print("Enter your name: ");
+			if (roster.size() > 0) {
+				out.println("Roster:");
+				out.println("Balance Name");
+				for (Map.Entry<String, Integer> entry : roster.entrySet()) {
+					out.printf("%7s %s\n", "$" + entry.getValue(), entry.getKey());
+				}
+			}
+			out.print("Enter your name (leave blank to exit): ");
 			name = scan.nextLine();
 			if (name.length() == 0) {
-				out.println("Invalid input. Try again");
-			} else {
-				break;
-			}
-		}
-
-		out.println("Welcome to Blackjack " + name + " (q to quit)");
-		balance = getBalance();
-
-		// Start new hand
-		while (true) {
-			int bet = 0;
-
-			// Get player bet
-			while (true) {
-				checkBalance();
-				out.print("Bet (default 10, max " + balance + ")? ");
-				String input = scan.nextLine();
-				try {
-					if (input.equals("q")) {
-						quit();
-					}
-					if (input.equals("")) {
-						bet = 10;
-					} else {
-						bet = Integer.parseInt(input);
-					}
-					if (bet % 10 != 0) {
-						out.println("Bets must be multiples of 10");
-						continue;
-					}
-					if (bet > balance) {
-						out.println("Maximum bet is " + balance);
-						continue;
-					}
-					settleBet(-bet);
-
-					break;
-				} catch (NumberFormatException e) {
-					out.println("Invalid input. Please enter a number");
-				}
+				quit();
 			}
 
-			// Shuffle when new game or less than 25% left in shoe
-			if (shoe.size() == 52 * numDecks || shoe.size() < 52 * numDecks / 4) {
-				out.println("\n***** Shuffling deck(s) *****\n");
-				Collections.shuffle(shoe);
-			}
+			out.println("Welcome to Blackjack " + name + " (q to quit)");
+			balance = getBalance();
 
-			// Reset hands
-			playerHand.clear();
-			dealerHand.clear();
+			// Start new hand
+			roster: while (true) {
+				int bet = 0;
 
-			// Player gets two cards
-			playerHand.add(shoe.remove(0));
-			playerHand.add(shoe.remove(0));
-			int playerSum = handValue(playerHand);
-
-			// Dealer gets two cards
-			dealerHand.add(shoe.remove(0));
-			dealerHand.add(shoe.remove(0));
-			int dealerSum = handValue(dealerHand);
-
-			boolean playerBust = false;
-			boolean dealerBust = false;
-			boolean playerBlackjack = playerSum == 21;
-			boolean dealerBlackjack = dealerSum == 21;
-
-			if (!dealerBlackjack && !playerBlackjack) {
-				out.println("Dealer shows " + dealerHand.get(1)); // Second card shows, first hidden
-
-				// Player's turn
-				boolean continue_ = true;
-				while (continue_) {
-					showHand(playerHand, "Player hand ");
-					out.print("(h)it, (s)tay");
-
-					if (playerHand.size() == 2 && balance >= bet) {
-						out.print(", (d)ouble down");
-					}
-					out.print("? ");
-
+				// Get player bet
+				while (true) {
+					checkBalance();
+					out.print("Bet (default 10, max " + balance + ")? ");
 					String input = scan.nextLine();
-					if (input.equals("q")) {
-						quit();
-					}
+					try {
+						if (input.equals("q")) {
+							quit();
+						}
+						if (input.equals("")) {
+							bet = 10;
+						} else {
+							bet = Integer.parseInt(input);
+						}
+						if (bet % 10 != 0) {
+							out.println("Bets must be multiples of 10");
+							continue;
+						}
+						if (bet > balance) {
+							out.println("Maximum bet is " + balance);
+							continue;
+						}
+						settleBet(-bet);
 
-					switch (input) {
-						case "d": // double down
-							continue_ = false;
-							settleBet(-bet);
-							bet *= 2;
-
-							playerHand.add(shoe.remove(0));
-							playerSum = handValue(playerHand);
-							showHand(playerHand, "Player hand ");
-
-							if (playerSum == 21) {
-								out.println("Player has 21");
-							} else if (playerSum > 21) {
-								out.println("Player busts");
-								playerBust = true;
-							}
-							continue_ = false;
-							break;
-						case "h": // hit
-							playerHand.add(shoe.remove(0));
-							playerSum = handValue(playerHand);
-							if (playerSum == 21) {
-								showHand(playerHand, "Player has 21 ");
-								continue_ = false;
-							} else if (playerSum > 21) {
-								showHand(playerHand, "Player busts ");
-								continue_ = false;
-								playerBust = true;
-							}
-							break;
-						case "s": // stay
-							continue_ = false;
-							break;
-						default:
-							out.println("Invalid input. Try again");
+						break;
+					} catch (NumberFormatException e) {
+						out.println("Invalid input. Please enter a number");
 					}
 				}
 
-				// Dealer's turn; draws cards until 17
-				continue_ = true;
-				if (!playerBust) {
-					out.println("\n***** Dealers turn *****");
-					while (continue_) {
-						showHand(dealerHand, "Dealer hand ");
+				// Shuffle when new game or less than 25% left in shoe
+				if (shoe.size() == 52 * numDecks || shoe.size() < 52 * numDecks / 4) {
+					out.println("\n***** Shuffling deck(s) *****\n");
+					Collections.shuffle(shoe);
+				}
 
-						if (dealerSum < 17) {
-							out.println("Dealer hits");
-							dealerHand.add(shoe.remove(0));
-							dealerSum = handValue(dealerHand);
-							if (dealerSum > 21) {
-								out.println("\n***** Dealer busts *****");
-								showHand(dealerHand, "Dealer hand ");
+				// Reset hands
+				playerHand.clear();
+				dealerHand.clear();
+
+				// Player gets two cards
+				playerHand.add(shoe.remove(0));
+				playerHand.add(shoe.remove(0));
+				int playerSum = handValue(playerHand);
+
+				// Dealer gets two cards
+				dealerHand.add(shoe.remove(0));
+				dealerHand.add(shoe.remove(0));
+				int dealerSum = handValue(dealerHand);
+
+				boolean playerBust = false;
+				boolean dealerBust = false;
+				boolean playerBlackjack = playerSum == 21;
+				boolean dealerBlackjack = dealerSum == 21;
+
+				if (!dealerBlackjack && !playerBlackjack) {
+					out.println("Dealer shows " + dealerHand.get(1)); // Second card shows, first hidden
+
+					// Player's turn
+					boolean continue_ = true;
+					while (continue_) {
+						showHand(playerHand, "Player hand ");
+						out.print("(h)it, (s)tay");
+
+						if (playerHand.size() == 2 && balance >= bet) {
+							out.print(", (d)ouble down");
+						}
+						out.print("? ");
+
+						String input = scan.nextLine();
+						if (input.equals("q")) {
+							quit();
+						}
+
+						switch (input) {
+							case "d": // double down
 								continue_ = false;
-								dealerBust = true;
+								settleBet(-bet);
+								bet *= 2;
+
+								playerHand.add(shoe.remove(0));
+								playerSum = handValue(playerHand);
+								showHand(playerHand, "Player hand ");
+
+								if (playerSum == 21) {
+									out.println("Player has 21");
+								} else if (playerSum > 21) {
+									out.println("Player busts");
+									playerBust = true;
+								}
+								continue_ = false;
+								break;
+							case "h": // hit
+								playerHand.add(shoe.remove(0));
+								playerSum = handValue(playerHand);
+								if (playerSum == 21) {
+									showHand(playerHand, "Player has 21 ");
+									continue_ = false;
+								} else if (playerSum > 21) {
+									showHand(playerHand, "Player busts ");
+									continue_ = false;
+									playerBust = true;
+								}
+								break;
+							case "s": // stay
+								continue_ = false;
+								break;
+							default:
+								out.println("Invalid input. Try again");
+						}
+					}
+
+					// Dealer's turn; draws cards until 17
+					continue_ = true;
+					if (!playerBust) {
+						out.println("\n***** Dealers turn *****");
+						while (continue_) {
+							showHand(dealerHand, "Dealer hand ");
+
+							if (dealerSum < 17) {
+								out.println("Dealer hits");
+								dealerHand.add(shoe.remove(0));
+								dealerSum = handValue(dealerHand);
+								if (dealerSum > 21) {
+									out.println("\n***** Dealer busts *****");
+									showHand(dealerHand, "Dealer hand ");
+									continue_ = false;
+									dealerBust = true;
+								}
+							} else if (dealerSum == 21) {
+								out.println("Dealer has 21");
+								continue_ = false;
+							} else {
+								out.println("Dealer stays with " + dealerSum);
+								continue_ = false;
 							}
-						} else if (dealerSum == 21) {
-							out.println("Dealer has 21");
-							continue_ = false;
-						} else {
-							out.println("Dealer stays with " + dealerSum);
-							continue_ = false;
 						}
 					}
 				}
-			}
 
-			// Settle bets
-			if (dealerBlackjack) {
-				showHand(playerHand, "Player hand ");
-				showHand(dealerHand, "Dealer blackjack ");
-				if (playerBlackjack) {
+				// Settle bets
+				if (dealerBlackjack) {
+					showHand(playerHand, "Player hand ");
+					showHand(dealerHand, "Dealer blackjack ");
+					if (playerBlackjack) {
+						out.println("push $" + bet);
+						settleBet(bet);
+					} else {
+						out.println("lose bet $" + bet);
+					}
+				} else if (playerBlackjack) {
+					showHand(playerHand, "Player hand ");
+					showHand(dealerHand, "Dealer hand ");
+					out.println("Player blackjack win 3:2 $" + (int) (2.5 * bet));
+					settleBet((int) (2.5 * bet));
+				} else if (playerBust) {
+					out.println("lose bet $" + bet);
+				} else if (dealerBust || playerSum > dealerSum) {
+					out.println("win 1:1 $" + 2 * bet);
+					settleBet(2 * bet);
+				} else if (dealerSum == playerSum) {
 					out.println("push $" + bet);
 					settleBet(bet);
 				} else {
 					out.println("lose bet $" + bet);
 				}
-			} else if (playerBlackjack) {
-				showHand(playerHand, "Player hand ");
-				showHand(dealerHand, "Dealer hand ");
-				out.println("Player blackjack win 3:2 $" + (int) (2.5 * bet));
-				settleBet((int) (2.5 * bet));
-			} else if (playerBust) {
-				out.println("lose bet $" + bet);
-			} else if (dealerBust || playerSum > dealerSum) {
-				out.println("win 1:1 $" + 2 * bet);
-				settleBet(2 * bet);
-			} else if (dealerSum == playerSum) {
-				out.println("push $" + bet);
-				settleBet(bet);
-			} else {
-				out.println("lose bet $" + bet);
-			}
 
-			// Round completed
-			out.println("Balance $" + balance);
-			checkBalance();
-			out.print("(q)uit? ");
-			if (scan.nextLine().equals("q")) {
-				quit();
+				// Round completed
+				out.println("Balance $" + balance);
+				checkBalance();
+				out.print("(P)lay again (s)witch players (q)uit? ");
+				switch (scan.nextLine()) {
+					case "q":
+						quit();
+						break;
+					case "s":
+						break roster;
+					default:
+				}
 			}
 		}
 	}
