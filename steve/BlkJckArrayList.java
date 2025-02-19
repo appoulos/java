@@ -121,19 +121,6 @@ class BlkJckArrayList {
 			roster.put(name, balance);
 		}
 		saveDb(roster);
-		// if (balance < 10) {
-		// 	out.println("Not enough balance to continue.");
-		// 	quit();
-		// }
-	}
-
-	public static int getBalance(String name) {
-		if (!roster.containsKey(name)) {
-			roster.put(name, startingBalance);
-			saveDb(roster);
-			return startingBalance;
-		}
-		return roster.get(name);
 	}
 
 	public static int getBalance() {
