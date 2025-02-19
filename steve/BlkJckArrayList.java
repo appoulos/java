@@ -79,7 +79,7 @@ class BlkJckArrayList {
 		out.println("(" + dealerSum + ")");
 	}
 
-	static void quit(String name, int balance) {
+	static void quit() {
 		out.println("Thank you for playing " + name);
 		out.println("Final balance " + balance);
 		System.exit(0);
@@ -113,35 +113,54 @@ class BlkJckArrayList {
 		}
 	}
 
-	public static void updateDb(Map<String, Integer> map, String name, int balance) {
-		if (balance <= 0) {
-			map.remove(name);
+	public static void settleBet(int bet) {
+		balance += bet;
+		if (balance < 10) {
+			roster.remove(name);
 		} else {
-			map.put(name, balance);
+			roster.put(name, balance);
 		}
-		saveDb(map);
+		saveDb(roster);
+		// if (balance < 10) {
+		// 	out.println("Not enough balance to continue.");
+		// 	quit();
+		// }
 	}
 
-	public static int getBalance(Map<String, Integer> map, String name) {
-		if (!map.containsKey(name)) {
-			map.put(name, startingBalance);
-			saveDb(map);
+	public static int getBalance(String name) {
+		if (!roster.containsKey(name)) {
+			roster.put(name, startingBalance);
+			saveDb(roster);
 			return startingBalance;
 		}
-		return map.get(name);
+		return roster.get(name);
 	}
 
-	public static void checkBalance(String name, int balance) {
+	public static int getBalance() {
+		if (!roster.containsKey(name)) {
+			roster.put(name, startingBalance);
+			saveDb(roster);
+			return startingBalance;
+		}
+		return roster.get(name);
+	}
+
+	public static void checkBalance() {
 		if (balance < 10) {
-			out.println("Not enough balance to continue.");
-			quit(name, balance);
+			// Zero out balance
+			settleBet(-balance);
+			out.println("Not enough balance to continue, "+name+" removed from roster.");
+			quit();
 		}
 	}
 
 	public static final int startingBalance = 100;
 
+	public static Map<String, Integer> roster;
+	public static String name;
+	public static int balance;
+
 	public static void main(String[] args) {
-		Map<String, Integer> roster = new TreeMap<>();
 		roster = getDb();
 		if (roster.size() > 0) {
 			out.println("Roster:");
@@ -153,12 +172,10 @@ class BlkJckArrayList {
 		List<Card> shoe = new ArrayList<>();
 		List<Card> playerHand = new ArrayList<>();
 		List<Card> dealerHand = new ArrayList<>();
-		String name = "";
 		int bet = 0;
 
 		// Configuration
 		int numDecks = 4; // Decks in shoe
-		int balance; // = startingBalance; // Starting player balance
 
 		// Fill shoe with numDecks
 		for (String rank : ranks) {
@@ -179,17 +196,17 @@ class BlkJckArrayList {
 			}
 		}
 		out.println("Welcome to Blackjack " + name + " (q to quit)");
-		balance = getBalance(roster, name);
+		balance = getBalance();
 
 		while (true) {
 			while (true) {
-				checkBalance(name, balance);
+				checkBalance();
 				// Get player bet
 				out.print("Bet (default 10, max " + balance + ")? ");
 				String input = scan.nextLine();
 				try {
 					if (input.equals("q")) {
-						quit(name, balance);
+						quit();
 					}
 					if (input.equals("")) {
 						bet = 10;
@@ -204,8 +221,7 @@ class BlkJckArrayList {
 						out.println("Maximum bet is " + balance);
 						continue;
 					}
-					balance -= bet;
-					updateDb(roster, name, balance);
+					settleBet(-bet);
 
 					break;
 				} catch (NumberFormatException e) {
@@ -256,14 +272,13 @@ class BlkJckArrayList {
 
 					String input = scan.nextLine();
 					if (input.equals("q")) {
-						quit(name, balance);
+						quit();
 					}
 
 					switch (input) {
 						case "d": // double down
 							continue_ = false;
-							balance -= bet;
-							updateDb(roster, name, balance);
+							settleBet(-bet);
 							bet *= 2;
 
 							playerHand.add(shoe.remove(0));
@@ -332,37 +347,33 @@ class BlkJckArrayList {
 				showHand(dealerHand, "Dealer blackjack ");
 				if (playerBlackjack) {
 					out.println("push $" + bet);
-					balance += bet;
-					updateDb(roster, name, balance);
+					settleBet(bet);
 				} else {
 					out.println("lose bet $" + bet);
 				}
 			} else if (playerBlackjack) {
 				showHand(playerHand, "Player hand ");
 				showHand(dealerHand, "Dealer hand ");
-				out.println("Player blackjack win 3:2 $" + (2.5 * bet));
-				balance += 2.5 * bet;
-				updateDb(roster, name, balance);
+				out.println("Player blackjack win 3:2 $" + (int)(2.5 * bet));
+				settleBet((int) (2.5 * bet));
 			} else if (playerBust) {
 				out.println("lose bet $" + bet);
 			} else if (dealerBust || playerSum > dealerSum) {
 				out.println("win 1:1 $" + 2 * bet);
-				balance += 2 * bet;
-				updateDb(roster, name, balance);
+				settleBet(2 * bet);
 			} else if (dealerSum == playerSum) {
 				out.println("push $" + bet);
-				balance += bet;
-				updateDb(roster, name, balance);
+				settleBet(bet);
 			} else {
 				out.println("lose bet $" + bet);
 			}
 
 			// Round completed
 			out.println("Balance " + balance);
-			checkBalance(name, balance);
+			checkBalance();
 			out.print("(q)uit? ");
 			if (scan.nextLine().equals("q")) {
-				quit(name, balance);
+				quit();
 			}
 		}
 	}
