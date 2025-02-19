@@ -40,21 +40,16 @@ class Card {
 
 	@Override
 	public String toString() {
-		String str = rank;
 		switch (suit) {
 			case "Clubs":
-				str += "\u2663 ";
-				break;
+				return rank+"\u2663 ";
 			case "Diamonds":
-				str += "\u2666 ";
-				break;
+				return "\u001B[1;31m"+rank+"\u2666\u001B[0m ";
 			case "Hearts":
-				str += "\uf004 ";
-				break;
-			case "Spades":
-				str += "\u2660 ";
+				return "\u001B[1;31m"+rank+"\uf004\u001B[0m ";
+			default: // case "Spades":
+				return rank+"\u2660 ";
 		}
-		return str;
 	}
 }
 
