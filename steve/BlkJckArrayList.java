@@ -1,20 +1,17 @@
 import static java.lang.System.out;
 
 import java.util.Scanner;
+import java.util.TreeMap;
 import java.util.ArrayList;
 import java.util.Collections;
-
-import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.BufferedReader;
-import java.io.FileWriter;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 class Card {
 	private String rank;
@@ -42,13 +39,13 @@ class Card {
 	public String toString() {
 		switch (suit) {
 			case "Clubs":
-				return rank+"\u2663 ";
+				return rank + "\u2663 ";
 			case "Diamonds":
-				return "\u001B[1;31m"+rank+"\u2666\u001B[0m ";
+				return "\u001B[1;31m" + rank + "\u2666\u001B[0m ";
 			case "Hearts":
-				return "\u001B[1;31m"+rank+"\uf004\u001B[0m ";
+				return "\u001B[1;31m" + rank + "\uf004\u001B[0m ";
 			default: // case "Spades":
-				return rank+"\u2660 ";
+				return rank + "\u2660 ";
 		}
 	}
 }
@@ -83,141 +80,76 @@ class BlkJckArrayList {
 	}
 
 	static void quit(String name, int balance) {
-		out.println("Thank you for playing");
+		out.println("Thank you for playing " + name);
 		out.println("Final balance " + balance);
-		updatePlayersDb(name, balance);
 		System.exit(0);
 	}
 
-	public static void writeListToFile(List<String> list, String filePath) {
-		try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-			for (String str : list) {
-				writer.write(str);
-				writer.newLine();
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static List<String> readListFromFile(String filePath) {
-		List<String> stringList = new ArrayList<>();
-		try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-			String line;
-			while ((line = reader.readLine()) != null) {
-				stringList.add(line);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-		return stringList;
-	}
-
-	public static String playersDb = "players.txt";
-
-	public static void printPlayers() {
-		int cnt = 0;
-
-		for (String line : players) {
-			if (cnt == 0) {
-				out.println("Active players:");
-				out.println("Balance Name");
-			}
-			if (cnt++ % 2 == 0) {
-				out.printf("%7s ", line);
-			} else {
-				out.println(line);
-			}
-		}
-	}
-
-	public static int getBalance(String name, int balance) {
-		int cnt = 0;
-		int prevBal = 0;
-		for (String line : players) {
-			if (cnt++ % 2 == 0) {
-				prevBal = Integer.valueOf(line);
-			} else {
-				if (line.equals(name)) {
-					balance = prevBal;
-				}
-			}
-		}
-		return balance;
-	}
-
-	public static void updatePlayersDb(String name, int balance) {
-		int cnt = 0;
-		boolean found = false;
-		if (balance <= 0) { // Remove zero balance from playersDb if present
-			for (String line : players) {
-				if (cnt % 2 == 1 && line.equals(name)) {
-					players.remove(cnt);
-					players.remove(cnt - 1);
-					found = true;
-					break;
-				}
-				cnt++;
-			}
-			if (found) {
-				writeListToFile(players, playersDb);
-			}
-			return;
-		}
-
-		// Attempt to update player balance
-		for (String line : players) {
-			if (cnt % 2 == 0) {
-				// skip balance
-			} else {
-				// name
-				if (line.equals(name)) {
-					// out.println("Updating " + balance + " " + name);
-					players.set(cnt - 1, "" + balance);
-					found = true;
-				}
-			}
-			cnt++;
-		}
-
-		// Add new player if not already in players
-		if (!found) {
-			// out.println("Adding " + balance + " " + name);
-			players.add("" + balance);
-			players.add(name);
-		}
-
-		// Save players to file
-		writeListToFile(players, playersDb);
-	}
-
-	public static List<String> players = new ArrayList<>();
-
 	@SuppressWarnings("unchecked")
-	public static void main(String[] args) {
-		List<PlayerRow> tableData = new ArrayList<>();
+	public static Map<String, Integer> getDb() {
+		Map<String, Integer> tableData = null;
 		try (FileInputStream fis = new FileInputStream("table_data.ser");
 				ObjectInputStream ois = new ObjectInputStream(fis)) {
-			tableData = (ArrayList<PlayerRow>) ois.readObject();
+			tableData = (TreeMap<String, Integer>) ois.readObject();
+		} catch (FileNotFoundException e) {
+			saveDb(tableData);
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		for (PlayerRow row : tableData) {
-			out.println("name: " + row.name + ", balance: " + row.balance);
+		if (tableData == null) {
+			return new TreeMap<>();
 		}
-		// tableData.add(new PlayerRow("asdf", 5));
-		// tableData.add(new PlayerRow("uiop", 7));
-		// // Example using ObjectOutputStream
-		// try (FileOutputStream fileOut = new FileOutputStream("table_data.ser");
-		// ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
-		// objectOut.writeObject(tableData); // tableData is a List<Object> or
-		// Object[][]
-		// } catch (IOException e) {
-		// e.printStackTrace();
-		// }
+		return tableData;
+	}
+
+	public static void saveDb(Map<String, Integer> map) {
+		try (FileOutputStream fos = new FileOutputStream("table_data.ser");
+				ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+			oos.writeObject(map);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void updateDb(Map<String, Integer> map, String name, int balance) {
+		if (balance <= 0) {
+			map.remove(name);
+		} else {
+			map.put(name, balance);
+		}
+		saveDb(map);
+	}
+
+	public static int getBalance(Map<String, Integer> map, String name) {
+		if (!map.containsKey(name)) {
+			map.put(name, startingBalance);
+			saveDb(map);
+			return startingBalance;
+		}
+		return map.get(name);
+	}
+
+	public static void checkBalance(String name, int balance) {
+		if (balance < 10) {
+			out.println("Not enough balance to continue.");
+			quit(name, balance);
+		}
+	}
+
+	public static final int startingBalance = 100;
+
+	public static void main(String[] args) {
+		Map<String, Integer> roster = new TreeMap<>();
+		roster = getDb();
+		if (roster.size() > 0) {
+			out.println("Roster:");
+			for (Map.Entry<String, Integer> entry : roster.entrySet()) {
+				out.println("name: " + entry.getKey() + ", balance: " + entry.getValue());
+			}
+		}
+
 		List<Card> shoe = new ArrayList<>();
 		List<Card> playerHand = new ArrayList<>();
 		List<Card> dealerHand = new ArrayList<>();
@@ -226,7 +158,7 @@ class BlkJckArrayList {
 
 		// Configuration
 		int numDecks = 4; // Decks in shoe
-		int balance = 100; // Starting player balance
+		int balance; // = startingBalance; // Starting player balance
 
 		// Fill shoe with numDecks
 		for (String rank : ranks) {
@@ -237,12 +169,9 @@ class BlkJckArrayList {
 			}
 		}
 
-		players = readListFromFile(playersDb);
-		printPlayers();
 		while (true) {
 			out.print("Enter your name: ");
 			name = scan.nextLine();
-			name = name.replace(',', '-');
 			if (name.length() == 0) {
 				out.println("Invalid input. Try again");
 			} else {
@@ -250,15 +179,11 @@ class BlkJckArrayList {
 			}
 		}
 		out.println("Welcome to Blackjack " + name + " (q to quit)");
-		balance = getBalance(name, balance);
+		balance = getBalance(roster, name);
 
 		while (true) {
 			while (true) {
-				if (balance < 10) {
-					out.println("Not enough balance to continue.");
-					quit(name, balance);
-				}
-
+				checkBalance(name, balance);
 				// Get player bet
 				out.print("Bet (default 10, max " + balance + ")? ");
 				String input = scan.nextLine();
@@ -280,6 +205,8 @@ class BlkJckArrayList {
 						continue;
 					}
 					balance -= bet;
+					updateDb(roster, name, balance);
+
 					break;
 				} catch (NumberFormatException e) {
 					out.println("Invalid input. Please enter a number");
@@ -336,6 +263,7 @@ class BlkJckArrayList {
 						case "d": // double down
 							continue_ = false;
 							balance -= bet;
+							updateDb(roster, name, balance);
 							bet *= 2;
 
 							playerHand.add(shoe.remove(0));
@@ -389,6 +317,7 @@ class BlkJckArrayList {
 							}
 						} else if (dealerSum == 21) {
 							out.println("Dealer has 21");
+							continue_ = false;
 						} else {
 							out.println("Dealer stays with " + dealerSum);
 							continue_ = false;
@@ -402,44 +331,39 @@ class BlkJckArrayList {
 				showHand(playerHand, "Player hand ");
 				showHand(dealerHand, "Dealer blackjack ");
 				if (playerBlackjack) {
-					out.println("push");
+					out.println("push $" + bet);
 					balance += bet;
+					updateDb(roster, name, balance);
 				} else {
-					out.println("lose bet " + bet);
+					out.println("lose bet $" + bet);
 				}
 			} else if (playerBlackjack) {
 				showHand(playerHand, "Player hand ");
 				showHand(dealerHand, "Dealer hand ");
-				out.println("Player blackjack win 3:2");
+				out.println("Player blackjack win 3:2 $" + (2.5 * bet));
 				balance += 2.5 * bet;
+				updateDb(roster, name, balance);
 			} else if (playerBust) {
-				out.println("lose bet " + bet);
+				out.println("lose bet $" + bet);
 			} else if (dealerBust || playerSum > dealerSum) {
-				out.println("win 1:1");
+				out.println("win 1:1 $" + 2 * bet);
 				balance += 2 * bet;
+				updateDb(roster, name, balance);
 			} else if (dealerSum == playerSum) {
-				out.println("push");
+				out.println("push $" + bet);
 				balance += bet;
+				updateDb(roster, name, balance);
 			} else {
-				out.println("lose bet " + bet);
+				out.println("lose bet $" + bet);
 			}
 
 			// Round completed
 			out.println("Balance " + balance);
+			checkBalance(name, balance);
 			out.print("(q)uit? ");
 			if (scan.nextLine().equals("q")) {
 				quit(name, balance);
 			}
 		}
-	}
-}
-
-class PlayerRow implements Serializable {
-	String name;
-	int balance;
-
-	PlayerRow(String name, int balance) {
-		this.name = name;
-		this.balance = balance;
 	}
 }
