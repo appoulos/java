@@ -355,8 +355,10 @@ class BlkJckArrayList {
 				} else if (dealerSum == playerSum) {
 					out.println("push $" + bet);
 					settleBet(bet);
-				} else {
+				} else if (playerSum < dealerSum) {
 					out.println("lose bet $" + bet);
+				} else {
+					System.err.println("oops. lose bet $" + bet);
 				}
 
 				// Round completed
@@ -372,6 +374,7 @@ class BlkJckArrayList {
 					default:
 				}
 			}
+			out.println("end of roster loop");
 		}
 	}
 }
