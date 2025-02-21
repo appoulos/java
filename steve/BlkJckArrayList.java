@@ -133,13 +133,15 @@ class BlkJckArrayList {
 		return roster.get(name);
 	}
 
-	public static void checkBalance() {
+	public static boolean checkBalance() {
 		if (balance < 10) {
 			// Zero out balance
 			settleBet(-balance);
 			out.println("Not enough balance to continue, " + name + " removed from roster.");
-			quit();
+			return false;
+			// quit();
 		}
+		return true;
 	}
 
 	// On disk record of players saved after every balance change
@@ -194,7 +196,9 @@ class BlkJckArrayList {
 
 				// Get player bet
 				while (true) {
-					checkBalance();
+					if (!checkBalance()) {
+						break roster;
+					}
 					out.print("Bet (default 10, max " + balance + ")? ");
 					String input = scan.nextLine();
 					try {
@@ -363,7 +367,9 @@ class BlkJckArrayList {
 
 				// Round completed
 				out.println("Balance $" + balance);
-				checkBalance();
+				if (!checkBalance()) {
+					break roster;
+				}
 				out.print("(P)lay again (s)witch players (q)uit? ");
 				switch (scan.nextLine()) {
 					case "q":
