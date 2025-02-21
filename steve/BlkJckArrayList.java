@@ -81,7 +81,9 @@ class BlkJckArrayList {
 
 	static void quit() {
 		out.println("Thank you for playing " + name);
-		out.println("Final balance " + balance);
+		if (name.length() > 0) {
+			out.println("Final balance " + balance);
+		}
 		System.exit(0);
 	}
 
@@ -137,7 +139,12 @@ class BlkJckArrayList {
 		if (balance < 10) {
 			// Zero out balance
 			settleBet(-balance);
-			out.println("Not enough balance to continue, " + name + " removed from roster.");
+			out.print("Not enough balance to continue, " + name + " removed from roster");
+			if (balance > 0) {
+				out.println(" and returned $" + balance);
+			} else {
+				out.println();
+			}
 			return false;
 			// quit();
 		}
