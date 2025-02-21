@@ -137,14 +137,14 @@ class BlkJckArrayList {
 
 	public static boolean checkBalance() {
 		if (balance < 10) {
-			// Zero out balance
-			settleBet(-balance);
 			out.print("Not enough balance to continue, " + name + " removed from roster");
 			if (balance > 0) {
 				out.println(" and returned $" + balance);
 			} else {
 				out.println();
 			}
+			// Zero out balance
+			settleBet(-balance);
 			return false;
 			// quit();
 		}
@@ -159,7 +159,7 @@ class BlkJckArrayList {
 	public static int balance;
 
 	// Configuration
-	public static final int startingBalance = 100; // New player balance
+	public static final int startingBalance = 105; // New player balance
 	public static final int numDecks = 4; // Decks in shoe
 
 	public static void main(String[] args) {
@@ -387,7 +387,6 @@ class BlkJckArrayList {
 					default:
 				}
 			}
-			out.println("end of roster loop");
 		}
 	}
 }
