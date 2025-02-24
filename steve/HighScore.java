@@ -4,6 +4,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.StreamCorruptedException;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -21,8 +22,8 @@ class HighScore {
 		try (FileInputStream fis = new FileInputStream(dbFilename);
 				ObjectInputStream ois = new ObjectInputStream(fis)) {
 			roster = (TreeMap<Integer, String>) ois.readObject();
-		} catch (FileNotFoundException e) {
-			// Create new db file
+		} catch (FileNotFoundException | StreamCorruptedException e) {
+			// Create new file
 			save();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -50,8 +51,9 @@ class HighScore {
 			// Complicated way to trim roster to maxScores size
 			// Map<Integer, String> reverseMap = roster.descendingMap();
 			// roster = reverseMap.entrySet().stream()
-			// 		.limit(maxScores)
-			// 		.collect(TreeMap::new, (m, e) -> m.put(e.getKey(), e.getValue()), Map::putAll);
+			// .limit(maxScores)
+			// .collect(TreeMap::new, (m, e) -> m.put(e.getKey(), e.getValue()),
+			// Map::putAll);
 			save();
 		}
 	}
@@ -61,6 +63,7 @@ class HighScore {
 		if (roster.size() > 0) {
 			int cnt = 0;
 			String str = "High Scores:\nNum Balance Name\n";
+			// Print roster in reverse order by balance
 			// Map<Integer, String> reverseMap = roster.descendingMap();
 			for (Map.Entry<Integer, String> entry : roster.descendingMap().entrySet()) {
 				str += String.format("%3d %7s %s\n", ++cnt, "$" + entry.getKey(), entry.getValue());
