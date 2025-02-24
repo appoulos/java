@@ -2,6 +2,7 @@ import javax.swing.*;
 
 // import java.awt.*;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -13,8 +14,10 @@ public class Swing {
 		JFrame f = new JFrame();
 
 		BufferedImage tiles = null;
+		BufferedImage back = null;
 		try {
 			tiles = ImageIO.read(new File("tiles.png"));
+			back = ImageIO.read(new File("pngegg.png")); // Bicyclebackside.jpg"));
 		} catch (IOException e) {
 			System.err.println("Error reading image file: " + e.getMessage());
 			System.exit(1);
@@ -22,10 +25,25 @@ public class Swing {
 
 		// Create a JPanel to hold the images
 		JPanel imagePanel = new JPanel();
-		imagePanel.setLayout(new GridLayout(13, 4)); // Use FlowLayout or other as needed
+		imagePanel.setLayout(new GridLayout(4, 13)); // Use FlowLayout or other as needed
 
-		for (int i = 0; i < 52; i++) {
-			imagePanel.add(new JLabel(new ImageIcon(tiles.getSubimage(207 * i, 0, 207, 300))));
+		ImageIcon imageIcon = null;
+		imageIcon = new ImageIcon(back);
+		Image image = imageIcon.getImage();
+		Image scaledImage = image.getScaledInstance(300, 300, java.awt.Image.SCALE_SMOOTH);
+		imageIcon = new ImageIcon(scaledImage);
+		imagePanel.add(new JLabel(imageIcon));
+
+		for (int i = 0; i < 51; i++) {
+			imageIcon = new ImageIcon(tiles.getSubimage(207 * i, 0, 207, 300));
+			// Scale image if it's too big
+			image = imageIcon.getImage();
+			scaledImage = image.getScaledInstance((i + 1) * 207 / 52, (i + 1) * 300 / 52, java.awt.Image.SCALE_SMOOTH);
+			imageIcon = new ImageIcon(scaledImage);
+			JLabel label = new JLabel(imageIcon);
+			imagePanel.add(label);
+			// imagePanel.add(new JLabel(new ImageIcon(tiles.getSubimage(207 * i, 0, 207,
+			// 300))));
 		}
 
 		// Create the JScrollPane

@@ -43,7 +43,7 @@ class Card {
 			case "Diamonds":
 				return "\u001B[1;31m" + rank + "\u2666\u001B[0m ";
 			case "Hearts":
-				return "\u001B[1;31m" + rank + "\uf004\u001B[0m ";
+				return "\u001B[1;31m" + rank + "\u2764\u001B[0m ";
 			default: // case "Spades":
 				return rank + "\u2660 ";
 		}
