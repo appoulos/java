@@ -123,7 +123,7 @@ class BlkJck {
 			out.println(roster);
 			out.println(highscore);
 			out.print("Name (blank to quit): ");
-			String player = scan.nextLine();
+			String player = scan.nextLine().trim();
 			if (player.length() == 0) {
 				System.exit(0);
 			}

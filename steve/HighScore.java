@@ -22,14 +22,18 @@ class HighScore {
 		try (FileInputStream fis = new FileInputStream(dbFilename);
 				ObjectInputStream ois = new ObjectInputStream(fis)) {
 			roster = (TreeMap<Integer, String>) ois.readObject();
-		} catch (FileNotFoundException | StreamCorruptedException e) {
+		} catch (Exception e) {
 			// Create new file
 			save();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
 		}
+		// } catch (FileNotFoundException | StreamCorruptedException e) {
+		// 	// Create new file
+		// 	save();
+		// } catch (IOException e) {
+		// 	e.printStackTrace();
+		// } catch (ClassNotFoundException e) {
+		// 	e.printStackTrace();
+		// }
 	}
 
 	public void save() {
