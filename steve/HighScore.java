@@ -43,10 +43,15 @@ class HighScore {
 	public void set(String player, int balance) {
 		if (roster.get(balance) == null) {
 			roster.put(balance, player);
-			Map<Integer, String> reverseMap = roster.descendingMap();
-			roster = reverseMap.entrySet().stream()
-					.limit(maxScores)
-					.collect(TreeMap::new, (m, e) -> m.put(e.getKey(), e.getValue()), Map::putAll);
+			// Trim roster to maxScores size
+			while (roster.size() > maxScores) {
+				roster.remove(roster.firstKey());
+			}
+			// Complicated way to trim roster to maxScores size
+			// Map<Integer, String> reverseMap = roster.descendingMap();
+			// roster = reverseMap.entrySet().stream()
+			// 		.limit(maxScores)
+			// 		.collect(TreeMap::new, (m, e) -> m.put(e.getKey(), e.getValue()), Map::putAll);
 			save();
 		}
 	}
@@ -56,8 +61,8 @@ class HighScore {
 		if (roster.size() > 0) {
 			int cnt = 0;
 			String str = "High Scores:\nNum Balance Name\n";
-			Map<Integer, String> reverseMap = roster.descendingMap();
-			for (Map.Entry<Integer, String> entry : reverseMap.entrySet()) {
+			// Map<Integer, String> reverseMap = roster.descendingMap();
+			for (Map.Entry<Integer, String> entry : roster.descendingMap().entrySet()) {
 				str += String.format("%3d %7s %s\n", ++cnt, "$" + entry.getKey(), entry.getValue());
 			}
 			return str;
