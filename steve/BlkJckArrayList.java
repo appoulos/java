@@ -41,9 +41,9 @@ class Card {
 			case "Clubs":
 				return rank + "\u2663 ";
 			case "Diamonds":
-				return "\u001B[1;31m" + rank + "\u2666\u001B[0m ";
+				return "\u001B[47m\u001B[1;31m" + rank + "\u2666\u001B[0m ";
 			case "Hearts":
-				return "\u001B[1;31m" + rank + "\u2764\u001B[0m ";
+				return "\u001B[47m\u001B[1;31m" + rank + "\u2764\u001B[0m ";
 			default: // case "Spades":
 				return rank + "\u2660 ";
 		}
@@ -163,6 +163,7 @@ class BlkJckArrayList {
 	public static final int numDecks = 4; // Decks in shoe
 
 	public static void main(String[] args) {
+		out.print("\u001B[0;107m\u001B[1;30m");
 		// Get roster
 		roster = getDb();
 

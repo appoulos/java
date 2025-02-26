@@ -1,3 +1,4 @@
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -31,6 +32,18 @@ class Roster {
 		}
 	}
 
+	public void purge() {
+		File f = new File(dbFilename);
+		try {
+			if (!f.delete()) {
+				System.out.println("Error: could not delete file " + dbFilename);
+			}
+		} catch (Exception e) {
+			System.out.println("Error: " + e);
+		}
+		roster = new TreeMap<>();
+	}
+
 	public void save() {
 		try (FileOutputStream fos = new FileOutputStream(dbFilename);
 				ObjectOutputStream oos = new ObjectOutputStream(fos)) {
@@ -61,10 +74,11 @@ class Roster {
 	@Override
 	public String toString() {
 		if (roster.size() > 0) {
-			String str = "Roster:\nBalance Name\n";
+			String str = "\n***** Roster *****\nBalance Name\n";
 			for (Map.Entry<String, Integer> entry : roster.entrySet()) {
 				str += String.format("%7s %s\n", "$" + entry.getValue(), entry.getKey());
 			}
+			str += "\n";
 			return str;
 		}
 		return "";

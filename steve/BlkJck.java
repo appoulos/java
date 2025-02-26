@@ -84,8 +84,10 @@ class BlkJck {
 		Roster roster = new Roster("roster.db", 100);
 		// roster.setBalance("a", 100);
 		// roster.save();
+		// roster.purge();
 
 		HighScore highscore = new HighScore("highscore.db", 3);
+		// highscore.purge();
 		// highscore.set(player, roster.getBalance(player));
 
 		final int maxDecks = 8;
@@ -120,8 +122,8 @@ class BlkJck {
 
 		out.println("Welcome to Blackjack (q to quit)");
 		while (true) {
-			out.println(roster);
-			out.println(highscore);
+			out.print(roster);
+			out.print(highscore);
 			out.print("Name (blank to quit): ");
 			String player = scan.nextLine().trim();
 			if (player.length() == 0) {
