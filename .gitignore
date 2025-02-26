@@ -1,4 +1,2 @@
 *.class
-cards
-bak
-table_data.ser
+*.db

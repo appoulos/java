@@ -90,7 +90,7 @@ class BlkJckArrayList {
 	@SuppressWarnings("unchecked")
 	public static Map<String, Integer> getDb() {
 		Map<String, Integer> tableData = null;
-		try (FileInputStream fis = new FileInputStream("table_data.ser");
+		try (FileInputStream fis = new FileInputStream("table_data.db");
 				ObjectInputStream ois = new ObjectInputStream(fis)) {
 			tableData = (TreeMap<String, Integer>) ois.readObject();
 		} catch (FileNotFoundException e) {
