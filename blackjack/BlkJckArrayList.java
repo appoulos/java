@@ -190,7 +190,7 @@ class BlkJckArrayList {
 				}
 			}
 			out.print("Enter your name (leave blank to exit): ");
-			name = scan.nextLine();
+			name = scan.nextLine().trim();
 			if (name.length() == 0) {
 				quit();
 			}

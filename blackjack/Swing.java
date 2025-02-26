@@ -15,9 +15,10 @@ public class Swing {
 
 		BufferedImage tiles = null;
 		BufferedImage back = null;
+
 		try {
-			tiles = ImageIO.read(new File("tiles.png"));
-			back = ImageIO.read(new File("pngegg.png")); // Bicyclebackside.jpg"));
+			tiles = ImageIO.read(new File("cards/tiles.png"));
+			back = ImageIO.read(new File("cards/backside.png")); // Bicyclebackside.jpg"));
 		} catch (IOException e) {
 			System.err.println("Error reading image file: " + e.getMessage());
 			System.exit(1);
