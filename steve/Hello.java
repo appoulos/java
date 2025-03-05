@@ -521,9 +521,20 @@ public class Hello extends ConsoleProgram {
 		return false;
 	}
 
+	static class Hi {
+		Hi() {
+			System.out.println("hi");
+		}
+	}
 	public void run() {
+		new Hi();
+		println("Enter any character and press return");
 		Scanner scan = new Scanner(System.in);
 		char char_ = scan.findWithinHorizon(".", 0).charAt(0);
+		// char char_ = scan.nextLine().charAt(0);
+		println("got: "+char_);
+		println("Enter any character and press return");
+		char_ = scan.findWithinHorizon(".", 0).charAt(0);
 		// char char_ = scan.nextLine().charAt(0);
 		println("got: "+char_);
 		scan.close();

@@ -25,7 +25,7 @@ class Main extends JFrame {
 
 		addButton = new JButton("add");
 		addButton.addActionListener(event -> {
-			JButton newButton = new JButton("hi" + buttons.size());
+			JButton newButton = new JButton("<html><u>h</u>i" + buttons.size()+"</html>");
 			buttons.add(newButton);
 			centerPanel.add(newButton); // , BorderLayout.SOUTH);
 			centerPanel.revalidate();
