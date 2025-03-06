@@ -9,12 +9,15 @@ class Main extends JFrame {
 
 	private static JPanel menuPanel;
 	private static JPanel centerPanel;
+	private static JPanel specialPanel;
 	private static JButton addButton;
 	private static JButton removeButton;
+	private static JButton specialButton;
 	private static JButton quitButton;
 	private static final int DEFAULT_WIDTH = 400;
 	private static final int DEFAULT_HEIGHT = 600;
 	private static List<JComponent> buttons;
+	private static boolean alt = true;
 
 	public Main() {
 		buttons = new ArrayList<>();
@@ -25,11 +28,34 @@ class Main extends JFrame {
 
 		addButton = new JButton("add");
 		addButton.addActionListener(event -> {
-			JButton newButton = new JButton("<html><u>h</u>i" + buttons.size()+"</html>");
+			JButton newButton = new JButton("<html><u>h</u>i" + buttons.size() + "</html>");
 			buttons.add(newButton);
 			centerPanel.add(newButton); // , BorderLayout.SOUTH);
 			centerPanel.revalidate();
 			centerPanel.repaint();
+			// repaint();
+		});
+
+		specialPanel = new JPanel();
+		specialPanel.add(new JButton("specialbutton"));
+		// add(specialPanel, BorderLayout.SOUTH);
+		// add(specialPanel, BorderLayout.EAST);
+		specialButton = new JButton("special");
+		specialButton.addActionListener(event -> {
+			if (alt) {
+				remove(centerPanel);
+				add(specialPanel, BorderLayout.CENTER);
+				specialPanel.revalidate();
+				specialPanel.repaint();
+			} else {
+				remove(specialPanel);
+				add(centerPanel, BorderLayout.CENTER);
+				centerPanel.revalidate();
+				centerPanel.repaint();
+			}
+			alt = !alt;
+			// revalidate();
+			// repaint();
 		});
 
 		removeButton = new JButton("remove");
@@ -38,6 +64,7 @@ class Main extends JFrame {
 				centerPanel.remove(buttons.remove(0));
 				centerPanel.revalidate();
 				centerPanel.repaint();
+				// repaint();
 			}
 		});
 
@@ -46,6 +73,7 @@ class Main extends JFrame {
 
 		menuPanel.add(addButton);
 		menuPanel.add(removeButton);
+		menuPanel.add(specialButton);
 		menuPanel.add(quitButton);
 
 		add(menuPanel, BorderLayout.NORTH);
