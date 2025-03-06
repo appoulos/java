@@ -37,7 +37,7 @@ class HighScore {
 	}
 
 	/**
-	 * Remove the file from disk and clear the high scores.
+	 * Remove dbFilename file from disk and clear the high scores in the roster.
 	 */
 	public void purge() {
 		File f = new File(dbFilename);
@@ -49,6 +49,13 @@ class HighScore {
 			System.out.println("Error: " + e);
 		}
 		roster = new TreeMap<>();
+	}
+
+	/**
+	 * Get the number of high scores
+	 */
+	public int size() {
+		return roster.size();
 	}
 
 	/**

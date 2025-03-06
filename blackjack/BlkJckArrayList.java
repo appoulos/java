@@ -41,9 +41,9 @@ class Card {
 			case "Clubs":
 				return rank + "\u2663 ";
 			case "Diamonds":
-				return "\u001B[47m\u001B[1;31m" + rank + "\u2666\u001B[0m ";
+				return "\u001B[1;31m" + rank + "\u2666\u001B[0m ";
 			case "Hearts":
-				return "\u001B[47m\u001B[1;31m" + rank + "\u2764\u001B[0m ";
+				return "\u001B[1;31m" + rank + "\u2764\u001B[0m ";
 			default: // case "Spades":
 				return rank + "\u2660 ";
 		}
@@ -87,10 +87,12 @@ class BlkJckArrayList {
 		System.exit(0);
 	}
 
+	private static final String rosterFile = "table_data.db";
+
 	@SuppressWarnings("unchecked")
 	public static Map<String, Integer> getDb() {
 		Map<String, Integer> tableData = null;
-		try (FileInputStream fis = new FileInputStream("table_data.db");
+		try (FileInputStream fis = new FileInputStream(rosterFile);
 				ObjectInputStream ois = new ObjectInputStream(fis)) {
 			tableData = (TreeMap<String, Integer>) ois.readObject();
 		} catch (FileNotFoundException e) {
@@ -107,8 +109,9 @@ class BlkJckArrayList {
 		return tableData;
 	}
 
+
 	public static void saveDb(Map<String, Integer> map) {
-		try (FileOutputStream fos = new FileOutputStream("table_data.ser");
+		try (FileOutputStream fos = new FileOutputStream(rosterFile);
 				ObjectOutputStream oos = new ObjectOutputStream(fos)) {
 			oos.writeObject(map);
 		} catch (IOException e) {
@@ -159,28 +162,28 @@ class BlkJckArrayList {
 	public static int balance;
 
 	// Configuration
-	public static final int startingBalance = 105; // New player balance
+	public static final int startingBalance = 1000; // New player balance
 	public static final int numDecks = 4; // Decks in shoe
 
 	public static void main(String[] args) {
-		out.print("\u001B[0;107m\u001B[1;30m");
+		// out.print("\u001B[0;107m\u001B[1;30m");
+		// High scores
+		int maxScores = 3;
+		String dbFilename = "highscore_test.db";
+		HighScore hs = new HighScore(dbFilename, maxScores);
+
 		// Get roster
 		roster = getDb();
+		// int round = 0;
 
 		List<Card> shoe = new ArrayList<>();
 		List<Card> dealerHand = new ArrayList<>();
 		List<Card> playerHand = new ArrayList<>();
 
-		// Fill shoe with numDecks
-		for (String rank : ranks) {
-			for (int deck = 0; deck < numDecks; deck++) {
-				for (String suit : suits) {
-					shoe.add(new Card(rank, suit));
-				}
-			}
-		}
-
 		while (true) {
+			// Print high scores
+			System.out.print(hs);
+
 			// Print roster
 			if (roster.size() > 0) {
 				out.println("Roster:");
@@ -208,34 +211,50 @@ class BlkJckArrayList {
 						break roster;
 					}
 					out.print("Bet (default 10, max " + balance + ")? ");
-					String input = scan.nextLine();
-					try {
-						if (input.equals("q")) {
-							quit();
-						}
-						if (input.equals("")) {
-							bet = 10;
-						} else {
-							bet = Integer.parseInt(input);
-						}
-						if (bet % 10 != 0) {
-							out.println("Bets must be multiples of 10");
-							continue;
-						}
-						if (bet > balance) {
-							out.println("Maximum bet is " + balance);
-							continue;
-						}
+					if (name.equals("cpu")) {
+						bet = Math.min(balance, 10 + Math.abs(startingBalance - balance));
+						out.println(bet);
 						settleBet(-bet);
-
 						break;
-					} catch (NumberFormatException e) {
-						out.println("Invalid input. Please enter a number");
+					} else {
+						String input = scan.nextLine();
+						try {
+							if (input.equals("q")) {
+								quit();
+							}
+							if (input.equals("")) {
+								bet = 10;
+							} else {
+								bet = Integer.parseInt(input);
+							}
+							if (bet % 10 != 0) {
+								out.println("Bets must be multiples of 10");
+								continue;
+							}
+							if (bet > balance) {
+								out.println("Maximum bet is " + balance);
+								continue;
+							}
+							settleBet(-bet);
+
+							break;
+						} catch (NumberFormatException e) {
+							out.println("Invalid input. Please enter a number");
+						}
 					}
 				}
 
 				// Shuffle when new game or less than 25% left in shoe
-				if (shoe.size() == 52 * numDecks || shoe.size() < 52 * numDecks / 4) {
+				if (shoe.size() < 52 * numDecks / 4) {
+					// Fill shoe with numDecks
+					for (String rank : ranks) {
+						for (int deck = 0; deck < numDecks; deck++) {
+							for (String suit : suits) {
+								shoe.add(new Card(rank, suit));
+							}
+						}
+					}
+
 					out.println("\n***** Shuffling deck(s) *****\n");
 					Collections.shuffle(shoe);
 				}
@@ -273,9 +292,20 @@ class BlkJckArrayList {
 						}
 						out.print("? ");
 
-						String input = scan.nextLine();
-						if (input.equals("q")) {
-							quit();
+						String input;
+						if (name.equals("cpu")) {
+							if (handValue(playerHand) < 17) {
+								input = "h";
+								out.println("h");
+							} else {
+								input = "s";
+								out.println("s");
+							}
+						} else {
+							input = scan.nextLine();
+							if (input.equals("q")) {
+								quit();
+							}
 						}
 
 						switch (input) {
@@ -378,6 +408,12 @@ class BlkJckArrayList {
 				if (!checkBalance()) {
 					break roster;
 				}
+				hs.set(name, balance);
+				// if (name.equals("cpu")) {
+				// out.println("Round " + round + ", shoe size: " + shoe.size());
+				// round++;
+				// scan.nextLine();
+				// } else {
 				out.print("(P)lay again (s)witch players (q)uit? ");
 				switch (scan.nextLine()) {
 					case "q":
