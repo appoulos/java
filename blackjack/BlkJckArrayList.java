@@ -13,6 +13,116 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Map;
 
+import java.io.File;
+// import java.io.FileInputStream;
+// import java.io.FileOutputStream;
+// import java.io.IOException;
+// import java.io.ObjectInputStream;
+// import java.io.ObjectOutputStream;
+// import java.util.Map;
+// import java.util.TreeMap;
+
+/**
+ * HighScore has the ability to store names and scores to keep track of in a
+ * file and print.
+ */
+class HighScore {
+	private String dbFilename;
+	private int maxScores;
+	private TreeMap<Integer, String> roster;
+
+	/**
+	 * Class constructor specifying filename and maximum number of scores to keep
+	 * track of.
+	 * 
+	 * @param dbFilename filename to store the data to disk
+	 * @param maxScores  only keep this number of high scores
+	 */
+	@SuppressWarnings("unchecked")
+	public HighScore(String dbFilename, int maxScores) {
+		this.dbFilename = dbFilename;
+		this.maxScores = maxScores;
+		roster = new TreeMap<>();
+		// Get roster
+		try (FileInputStream fis = new FileInputStream(dbFilename);
+				ObjectInputStream ois = new ObjectInputStream(fis)) {
+			roster = (TreeMap<Integer, String>) ois.readObject();
+		} catch (Exception e) {
+			// FileNotFoundException | StreamCorruptedException | IOException |
+			// ClassNotFoundException
+			// Create new file
+			save();
+		}
+	}
+
+	/**
+	 * Remove dbFilename file from disk and clear the high scores in the roster.
+	 */
+	public void purge() {
+		File f = new File(dbFilename);
+		try {
+			if (!f.delete()) {
+				System.out.println("Error: could not delete file " + dbFilename);
+			}
+		} catch (Exception e) {
+			System.out.println("Error: " + e);
+		}
+		roster = new TreeMap<>();
+	}
+
+	/**
+	 * Get the number of high scores
+	 */
+	public int size() {
+		return roster.size();
+	}
+
+	/**
+	 * Set the player/associated high score and limit number of scores to maximum
+	 * set in constructor.
+	 * 
+	 * @param player  player name
+	 * @param balance player total balance
+	 */
+	public void set(String player, int balance) {
+		if (roster.get(balance) == null) {
+			roster.put(balance, player);
+			// Trim roster to maxScores size
+			while (roster.size() > maxScores) {
+				roster.remove(roster.firstKey());
+			}
+			save();
+		}
+	}
+
+	@Override
+	public String toString() {
+		if (roster.size() > 0) {
+			int cnt = 0;
+			String str = "\n***** High Scores *****\nNum Balance Name\n";
+			// Print roster in reverse order by balance
+			for (Map.Entry<Integer, String> entry : roster.descendingMap().entrySet()) {
+				str += String.format("%3d %7s %s\n", ++cnt, "$" + entry.getKey(), entry.getValue());
+			}
+			str += "\n";
+			return str;
+		}
+		return "";
+	}
+
+	/**
+	 * Create/save the high scores to the filename specified in the constructor.
+	 */
+	private void save() {
+		try (FileOutputStream fos = new FileOutputStream(dbFilename);
+				ObjectOutputStream oos = new ObjectOutputStream(fos)) {
+			oos.writeObject(roster);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+}
+
 class Card {
 	private String rank;
 	private String suit;
@@ -109,7 +219,6 @@ class BlkJckArrayList {
 		return tableData;
 	}
 
-
 	public static void saveDb(Map<String, Integer> map) {
 		try (FileOutputStream fos = new FileOutputStream(rosterFile);
 				ObjectOutputStream oos = new ObjectOutputStream(fos)) {
@@ -169,12 +278,12 @@ class BlkJckArrayList {
 		// out.print("\u001B[0;107m\u001B[1;30m");
 		// High scores
 		int maxScores = 3;
-		String dbFilename = "highscore_test.db";
+		String dbFilename = "highscore.db";
 		HighScore hs = new HighScore(dbFilename, maxScores);
 
 		// Get roster
 		roster = getDb();
-		// int round = 0;
+		int round = 1;
 
 		List<Card> shoe = new ArrayList<>();
 		List<Card> dealerHand = new ArrayList<>();
@@ -192,7 +301,7 @@ class BlkJckArrayList {
 					out.printf("%7s %s\n", "$" + entry.getValue(), entry.getKey());
 				}
 			}
-			out.print("Enter your name (leave blank to exit): ");
+			out.print("Enter your name (\"cpu\" for auto-player, leave blank to exit): ");
 			name = scan.nextLine().trim();
 			if (name.length() == 0) {
 				quit();
@@ -406,22 +515,25 @@ class BlkJckArrayList {
 				// Round completed
 				out.println("Balance $" + balance);
 				if (!checkBalance()) {
+					if (name.equals("cpu")) {
+						out.println("Round " + round);
+					}
 					break roster;
 				}
 				hs.set(name, balance);
-				// if (name.equals("cpu")) {
-				// out.println("Round " + round + ", shoe size: " + shoe.size());
-				// round++;
-				// scan.nextLine();
-				// } else {
-				out.print("(P)lay again (s)witch players (q)uit? ");
-				switch (scan.nextLine()) {
-					case "q":
-						quit();
-						break;
-					case "s":
-						break roster;
-					default:
+				if (name.equals("cpu")) {
+					out.println("Round " + round);
+					round++;
+				} else {
+					out.print("(P)lay again (s)witch players (q)uit? ");
+					switch (scan.nextLine()) {
+						case "q":
+							quit();
+							break;
+						case "s":
+							break roster;
+						default:
+					}
 				}
 			}
 		}
