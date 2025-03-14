@@ -41,5 +41,6 @@ class Wordle {
 		word = getWord();
 		// Print wordle word
 		System.out.println(word);
+
 	}
 }
