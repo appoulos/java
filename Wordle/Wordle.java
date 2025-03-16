@@ -1,46 +1,72 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 class Wordle {
-	public static final String words_file = "wordle.txt";
+	public static String getRandomWord() {
+		if (wordBank.size() == 0) {
+			String word = "";
 
-	public static String getWord() {
-		int word_num = 0;
-		String word = "";
+			// Open the words_file for reading by line
+			try (BufferedReader reader = new BufferedReader(new FileReader(word_bank_file))) {
 
-		// Get wordle word at random from file
-		try (BufferedReader reader = new BufferedReader(new FileReader(words_file))) {
+				// fill the dictionary with words
+				while ((word = reader.readLine()) != null) {
+					wordBank.add(word);
+				}
 
-			// First line of file contains total number of words in file
-			if ((word = reader.readLine()) != null) {
-				int tot_num_words = Integer.valueOf(word);
-				// Get random word_num from tot_num_words in file
-				word_num = (int) (Math.random() * tot_num_words);
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				System.exit(1);
 			}
-
-			// Skip word_num lines
-			int n = 0;
-			while ((word = reader.readLine()) != null && n < word_num) {
-				n++;
-			}
-
-			if (word == null) {
-				throw new RuntimeException("No word found");
-			}
-
-			// reader.close();
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			System.exit(1);
 		}
-		return word;
+		int n = (int) (Math.random() * wordBank.size());
+		return (String) wordBank.get(n);
 	}
 
-	public static void main(String[] args) {
-		String word = "";
-		word = getWord();
-		// Print wordle word
-		System.out.println(word);
+	public static boolean isValidWord(String s) {
+		if (validWords.size() == 0) {
+			String word = "";
 
+			// Open the words_file for reading by line
+			try (BufferedReader reader = new BufferedReader(new FileReader(valid_words_file))) {
+
+				// fill the dictionary with words
+				while ((word = reader.readLine()) != null) {
+					validWords.add(word);
+				}
+
+			} catch (Exception ex) {
+				ex.printStackTrace();
+				System.exit(1);
+			}
+		}
+		return validWords.contains(s);
+	}
+
+	// "valid-words.csv" and "word-bank.csv" are from:
+	// https://github.com/seanpatlan/wordle-words
+	// These lists are accurate as of 2/7/22, but probably won't be once NYT
+	// officially takes over the game.
+	public static final String valid_words_file = "valid-words.csv"; // Possible guesses
+	public static final String word_bank_file = "word-bank.csv"; // Possible solutions
+
+	public static Set<String> validWords = new HashSet<>();
+	public static List<String> wordBank = new ArrayList<>();
+
+	public static void main(String[] args) {
+		// Print wordle word
+		System.out.println("Random word: " + getRandomWord());
+		// Print wordle word
+		System.out.println("Random word: " + getRandomWord());
+		// Check for valid word
+		System.out.println("Is \"hello\" valid guess: " + isValidWord("hello"));
+		System.out.println("Is \"zzzzz\" valid guess: " + isValidWord("zzzzz"));
+		// Info about both word groups
+		System.out.println("Total solution words   : " + wordBank.size());
+		System.out.println("Total valid guess words: " + validWords.size());
 	}
 }
