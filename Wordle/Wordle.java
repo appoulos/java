@@ -25,7 +25,7 @@ class Wordle {
 			}
 		}
 		int n = (int) (Math.random() * wordBank.size());
-		return (String) wordBank.get(n);
+		return wordBank.get(n);
 	}
 
 	public static boolean isValidWord(String s) {
@@ -67,6 +67,7 @@ class Wordle {
 	}
 
 	public static void main(String[] args) {
+		// Demo begin
 		// Print wordle word
 		System.out.println("Random word: " + getRandomWord());
 		// Print wordle word
@@ -77,27 +78,28 @@ class Wordle {
 		// Info about both word groups
 		System.out.println("Total solution words   : " + wordBank.size());
 		System.out.println("Total valid guess words: " + validWords.size());
+		// Demo end
 
+		// Game begin
 		System.out.println("\nBegin of wordle game");
 		Scanner scan = new Scanner(System.in);
 
+		// Wordle word
 		String word = getRandomWord();
 		// word = "abbey";
 		System.out.println("Word: " + word);
+
+		// User guess
 		String guess = "";
 
-		int guesses = 0;
+		int guesses = 0; // number of guesses
 		while (true) {
 			guesses++;
 			while (true) {
 				System.out.print("Enter guess " + guesses + ": ");
 				guess = scan.nextLine();
-				if (guess.length() < 5) {
-					System.out.println("Guess too short, try again...");
-					continue;
-				}
-				if (guess.length() > 5) {
-					System.out.println("Guess too long, try again...");
+				if (guess.length() != word.length()) {
+					System.out.println("Guess must be " + word.length() + " letters, try again...");
 					continue;
 				}
 				if (!isValidWord(guess)) {
@@ -106,20 +108,28 @@ class Wordle {
 				}
 				break;
 			}
+
+			// User wins!
 			if (guess.equals(word)) {
 				System.out.println("Hooray! You got it in " + guesses + " tries");
 				break;
 			}
 
-			boolean[] used = new boolean[5];
+			// Array to mark used characters in word from guess chars
+			boolean[] used = new boolean[word.length()];
 
+			// Loop through each char in guess
 			nextCh: for (int i = 0; i < guess.length(); i++) {
 				char c = guess.charAt(i);
+
+				// Mark correct char in correct place green
 				if (c == word.charAt(i)) {
 					used[i] = true;
 					System.out.print(green(c));
 					continue;
 				}
+
+				// Mark correct char in incorrect place yellow
 				for (int j = 0; j < word.length(); j++) {
 					if (word.charAt(j) == c && !used[j]) {
 						used[j] = true;
@@ -127,6 +137,8 @@ class Wordle {
 						continue nextCh;
 					}
 				}
+
+				// Mark incorrect char
 				System.out.print(c);
 			}
 			System.out.println();
