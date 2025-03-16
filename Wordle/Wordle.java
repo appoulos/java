@@ -3,6 +3,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Scanner;
 import java.util.Set;
 
 class Wordle {
@@ -57,6 +58,14 @@ class Wordle {
 	public static Set<String> validWords = new HashSet<>();
 	public static List<String> wordBank = new ArrayList<>();
 
+	public static String green(char c) {
+		return "\u001b[1;32m" + c + "\u001b[m";
+	}
+
+	public static String yellow(char c) {
+		return "\u001b[1;33m" + c + "\u001b[m";
+	}
+
 	public static void main(String[] args) {
 		// Print wordle word
 		System.out.println("Random word: " + getRandomWord());
@@ -68,5 +77,65 @@ class Wordle {
 		// Info about both word groups
 		System.out.println("Total solution words   : " + wordBank.size());
 		System.out.println("Total valid guess words: " + validWords.size());
+
+		System.out.println("\nBegin of wordle game");
+		Scanner scan = new Scanner(System.in);
+
+		String word = getRandomWord();
+		// word = "abbey";
+		System.out.println("Word: " + word);
+		String guess = "";
+
+		int guesses = 0;
+		while (true) {
+			guesses++;
+			while (true) {
+				System.out.print("Enter guess " + guesses + ": ");
+				guess = scan.nextLine();
+				if (guess.length() < 5) {
+					System.out.println("Guess too short, try again...");
+					continue;
+				}
+				if (guess.length() > 5) {
+					System.out.println("Guess too long, try again...");
+					continue;
+				}
+				if (!isValidWord(guess)) {
+					System.out.println("Invalid word, try again...");
+					continue;
+				}
+				break;
+			}
+			if (guess.equals(word)) {
+				System.out.println("Hooray! You got it in " + guesses + " tries");
+				break;
+			}
+
+			boolean[] used = new boolean[5];
+
+			nextCh: for (int i = 0; i < guess.length(); i++) {
+				char c = guess.charAt(i);
+				if (c == word.charAt(i)) {
+					used[i] = true;
+					System.out.print(green(c));
+					continue;
+				}
+				for (int j = 0; j < word.length(); j++) {
+					if (word.charAt(j) == c && !used[j]) {
+						used[j] = true;
+						System.out.print(yellow(c));
+						continue nextCh;
+					}
+				}
+				System.out.print(c);
+			}
+			System.out.println();
+
+			if (guesses >= 100) {
+				System.out.println("Too many guesses");
+				break;
+			}
+		}
+		scan.close();
 	}
 }
