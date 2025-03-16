@@ -86,7 +86,7 @@ class Wordle {
 
 		// Wordle word
 		String word = getRandomWord();
-		// word = "abbey";
+		// word = "aebby";
 		System.out.println("Word: " + word);
 
 		// User guess
@@ -118,13 +118,23 @@ class Wordle {
 			// Array to mark used characters in word from guess chars
 			boolean[] used = new boolean[word.length()];
 
+			// Mark used array with correct letters
+			for (int i = 0; i < guess.length(); i++) {
+				char c = guess.charAt(i);
+
+				// Mark correct char in correct places as used
+				if (c == word.charAt(i)) {
+					used[i] = true;
+					continue;
+				}
+			}
+
 			// Loop through each char in guess
 			nextCh: for (int i = 0; i < guess.length(); i++) {
 				char c = guess.charAt(i);
 
 				// Mark correct char in correct place green
 				if (c == word.charAt(i)) {
-					used[i] = true;
 					System.out.print(green(c));
 					continue;
 				}
