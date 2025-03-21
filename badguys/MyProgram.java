@@ -142,19 +142,21 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 
         player = new Rectangle(50, 50, size, size);
         goal = new Rectangle(400, 300, size, size);
-        int randomx = (int) ((Math.random() * (gameWidth - 2 * radius - pad) + radius));
-        int randomx2 = (int) ((Math.random() * (gameWidth - size - pad) + pad / 2));
-        int randomx3 = (int) ((Math.random() * (gameWidth - size - pad) + pad / 2));
-        int randomx4 = (int) ((Math.random() * (gameWidth - size - pad) + pad / 2));
-        int randomy = (int) ((Math.random() * (gameHeight - 2 * radius - pad) + radius));
-        int randomy2 = (int) ((Math.random() * (gameHeight - size - pad)) + pad / 2);
-        int randomy3 = (int) ((Math.random() * (gameHeight - size - pad)) + pad / 2);
-        int randomy4 = (int) ((Math.random() * (gameHeight - size - pad)) + pad / 2);
         badguys.clear();
+        int randomx;
+        int randomy;
+        randomx = (int) (Math.random() * (gameWidth - 2 * radius - pad) + radius);
+        randomy = (int) (Math.random() * (gameHeight - 2 * radius - pad) + radius);
         badguys.add(new SpinningEnemy(randomx, randomy, size, size, radius));
-        badguys.add(new VerticalEnemy(randomx2, randomy2, size, size, gameHeight, 5));
-        badguys.add(new DiagonalEnemy(randomx3, randomy3, size, size, gameHeight, 5, gameWidth, 6));
-        badguys.add(new StalkerEnemy(randomx4, randomy4, size, size, player));
+        randomx = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
+        randomy = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
+        badguys.add(new VerticalEnemy(randomx, randomy, size, size, gameHeight, 5));
+        randomx = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
+        randomy = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
+        badguys.add(new DiagonalEnemy(randomx, randomy, size, size, gameHeight, 5, gameWidth, 6));
+        randomx = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
+        randomy = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
+        badguys.add(new StalkerEnemy(randomx, randomy, size, size, player));
         // System.out.println("Level: " + level);
     }
 
@@ -283,12 +285,12 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 
         // add new badguy
         if (level % 4 == 1) {
-            randomx = (int) ((Math.random() * (gameWidth - 2 * radius - pad) + radius));
-            randomy = (int) ((Math.random() * (gameHeight - 2 * radius - pad) + radius));
+            randomx = (int) (Math.random() * (gameWidth - 2 * radius - pad) + radius);
+            randomy = (int) (Math.random() * (gameHeight - 2 * radius - pad) + radius);
             badguys.add(new SpinningEnemy(randomx, randomy, size, size, radius));
         } else {
-            randomx = (int) ((Math.random() * (gameWidth - size - pad) + pad / 2));
-            randomy = (int) ((Math.random() * (gameHeight - size - pad)) + pad / 2);
+            randomx = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
+            randomy = (int) (Math.random() * (gameHeight - size - pad) + pad / 2);
             if (level % 4 == 0) {
                 badguys.add(new DiagonalEnemy(randomx, randomy, size, size, gameHeight, 5, gameWidth, 6));
             } else if (level % 4 == 2) {
