@@ -1,10 +1,14 @@
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.Lock;
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
 
 public class MyProgram extends JPanel implements ActionListener, KeyListener {
+
+	private int count = 0;
+	private static final Object countMutex = new Object();
 
 	private Rectangle player = new Rectangle(); // a rectangle that represents the player
 	private Rectangle goal = new Rectangle(); // a rectangle that represents the goal
@@ -17,6 +21,8 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 
 	private boolean up, down, left, right; // booleans that track which keys are currently pressed
 	private Timer timer; // the update timer
+
+	private final int dialogDelay = 1000;
 
 	private int gameWidth = 500; // the width of the game area
 	private int gameHeight = 330; // the height of the game area
@@ -44,6 +50,7 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 
 		game.addKeyListener(game);
 		frame.addKeyListener(game);
+		dialog.addKeyListener(game);
 
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -77,6 +84,18 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 			left = true;
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			right = true;
+		} else if (e.getKeyCode() == KeyEvent.VK_W) {
+			up = true;
+		} else if (e.getKeyCode() == KeyEvent.VK_A) {
+			left = true;
+		} else if (e.getKeyCode() == KeyEvent.VK_S) {
+			down = true;
+		} else if (e.getKeyCode() == KeyEvent.VK_D) {
+			right = true;
+		} else if (e.getKeyCode() == KeyEvent.VK_Q) {
+			System.exit(0);
+		} else if (e.getKeyCode() == KeyEvent.VK_R) {
+			setUpGame();
 		}
 	}
 
@@ -91,6 +110,14 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 			left = false;
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			right = false;
+		} else if (e.getKeyCode() == KeyEvent.VK_W) {
+			up = false;
+		} else if (e.getKeyCode() == KeyEvent.VK_A) {
+			left = false;
+		} else if (e.getKeyCode() == KeyEvent.VK_S) {
+			down = false;
+		} else if (e.getKeyCode() == KeyEvent.VK_D) {
+			right = false;
 		}
 	}
 
@@ -101,7 +128,8 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 	// Sets the initial state of the game
 	// Could be modified to allow for multiple levels
 	public void setUpGame() {
-		// Collections.synchronizedList();
+		level = 1;
+
 		if (timer != null) {
 			timer.stop();
 		}
@@ -113,20 +141,21 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 
 		player = new Rectangle(50, 50, 20, 20);
 		goal = new Rectangle(400, 300, 20, 20);
-
-		int randomx = (int) ((Math.random() * (gameWidth - 50) + 50));
-		int randomx2 = (int) ((Math.random() * (gameWidth - 50) + 50));
-		int randomx3 = (int) ((Math.random() * (gameWidth - 50) + 50));
-		int randomx4 = (int) ((Math.random() * (gameWidth - 50) + 50));
-		int randomy = (int) ((Math.random() * (gameHeight / 2 + gameHeight / 4) + 50));
-		int randomy2 = (int) ((Math.random() * (gameHeight - 50)) + 50);
-		int randomy3 = (int) ((Math.random() * (gameHeight - 50)) + 50);
-		int randomy4 = (int) ((Math.random() * (gameHeight - 50)) + 50);
+		int radius = 100;
+		int randomx = (int) ((Math.random() * (gameWidth - 2 * radius - 10) + radius));
+		int randomx2 = (int) ((Math.random() * (gameWidth - 50) + 25));
+		int randomx3 = (int) ((Math.random() * (gameWidth - 50) + 25));
+		int randomx4 = (int) ((Math.random() * (gameWidth - 50) + 25));
+		int randomy = (int) ((Math.random() * (gameHeight - 2 * radius - 10) + radius));
+		int randomy2 = (int) ((Math.random() * (gameHeight - 50)) + 25);
+		int randomy3 = (int) ((Math.random() * (gameHeight - 50)) + 25);
+		int randomy4 = (int) ((Math.random() * (gameHeight - 50)) + 25);
 		badguys.clear();
-		badguys.add(new SpinningEnemy(randomx, randomy, 20, 20, 100));
+		badguys.add(new SpinningEnemy(randomx, randomy, 20, 20, radius));
 		badguys.add(new VerticalEnemy(randomx2, randomy2, 20, 20, gameHeight, 5));
 		badguys.add(new DiagonalEnemy(randomx3, randomy3, 20, 20, gameHeight, 5, gameWidth, 6));
 		badguys.add(new StalkerEnemy(randomx4, randomy4, 20, 20, player));
+		// System.out.println("Level: " + level);
 	}
 
 	private void enterFullScreen() {
@@ -162,35 +191,48 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 
 		if (player.x < 0) {
 			player.x = 0;
-		} else if (player.x + player.width > gameWidth) {
+		} else if (player.x + player.width > gameWidth - 1) {
 			player.x = gameWidth - player.width;
 		}
 
 		if (player.y < 0) {
 			player.y = 0;
-		} else if (player.y + player.height > gameHeight) {
+		} else if (player.y + player.height > gameHeight - 1) {
 			player.y = gameHeight - player.height;
 		}
 
-		if (player.intersects(goal)) {
-			onWin();
-		}
-
-		for (int i = 0; i < badguys.size(); i++) {
-			if (badguys.get(i) == null)
-				continue;
-
-			if (badguys.get(i).intersects(player)) {
-				onLose();
+		if (player.intersects(goal)) { // check for win
+			synchronized (countMutex) {
+				if (count == 0) {
+					count++;
+					onWin();
+				}
 			}
+		} else { // check for lose
+			for (int i = 0; i < badguys.size(); i++) {
+				BadGuy badguy;
 
-			try { // badguys.get(i) may be missing now after onLose removes 2 badguys
-				badguys.get(i).move();
-			} catch (Exception e) {
+				try { // badguy may be removed in other thread onLose()
+					badguy = badguys.get(i);
+				} catch (Exception e) {
+					break;
+				}
+
+				if (badguy == null)
+					continue;
+
+				badguy.move();
+
+				if (badguy.intersects(player)) {
+					synchronized (countMutex) {
+						if (count == 0) {
+							count++;
+							onLose();
+						}
+					}
+				}
 			}
-
 		}
-
 	}
 
 	// The paint method does 3 things
@@ -199,8 +241,13 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 	// 3 - it draws the goal in green
 	// 4 - it draws all the Enemy objects
 	public void paint(Graphics g) {
+
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, gameWidth, gameHeight);
+
+		g.setFont(new Font("Algerian", Font.BOLD, 15));
+		g.setColor(Color.BLACK);
+		g.drawString("Level: " + level + " Highscore: " + highScore, 5, 15);
 
 		g.setColor(Color.BLUE);
 		g.fillRect(player.x, player.y, player.width, player.height);
@@ -208,10 +255,11 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 		g.setColor(Color.GREEN);
 		g.fillRect(goal.x, goal.y, goal.width, goal.height);
 
-		for (BadGuy e : badguys) {
-			if (e == null)
-				continue;
-			e.draw(g);
+		for (int i = 0; i < badguys.size(); i++) {
+			try {
+				badguys.get(i).draw(g);
+			} catch (Exception e) {
+			}
 		}
 	}
 
@@ -220,41 +268,51 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 	}
 
 	private void onWin() {
-		createDialog("You Won!", 2000);
-		int randomx = (int) ((Math.random() * (gameWidth - 50) + 50));
-		int randomy = (int) ((Math.random() * (gameHeight / 2 + gameHeight / 4) + 75));
+		player.setRect(new Rectangle(50, 50, 20, 20));
+
 		level++;
 		if (level > highScore) {
 			highScore = level;
+			// System.out.println("HighScore: " + highScore);
 		}
+
+		// add new badguy
+		int randomx = (int) ((Math.random() * (gameWidth - 50) + 50));
+		int randomy = (int) ((Math.random() * (gameHeight - 50)) + 25);
 		if (level % 4 == 0) {
 			badguys.add(new DiagonalEnemy(randomx, randomy, 20, 20, gameHeight, 5, gameWidth, 6));
 		} else if (level % 4 == 1) {
-			badguys.add(new SpinningEnemy(randomx, randomy, 20, 20, 100));
+			int radius = 100;
+			randomx = (int) ((Math.random() * (gameWidth - 2 * radius - 10) + radius));
+			randomy = (int) ((Math.random() * (gameHeight - 2 * radius - 10) + radius));
+			badguys.add(new SpinningEnemy(randomx, randomy, 20, 20, radius));
 		} else if (level % 4 == 2) {
 			badguys.add(new VerticalEnemy(randomx, randomy, 20, 20, gameHeight, 5));
 		} else if (level % 4 == 3) {
 			badguys.add(new StalkerEnemy(randomx, randomy, 20, 20, player));
 		}
 
-		setUpGame();
-
+		// System.out.println("Level: " + level);
+		createDialog("You Won!", 1000);
 	}
 
 	private void onLose() {
-		createDialog("You Lost", 2000);
+		player.setRect(new Rectangle(50, 50, 20, 20));
+
 		if (level > 1) {
-			int j = badguys.size();
-			for (int i = badguys.size(); i < badguys.size() - 2; i--) {
-				if (i <= j - 2) {
-					break;
+			// remove badguys greater than 4
+			if (badguys.size() > 4) {
+				try {
+					badguys.remove(badguys.size() - 1);
+				} catch (Exception e) {
+					System.out.println("Error: removing badguy. badguys.size(): " + badguys.size());
 				}
-				badguys.remove(i);
-				// Removes the last two badguys
 			}
 			level--;
 		}
-		setUpGame();
+
+		// System.out.println("Level: " + level);
+		createDialog("You Lost", dialogDelay);
 	}
 
 	// Sets visible a Pseudo-dialog that removes itself after a fixed time interval
@@ -280,6 +338,10 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 			// Close the pop up
 			dialog.setVisible(false);
 			frame.requestFocus();
+
+			synchronized (countMutex) {
+				count--;
+			}
 		});
 		thread.start();
 	}
