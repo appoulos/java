@@ -191,13 +191,13 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 
 		if (player.x < 0) {
 			player.x = 0;
-		} else if (player.x + player.width > gameWidth - 1) {
+		} else if (player.x + player.width >= gameWidth) {
 			player.x = gameWidth - player.width;
 		}
 
 		if (player.y < 0) {
 			player.y = 0;
-		} else if (player.y + player.height > gameHeight - 1) {
+		} else if (player.y + player.height >= gameHeight) {
 			player.y = gameHeight - player.height;
 		}
 
@@ -259,6 +259,7 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 			try {
 				badguys.get(i).draw(g);
 			} catch (Exception e) {
+				System.out.println("Info: badguy " + i + " already deleted");
 			}
 		}
 	}
@@ -276,20 +277,25 @@ public class MyProgram extends JPanel implements ActionListener, KeyListener {
 			// System.out.println("HighScore: " + highScore);
 		}
 
+		int randomx;
+		int randomy;
+
 		// add new badguy
-		int randomx = (int) ((Math.random() * (gameWidth - 50) + 50));
-		int randomy = (int) ((Math.random() * (gameHeight - 50)) + 25);
-		if (level % 4 == 0) {
-			badguys.add(new DiagonalEnemy(randomx, randomy, 20, 20, gameHeight, 5, gameWidth, 6));
-		} else if (level % 4 == 1) {
+		if (level % 4 == 1) {
 			int radius = 100;
 			randomx = (int) ((Math.random() * (gameWidth - 2 * radius - 10) + radius));
 			randomy = (int) ((Math.random() * (gameHeight - 2 * radius - 10) + radius));
 			badguys.add(new SpinningEnemy(randomx, randomy, 20, 20, radius));
-		} else if (level % 4 == 2) {
-			badguys.add(new VerticalEnemy(randomx, randomy, 20, 20, gameHeight, 5));
-		} else if (level % 4 == 3) {
-			badguys.add(new StalkerEnemy(randomx, randomy, 20, 20, player));
+		} else {
+			randomx = (int) ((Math.random() * (gameWidth - 50) + 50));
+			randomy = (int) ((Math.random() * (gameHeight - 50)) + 25);
+			if (level % 4 == 0) {
+				badguys.add(new DiagonalEnemy(randomx, randomy, 20, 20, gameHeight, 5, gameWidth, 6));
+			} else if (level % 4 == 2) {
+				badguys.add(new VerticalEnemy(randomx, randomy, 20, 20, gameHeight, 5));
+			} else if (level % 4 == 3) {
+				badguys.add(new StalkerEnemy(randomx, randomy, 20, 20, player));
+			}
 		}
 
 		// System.out.println("Level: " + level);
