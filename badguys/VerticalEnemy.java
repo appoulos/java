@@ -2,46 +2,46 @@ import java.awt.*;
 
 public class VerticalEnemy extends BadGuy {
 
-	private int screenHeight;
-	private int ySpeed;
+    private int screenHeight;
+    private int ySpeed;
 
-	public VerticalEnemy(int x, int y, int w, int h, int sH, int yS) {
-		super(x, y, w, h);
+    public VerticalEnemy(int x, int y, int w, int h, int sH, int yS) {
+        super(x, y, w, h);
 
-		screenHeight = sH;
-		ySpeed = yS;
-	}
+        screenHeight = sH;
+        ySpeed = yS;
+    }
 
-	public void move() {
+    public void move() {
 
-		Rectangle rect = getRectangle();
-		rect.y -= ySpeed;
-		if (rect.y + rect.height >= screenHeight) {
-			rect.y = screenHeight - rect.height;
-			ySpeed *= -1;
-		} else if (rect.y <= 0) {
-			ySpeed *= -1;
-			rect.y = 0;
-		}
+        Rectangle rect = getRectangle();
+        rect.y -= ySpeed;
+        if (rect.y + rect.height >= screenHeight) {
+            rect.y = screenHeight - rect.height;
+            ySpeed *= -1;
+        } else if (rect.y <= 0) {
+            ySpeed *= -1;
+            rect.y = 0;
+        }
 
-	}
+    }
 
-	public Color getColor() {
-		return Color.RED;
-	}
+    public Color getColor() {
+        return Color.RED;
+    }
 
-	public void changeSpeed(int speed) {
-		if (ySpeed >= 0) {
-			ySpeed += speed;
-		} else {
-			ySpeed -= speed;
-		}
-	}
+    public void changeSpeed(int speed) {
+        if (ySpeed >= 0) {
+            ySpeed += speed;
+        } else {
+            ySpeed -= speed;
+        }
+    }
 
-	public static void delay(int m) {
-		try {
-			Thread.sleep(m);
-		} catch (Exception e) {
-		}
-	}
+    public static void delay(int m) {
+        try {
+            Thread.sleep(m);
+        } catch (Exception e) {
+        }
+    }
 }

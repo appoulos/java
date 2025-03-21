@@ -1,19 +1,19 @@
 import java.awt.*;
 
 public class StalkerEnemy extends BadGuy {
-    
+
     private Rectangle rectPlayer;
-    
+
     public StalkerEnemy(int x, int y, int w, int h, Rectangle p) {
         super(x, y, w, h);
-        
+
         rectPlayer = p;
     }
-    
+
     public void move() {
-        
+
         Rectangle rect = getRectangle();
-        
+
         if (rectPlayer.y > rect.y) {
             rect.y++;
         }
@@ -26,12 +26,10 @@ public class StalkerEnemy extends BadGuy {
         if (rectPlayer.y < rect.y) {
             rect.y--;
         }
-        
+
     }
-    
+
     public Color getColor() {
         return Color.YELLOW;
     }
 }
-
-
