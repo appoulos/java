@@ -532,15 +532,11 @@ public class Hello extends ConsoleProgram {
 		if (str.length() < 2) {
 			return 0;
 		}
-		boolean found = str.charAt(0) == '1' && str.charAt(1) == '1';
+		int found = (str.charAt(0) == '1' && str.charAt(1) == '1') ? 1 : 0;
 		if (str.length() == 2) {
-			return found ? 1 : 0;
+			return found;
 		}
-		if (found) {
-			return 1 + count11(str.substring(2));
-		} else {
-			return count11(str.substring(1));
-		}
+		return found + count11(str.substring(1 + found));
 	}
 
 	int count11b(String str) {
