@@ -529,6 +529,21 @@ public class Hello extends ConsoleProgram {
 	}
 
 	int count11(String str) {
+		if (str.length() < 2) {
+			return 0;
+		}
+		boolean found = str.charAt(0) == '1' && str.charAt(1) == '1';
+		if (str.length() == 2) {
+			return found ? 1 : 0;
+		}
+		if (found) {
+			return 1 + count11(str.substring(2));
+		} else {
+			return count11(str.substring(1));
+		}
+	}
+
+	int count11b(String str) {
 		if (str.length() <= 2) {
 			return str.equals("11") ? 1 : 0;
 		}
@@ -541,7 +556,8 @@ public class Hello extends ConsoleProgram {
 
 	public void run() {
 		String str = "110111011111";
-		println("count11(\"" + str + "\") == " + count11(str));
+		println(" count11(\"" + str + "\") == " + count11(str));
+		println("count11b(\"" + str + "\") == " + count11b(str));
 		System.exit(0);
 		new Hi();
 		println("Enter any character and press return");
