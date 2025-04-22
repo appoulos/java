@@ -237,7 +237,8 @@ public class Hello extends ConsoleProgram {
 		double l2lo = Math.toRadians(0.1275);
 		double radius = 3963.1676;
 		println("dist: " + radius
-				* (Math.acos(Math.sin(l1la) * Math.sin(l2la) + Math.cos(l1la) * Math.cos(l2la) * Math.cos(l1lo - l2lo))));
+				* (Math.acos(
+						Math.sin(l1la) * Math.sin(l2la) + Math.cos(l1la) * Math.cos(l2la) * Math.cos(l1lo - l2lo))));
 	}
 
 	class Horse {
@@ -526,17 +527,32 @@ public class Hello extends ConsoleProgram {
 			System.out.println("hi");
 		}
 	}
+
+	int count11(String str) {
+		if (str.length() <= 2) {
+			return str.equals("11") ? 1 : 0;
+		}
+		if (str.substring(0, 2).equals("11")) {
+			return 1 + count11(str.substring(2));
+		} else {
+			return count11(str.substring(1));
+		}
+	}
+
 	public void run() {
+		String str = "110111011111";
+		println("count11(\"" + str + "\") == " + count11(str));
+		System.exit(0);
 		new Hi();
 		println("Enter any character and press return");
 		Scanner scan = new Scanner(System.in);
 		char char_ = scan.findWithinHorizon(".", 0).charAt(0);
 		// char char_ = scan.nextLine().charAt(0);
-		println("got: "+char_);
-		println("Enter any character and press return");
+		println("got: " + char_);
+		println("2. Enter any character and press return");
 		char_ = scan.findWithinHorizon(".", 0).charAt(0);
 		// char char_ = scan.nextLine().charAt(0);
-		println("got: "+char_);
+		println("got: " + char_);
 		scan.close();
 		ArrayList<Integer> al = new ArrayList<>();
 		al.add(7);
@@ -544,15 +560,16 @@ public class Hello extends ConsoleProgram {
 		// concurrent abort
 		// int j=0;
 		// for (int k: al) {
-		// 	if (j==1) al.add(9);
-		// 	println("arr("+j+"): "+k); //al.get(j));
-		// 	j++;
+		// if (j==1) al.add(9);
+		// println("arr("+j+"): "+k); //al.get(j));
+		// j++;
 		// }
 
 		int codePoint = 0x1F600; // Example: U+1F600 GRINNING FACE EMOJI
 		int cp = 0x1f0c1;
 		println(
-				"a: " + new String(Character.toChars(codePoint)) + new String(Character.toChars(0x1f0c1)) + (char) codePoint
+				"a: " + new String(Character.toChars(codePoint)) + new String(Character.toChars(0x1f0c1))
+						+ (char) codePoint
 						+ (char) cp + "\u2663\u25c6\uf004\u2660");
 		for (int i = 0; i < 3; i++)
 			println(chance(1, 10));

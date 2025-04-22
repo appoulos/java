@@ -5,7 +5,18 @@ public class MyProgram {
 		return (int) (Math.random() * i) + 1;
 	}
 
+	public static int add(int a, int b) {
+		return a+b;
+	}
+
+	public static void add(Integer j) {
+		j++;
+	}
+
 	public static void main(String[] args) {
+		Integer j = 1;
+		System.out.println(j);
+		System.out.println(add(3,5));
 
 		Random random = new Random();
 		random.setSeed(12345L);
@@ -13,10 +24,10 @@ public class MyProgram {
 			System.out.println("Random Integer Number: " + Math.abs(random.nextInt()) % 3);
 		}
 		System.out.println("Random Long Number: " + random.nextLong());
-		int choice = 0;
-		boolean iceSkater = false;
-		boolean shovel = false;
-		boolean zamboni = false;
+		// int choice = 0;
+		// boolean iceSkater = false;
+		// boolean shovel = false;
+		// boolean zamboni = false;
 		for (int i = 0; i < 9; ++i) {
 			System.out.println(choice(3) - 1);
 			continue;

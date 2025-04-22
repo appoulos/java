@@ -11,6 +11,10 @@ public abstract class BadGuy {
         return rect;
     }
 
+    public void setRectangle(Rectangle rect) {
+        this.rect = rect;
+    }
+
     public boolean intersects(Rectangle p) {
         return rect.intersects(p);
     }
