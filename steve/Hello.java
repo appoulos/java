@@ -578,8 +578,53 @@ public class Hello extends ConsoleProgram {
 		return count7(n / 10);
 	}
 
+	int sum(int n) {
+		if (n < 10)
+			return n;
+		return n % 10 + sum(n / 10);
+	}
+
+	int modify(int n) {
+		n = n / 10;
+		return n;
+	}
+
+	class MyInt {
+		int i = 123;
+
+		MyInt(int i) {
+			this.i = i;
+		}
+	}
+
+	MyInt modify2(MyInt n) {
+		n.i = n.i / 10;
+		return n;
+		// if (n < 10)
+		// return n;
+		// return n % 10 + sum(n / 10);
+	}
+
+	int fib(int n) {
+		if (n <= 1) {
+			for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
+				System.out.println(ste + "\n");
+			}
+			return n;
+		}
+		return fib(n - 1) + fib(n - 2);
+	}
+
 	public void run() {
+		int nFib = 3;
+		println("fib(" + nFib + ") == " + fib(nFib));
 		int n7 = 707;
+		MyInt nInteger = new MyInt(123);
+		println("sum(" + n7 + ") == " + sum(n7));
+		println("modify(" + n7 + ") == " + modify(n7));
+		println("n7: " + n7);
+		println("modify2(" + nInteger.i + ") == " + modify2(nInteger).i);
+		println("nInteger: " + nInteger.i);
 		println("count7(" + n7 + ") == " + count7(n7));
 		String str = "110111011111";
 		println(" count11(\"" + str + "\") == " + count11(str));
