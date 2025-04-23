@@ -539,6 +539,18 @@ public class Hello extends ConsoleProgram {
 		return found + count11(str.substring(1 + found));
 	}
 
+	int count11s(String str) {
+		// static int count = 0;
+		if (str.length() < 2) {
+			return 0;
+		}
+		int found = (str.charAt(0) == '1' && str.charAt(1) == '1') ? 1 : 0;
+		if (str.length() == 2) {
+			return found;
+		}
+		return found + count11(str.substring(1 + found));
+	}
+
 	int count11b(String str) {
 		if (str.length() <= 2) {
 			return str.equals("11") ? 1 : 0;
@@ -550,7 +562,25 @@ public class Hello extends ConsoleProgram {
 		}
 	}
 
+	int count7(int n) {
+		println("n=" + n);
+		// base case
+		if (n < 10) {
+			println("found 7");
+			return (n == 7) ? 1 : 0;
+		}
+		// found 7
+		if ((n % 10) == 7) {
+			println("found 7b");
+			return 1 + count7(n / 10);
+		}
+		// not currently looking at a 7
+		return count7(n / 10);
+	}
+
 	public void run() {
+		int n7 = 707;
+		println("count7(" + n7 + ") == " + count7(n7));
 		String str = "110111011111";
 		println(" count11(\"" + str + "\") == " + count11(str));
 		println("count11b(\"" + str + "\") == " + count11b(str));
