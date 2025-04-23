@@ -1,4 +1,5 @@
 import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -607,15 +608,49 @@ public class Hello extends ConsoleProgram {
 
 	int fib(int n) {
 		if (n <= 1) {
-			for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
-				System.out.println(ste + "\n");
-			}
+			// for (StackTraceElement ste : Thread.currentThread().getStackTrace()) {
+			// System.out.println(ste + "\n");
+			// }
 			return n;
 		}
 		return fib(n - 1) + fib(n - 2);
 	}
 
+	boolean groupSum6(int start, int[] nums, int target) {
+		// base case no numbers left
+		if (nums.length - start == 0)
+			return target == 0;
+		// base case one number left
+		// if (nums.length - start == 1)
+		// return target == nums[start];
+		// use all 6's
+		if (nums[start] == 6) {
+			return groupSum6(start + 1, nums, target - 6);
+		}
+		// optionally use first number
+		return
+		// skip this number
+		groupSum6(start + 1, nums, target) ||
+		// use this number
+				groupSum6(start + 1, nums, target - nums[start]);
+	}
+
 	public void run() {
+		int[] nums = { 1, 2, 6 };
+		int target = 6;
+		println("groupSum6(0, " + Arrays.toString(nums) + ", " + target + ") == " + groupSum6(0, nums, target));
+		target = 8;
+		println("groupSum6(0, " + Arrays.toString(nums) + ", " + target + ") == " + groupSum6(0, nums, target));
+		target = 10;
+		println("groupSum6(0, " + Arrays.toString(nums) + ", " + target + ") == " + groupSum6(0, nums, target));
+		target = 0;
+		println("groupSum6(0, " + Arrays.toString(nums) + ", " + target + ") == " + groupSum6(0, nums, target));
+		nums = new int[] {};
+		target = 0;
+		println("groupSum6(0, " + Arrays.toString(nums) + ", " + target + ") == " + groupSum6(0, nums, target));
+		target = 1;
+		println("groupSum6(0, " + Arrays.toString(nums) + ", " + target + ") == " + groupSum6(0, nums, target));
+		System.exit(0);
 		int nFib = 3;
 		println("fib(" + nFib + ") == " + fib(nFib));
 		int n7 = 707;
@@ -629,7 +664,6 @@ public class Hello extends ConsoleProgram {
 		String str = "110111011111";
 		println(" count11(\"" + str + "\") == " + count11(str));
 		println("count11b(\"" + str + "\") == " + count11b(str));
-		System.exit(0);
 		new Hi();
 		println("Enter any character and press return");
 		Scanner scan = new Scanner(System.in);
