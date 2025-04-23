@@ -620,19 +620,11 @@ public class Hello extends ConsoleProgram {
 		// base case no numbers left
 		if (nums.length - start == 0)
 			return target == 0;
-		// base case one number left
-		// if (nums.length - start == 1)
-		// return target == nums[start];
 		// use all 6's
-		if (nums[start] == 6) {
+		if (nums[start] == 6)
 			return groupSum6(start + 1, nums, target - 6);
-		}
-		// optionally use first number
-		return
-		// skip this number
-		groupSum6(start + 1, nums, target) ||
-		// use this number
-				groupSum6(start + 1, nums, target - nums[start]);
+		return /* skip number */ groupSum6(start + 1, nums, target) ||
+		/* use number */ groupSum6(start + 1, nums, target - nums[start]);
 	}
 
 	public void run() {
