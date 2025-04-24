@@ -627,7 +627,57 @@ public class Hello extends ConsoleProgram {
 		/* use number */ groupSum6(start + 1, nums, target - nums[start]);
 	}
 
+	static int cnt = 0;
+
+	boolean groupSum(int start, int[] nums, int target) {
+		cnt++;
+		// base case no numbers left
+		if (nums.length - start == 0)
+			return target == 0;
+		return /* skip number */ groupSum(start + 1, nums, target) ||
+		/* use number */ groupSum(start + 1, nums, target - nums[start]);
+	}
+
+	boolean groupSumIter(int start, int[] nums, int target) {
+		if (target == 0)
+			return true;
+		int sum;
+		int max = (int) Math.pow(2, nums.length);
+		int j;
+		int n;
+		for (int i = 0; i < max; i++) {
+			sum = 0;
+			j = 0;
+			for (n = i; n > 0; n /= 2) {
+				if (n % 2 == 1) {
+					sum += nums[j];
+					if (sum == target) {
+						return true;
+					}
+				}
+				j++;
+			}
+		}
+		return false;
+	}
+
 	public void run() {
+		for (int i = 10; i < 30; i++) {
+			int[] nums = new int[i]; // { 1, 2, 6 };
+			for (int j = 0; j < i; j++) {
+				nums[j] = j;
+			}
+			int target = 300;
+			// println("groupSum6(0, " + Arrays.toString(nums) + ", " + target + ") == " +
+			// groupSum6(0, nums, target));
+			cnt = 0;
+			println("groupSum(0, " + i + ", " + target + ") == " + groupSum(0, nums,
+					target) + ", cnt: " + cnt);
+			// println("groupSumIter(0, " + i + ", " + target + ") == " + groupSumIter(0,
+			// nums, target));
+		}
+
+		System.exit(0);
 		int[] nums = { 1, 2, 6 };
 		int target = 6;
 		println("groupSum6(0, " + Arrays.toString(nums) + ", " + target + ") == " + groupSum6(0, nums, target));
@@ -642,7 +692,6 @@ public class Hello extends ConsoleProgram {
 		println("groupSum6(0, " + Arrays.toString(nums) + ", " + target + ") == " + groupSum6(0, nums, target));
 		target = 1;
 		println("groupSum6(0, " + Arrays.toString(nums) + ", " + target + ") == " + groupSum6(0, nums, target));
-		System.exit(0);
 		int nFib = 3;
 		println("fib(" + nFib + ") == " + fib(nFib));
 		int n7 = 707;
