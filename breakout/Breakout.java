@@ -19,7 +19,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	private int velY = 20;
 	private int highScore = 0;
 
-	private boolean up, down, left, right; // booleans that track which keys are currently pressed
+	private boolean left, right;// up, down, // booleans that track which keys are currently pressed
 	private Timer timer; // the update timer
 
 	private final int dialogDelay = 1000;
@@ -30,11 +30,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	private final int playerH = 10;
 	private final int goalStartX = 100;
 	private final int goalStartY = 100;
-	private final int pad = 10;
-	private final int radius = 100;
+	// private final int pad = 10;
+	// private final int radius = 100;
 
-	private int gameWidth = 500; // the width of the game area
-	private int gameHeight = 330; // the height of the game area
+	private final int gameWidth = 500; // the width of the game area
+	private final int gameHeight = 330; // the height of the game area
+	private final int maxWidth = gameWidth - 1 - size;
+	private final int maxHeight = gameHeight - 1 - size;
 
 	private static JLabel dialogLabel;
 	private static JFrame frame;
@@ -85,20 +87,25 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// Called every time a key is pressed
 	// Stores the down state for use in the update method
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_UP) {
-			up = true;
-		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-			down = true;
-		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+		/*
+		 * if (e.getKeyCode() == KeyEvent.VK_UP) {
+		 * up = true;
+		 * } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+		 * down = true;
+		 * } else
+		 */ if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 			left = true;
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			right = true;
-		} else if (e.getKeyCode() == KeyEvent.VK_W) {
-			up = true;
-		} else if (e.getKeyCode() == KeyEvent.VK_A) {
+		} else /*
+				 * if (e.getKeyCode() == KeyEvent.VK_W) {
+				 * up = true;
+				 * } else if (e.getKeyCode() == KeyEvent.VK_S) {
+				 * down = true;
+				 * } else
+				 */
+		if (e.getKeyCode() == KeyEvent.VK_A) {
 			left = true;
-		} else if (e.getKeyCode() == KeyEvent.VK_S) {
-			down = true;
 		} else if (e.getKeyCode() == KeyEvent.VK_D) {
 			right = true;
 		} else if (e.getKeyCode() == KeyEvent.VK_Q) {
@@ -111,22 +118,22 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// Called every time a key is released
 	// Stores the down state for use in the update method
 	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_UP) {
-			up = false;
-		} else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-			down = false;
-		} else if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 			left = false;
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			right = false;
-		} else if (e.getKeyCode() == KeyEvent.VK_W) {
-			up = false;
 		} else if (e.getKeyCode() == KeyEvent.VK_A) {
 			left = false;
-		} else if (e.getKeyCode() == KeyEvent.VK_S) {
-			down = false;
 		} else if (e.getKeyCode() == KeyEvent.VK_D) {
 			right = false;
+			// } else if (e.getKeyCode() == KeyEvent.VK_W) {
+			// up = false;
+			// } else if (e.getKeyCode() == KeyEvent.VK_S) {
+			// down = false;
+			// } else if (e.getKeyCode() == KeyEvent.VK_UP) {
+			// up = false;
+			// } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
+			// down = false;
 		}
 	}
 
@@ -146,7 +153,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		timer = new Timer(1000 / 30, this); // roughly 30 frames per second
 		timer.start();
 
-		up = down = left = right = false;
+		// up = down = false;
+		left = right = false;
 
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
 		goal = new Rectangle(goalStartX, goalStartY, size, size);
@@ -178,6 +186,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// frame.validate();
 	// }
 	// }
+
+	public static double calculateDistance(double x1, double y1, double x2, double y2) {
+		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+	}
+
+	public Point calc(Rectangle ball, Rectangle ball2, Rectangle block) {
+		if (Line2D.linesIntersect(ball.x, ball.y, ball2.x, ball2.y, block.x, block.x + block.width, block.y, block.y)) {
+		}
+		return new Point(0, 0);
+	}
 
 	// The update method does 5 things
 	// 1 - it has the player move based on what key is currently being pressed
@@ -215,19 +233,52 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		int newY = goal.y + velY;
 		int newX = goal.x + velX;
-		int maxWidth = gameWidth - 1 - size;
-		int maxHeight = gameHeight - 1 - size;
+
+		// if (player.intersects(goal)) { // check for win
+		// int crossPt = (goal.x + newX) / 2;
+		// if (newY >= player.y && crossPt >= player.x && crossPt <= player.x + playerW)
+		// {
+		if (Line2D.linesIntersect(goal.x, goal.y, newX, newY, player.x, player.y, player.x + playerW, player.y)) {
+			velY *= -1;
+			newY = 2 * player.y - newY;
+			// synchronized (countMutex) {
+			// if (count == 0) {
+			// count++;
+			// onWin();
+			// }
+			// }
+		}
+
+		// bounce off walls
 		while (true) {
 			if (velX < 0 && velY < 0) {
-				if (newX < 0) {
-					velX *= -1;
-					newX *= -1;
+				if (newX < 0 && newY < 0) {
+					if (newX < newY) {
+						goal.y -= goal.x * velY / velX;
+						goal.x = 0;
+						velX *= -1;
+						newX *= -1;
+					} else {
+						goal.x -= goal.y * velX / velY;
+						goal.y = 0;
+						velY *= -1;
+						newY *= -1;
+					}
 					continue;
 				}
+				if (newX < 0) {
+					goal.y -= goal.x * velY / velX;
+					goal.x = 0;
+					velX *= -1;
+					newX *= -1;
+					break;
+				}
 				if (newY < 0) {
+					goal.x -= goal.y * velX / velY;
+					goal.y = 0;
 					velY *= -1;
 					newY *= -1;
-					continue;
+					break;
 				}
 			} else if (velX > 0 && velY < 0) {
 				if (newX > maxWidth) {
@@ -291,21 +342,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 			break;
 		}
 
-		// if (player.intersects(goal)) { // check for win
-		// int crossPt = (goal.x + newX) / 2;
-		// if (newY >= player.y && crossPt >= player.x && crossPt <= player.x + playerW)
-		// {
-		if (Line2D.linesIntersect(goal.x, goal.y, newX, newY, player.x, player.y, player.x + playerW, player.y)) {
-			velY *= -1;
-			newY = 2 * player.y - newY;
-			// synchronized (countMutex) {
-			// if (count == 0) {
-			// count++;
-			// onWin();
-			// }
-			// }
-		}
-
 		goal.x = newX;
 		goal.y = newY;
 
@@ -345,6 +381,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		g.setColor(Color.WHITE);
 		g.fillRect(0, 0, gameWidth, gameHeight);
+
+		// Graphics2D g2 = (Graphics2D) g;
+		// g2.setColor(Color.RED);
+		// g2.fill.fillRect(200f, 200f, 40f, 40f);
 
 		g.setFont(new Font("Algerian", Font.BOLD, 15));
 		g.setColor(Color.BLACK);
