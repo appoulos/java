@@ -1,6 +1,7 @@
 import java.awt.*;
 import javax.swing.*;
 import java.awt.event.*;
+import java.awt.geom.Line2D;
 
 public class Breakout extends JPanel implements ActionListener, KeyListener {
 
@@ -14,8 +15,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// synchronizedCollection(Collection<BadGuy> badguys);
 	// private ArrayList<BadGuy> badguys = new ArrayList<BadGuy>();
 	private int level = 1;
-	private int velX = 10;
-	private int velY = 10;
+	private int velX = 5;
+	private int velY = 20;
 	private int highScore = 0;
 
 	private boolean up, down, left, right; // booleans that track which keys are currently pressed
@@ -212,27 +213,91 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		// player.y = gameHeight - player.height;
 		// }
 
-		goal.x += velX;
-		if (goal.x >= gameWidth - 1 - size)
-			velX *= -1;
-		if (goal.x <= 0)
-			velX *= -1;
-
-		goal.y += velY;
-		if (goal.y >= gameHeight - 1 - size)
-			synchronized (countMutex) {
-				if (count == 0) {
-					count++;
-					onLose();
+		int newY = goal.y + velY;
+		int newX = goal.x + velX;
+		int maxWidth = gameWidth - 1 - size;
+		int maxHeight = gameHeight - 1 - size;
+		while (true) {
+			if (velX < 0 && velY < 0) {
+				if (newX < 0) {
+					velX *= -1;
+					newX *= -1;
+					continue;
 				}
+				if (newY < 0) {
+					velY *= -1;
+					newY *= -1;
+					continue;
+				}
+			} else if (velX > 0 && velY < 0) {
+				if (newX > maxWidth) {
+					velX *= -1;
+					newX = 2 * (maxWidth) - newX;
+					continue;
+				}
+				if (newY < 0) {
+					velY *= -1;
+					newY *= -1;
+					continue;
+				}
+			} else if (velX < 0 && velY > 0) {
+				if (newX < 0) {
+					velX *= -1;
+					newX *= -1;
+					continue;
+				}
+				if (newY > maxHeight) {
+					velY *= -1;
+					newY = 2 * (maxHeight) - newY;
+					continue;
+				}
+			} else { // (velX > 0 && velY > 0)
+				if (newX > maxWidth) {
+					velX *= -1;
+					newX = 2 * (maxWidth) - newX;
+					continue;
+				}
+				if (newY > maxHeight) {
+					velY *= -1;
+					newY = 2 * (maxHeight) - newY;
+					System.out.println("gameHeight-1: " + (maxHeight) + ", newY: " + newY);
+					continue;
+				}
+				// if (newY >= gameHeight - 1 - size) {
+				// newY = gameHeight - 1 - size;
+				// velY *= -1;
+				// }
+				// // synchronized (countMutex) {
+				// // if (count == 0) {
+				// // count++;
+				// // onLose();
+				// // }
+				// // }
+				// if (newY <= 0) {
+				// newY = 0;
+				// velY *= -1;
+				// }
+				//
+				// if (newX >= gameWidth - 1 - size) {
+				// newX = gameWidth - 1 - size;
+				// velX *= -1;
+				// }
+				// if (newX <= 0) {
+				// newX = 0;
+				// velX *= -1;
+				// }
+				// break;
 			}
-		// velY *= -1;
+			break;
+		}
 
-		if (goal.y <= 0)
+		// if (player.intersects(goal)) { // check for win
+		// int crossPt = (goal.x + newX) / 2;
+		// if (newY >= player.y && crossPt >= player.x && crossPt <= player.x + playerW)
+		// {
+		if (Line2D.linesIntersect(goal.x, goal.y, newX, newY, player.x, player.y, player.x + playerW, player.y)) {
 			velY *= -1;
-
-		if (player.intersects(goal)) { // check for win
-			velY *= -1;
+			newY = 2 * player.y - newY;
 			// synchronized (countMutex) {
 			// if (count == 0) {
 			// count++;
@@ -240,6 +305,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 			// }
 			// }
 		}
+
+		goal.x = newX;
+		goal.y = newY;
+
 		// else { // check for lose
 		// for (int i = 0; i < badguys.size(); i++) {
 		// BadGuy badguy;
