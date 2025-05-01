@@ -32,13 +32,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 	private final int dialogDelay = 1000;
 
-	private final int frameRate = 60; // roughly frame rate per second
+	private int frameRate = 60; // roughly frame rate per second
 
 	private final int velStartX = 1; // roughly frame rate per second
 	private final int velStartY = 3; // roughly frame rate per second
 
 	private Point velocity = new Point(); // velocity of ball
-	private Point newBall = new Point(ball.x + velocity.x, ball.y + velocity.y);
+	private Point newBall = new Point(); // ball.x + velocity.x, ball.y + velocity.y);
 
 	private final int size = 10; // ball size
 
@@ -53,6 +53,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	private final int padBottom = 20;
 	private Block[][] blocks = new Block[blockRows][blockCols];
 	private int blockCnt = blockRows * blockCols;
+	private int blockColNeighbors = (blockWidth + padCol) / size + 1;
 
 	private final int ballStartX = 10;
 	private final int ballStartY = 10; // padTop + blockRows * (blockHeight + padRow) + 10;
@@ -134,6 +135,22 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 			setUpGame();
 		} else if (e.getKeyCode() == KeyEvent.VK_P) {
 			paused = !paused;
+		} else if (e.getKeyCode() == KeyEvent.VK_I) {
+			if (frameRate > 2) {
+				frameRate /= 2;
+			}
+			if (timer != null) {
+				timer.stop();
+			}
+			timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per second
+			timer.start();
+		} else if (e.getKeyCode() == KeyEvent.VK_O) {
+			frameRate *= 2;
+			if (timer != null) {
+				timer.stop();
+			}
+			timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per second
+			timer.start();
 		} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 			paused = !paused;
 		}
@@ -288,10 +305,18 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 					if (x1 >= block.x && x1 <= block.x + blockWidth) {
 						// reflect ball here
 						ball.x = x1;
-						ball.y += block.y - (ball.y + size);
-						newBall.y = block.y - ((newBall.y + size) - block.y);
+						ball.y = block.y - (ball.y + size);
+						// System.out.println("1. block.y: " + block.y + ", newBall.y: " + newBall.y);
+						newBall.y = block.y - ((newBall.y + size) - block.y) - size;
+						// System.out.println("2. block.y: " + block.y + ", newBall.y: " + newBall.y);
 						velocity.y *= -1;
 						blocks[r][c].alive = false;
+						for (int i = 1; i <= blockColNeighbors; i++) {
+							if (c + i < blockCols && ball.x + size >= blocks[r][c + i].point.x) {
+								blocks[r][c + 1].alive = false;
+							}
+						}
+
 						return true;
 					}
 
@@ -299,8 +324,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 					if (y1 >= block.y && y1 <= block.y + blockHeight) {
 						// reflect ball here
 						ball.y = y1;
-						ball.x += block.x - (ball.x + size);
-						newBall.x = block.x - ((newBall.x + size) - block.x);
+						ball.x = block.x - (ball.x + size);
+						newBall.x = block.x - ((newBall.x + size) - block.x) - size;
 						velocity.x *= -1;
 						blocks[r][c].alive = false;
 						return true;
@@ -311,8 +336,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 					if (x1 >= block.x && x1 <= block.x + blockWidth) {
 						// reflect ball here
 						ball.x = x1 - size;
-						ball.y += block.y - (ball.y + size);
-						newBall.y = block.y - ((newBall.y + size) - block.y);
+						ball.y = block.y - (ball.y + size);
+						newBall.y = block.y - ((newBall.y + size) - block.y) - size;
 						velocity.y *= -1;
 						blocks[r][c].alive = false;
 						return true;
@@ -322,8 +347,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 					if (y1 >= block.y && y1 <= block.y + blockHeight) {
 						// reflect ball here
 						ball.y = y1;
-						ball.x += block.x - ball.x;
-						newBall.x = block.x - ((newBall.x + size) - block.x);
+						ball.x = block.x - ball.x;
+						newBall.x = block.x - ((newBall.x + size) - block.x) - size;
 						velocity.x *= -1;
 						blocks[r][c].alive = false;
 						return true;
@@ -334,8 +359,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 					if (x1 >= block.x && x1 <= block.x + blockWidth) {
 						// reflect ball here
 						ball.x = x1 - size;
-						ball.y += block.y - (ball.y + size);
-						newBall.y = block.y - ((newBall.y + size) - block.y);
+						ball.y = block.y - (ball.y + size);
+						newBall.y = block.y - ((newBall.y + size) - block.y) - size;
 						velocity.y *= -1;
 						blocks[r][c].alive = false;
 						return true;
@@ -345,8 +370,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 					if (y1 >= block.y && y1 <= block.y + blockHeight) {
 						// reflect ball here
 						ball.y = y1;
-						ball.x += block.x - (ball.x + size);
-						newBall.x = block.x - ((newBall.x + size) - block.x);
+						ball.x = block.x - (ball.x + size);
+						newBall.x = block.x - ((newBall.x + size) - block.x) - size;
 						velocity.x *= -1;
 						blocks[r][c].alive = false;
 						return true;
@@ -356,6 +381,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 		return false;
+
 	}
 
 	public boolean hitBlock() {
