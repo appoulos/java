@@ -10,35 +10,38 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 	private Rectangle player = new Rectangle(); // a rectangle that represents the player
 	private Rectangle ball = new Rectangle(); // a rectangle that represents the ball
-	// private BadGuy[] badguys = new BadGuy[4]; //the array of Enemy objects
-	// public static <BadGuy> Collection<BadGuy>
-	// synchronizedCollection(Collection<BadGuy> badguys);
-	// private ArrayList<BadGuy> badguys = new ArrayList<BadGuy>();
 	private int level = 1;
-	private Point vel = new Point(5, 20);
+	private Point vel = new Point(5, 20); // velocity of ball
 	private Point newBall = new Point(ball.x + vel.x, ball.y + vel.y);
-	// private int velX = 5;
-	// private int velY = 20;
 	private int highScore = 0;
 
-	private boolean left, right;// up, down, // booleans that track which keys are currently pressed
+	private boolean left, right; // booleans that track which keys are currently pressed
 	private Timer timer; // the update timer
 
 	private final int dialogDelay = 1000;
+
 	private final int size = 10; // ball size
-	private final int playerStartX = 200;
+	private final int blockRows = 4;
+	private final int blockCols = 10;
+	private final int blockWidth = 30;
+	private final int blockHeight = 10;
+	private final int padCol = size - 1;
+	private final int padRow = size - 1;
+	private final int padTop = 20;
+
+	private final int ballStartX = 10;
+	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
+
+	private final int gameWidth = padCol + blockCols * (blockWidth + padCol); // 500; // the width of the game area
+	private final int gameHeight = 330; // the height of the game area
+
+	private final int maxWidth = gameWidth - 1 - size;
+	private final int maxHeight = gameHeight - 1 - size;
+
+	private final int playerStartX = gameHeight - 30;
 	private final int playerStartY = 250;
 	private final int playerW = 50;
 	private final int playerH = 10;
-	private final int goalStartX = 100;
-	private final int goalStartY = 100;
-	// private final int pad = 10;
-	// private final int radius = 100;
-
-	private final int gameWidth = 500; // the width of the game area
-	private final int gameHeight = 330; // the height of the game area
-	private final int maxWidth = gameWidth - 1 - size;
-	private final int maxHeight = gameHeight - 1 - size;
 
 	private static JLabel dialogLabel;
 	private static JFrame frame;
@@ -89,24 +92,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// Called every time a key is pressed
 	// Stores the down state for use in the update method
 	public void keyPressed(KeyEvent e) {
-		/*
-		 * if (e.getKeyCode() == KeyEvent.VK_UP) {
-		 * up = true;
-		 * } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-		 * down = true;
-		 * } else
-		 */ if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
 			left = true;
 		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
 			right = true;
-		} else /*
-				 * if (e.getKeyCode() == KeyEvent.VK_W) {
-				 * up = true;
-				 * } else if (e.getKeyCode() == KeyEvent.VK_S) {
-				 * down = true;
-				 * } else
-				 */
-		if (e.getKeyCode() == KeyEvent.VK_A) {
+		} else if (e.getKeyCode() == KeyEvent.VK_A) {
 			left = true;
 		} else if (e.getKeyCode() == KeyEvent.VK_D) {
 			right = true;
@@ -128,14 +118,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 			left = false;
 		} else if (e.getKeyCode() == KeyEvent.VK_D) {
 			right = false;
-			// } else if (e.getKeyCode() == KeyEvent.VK_W) {
-			// up = false;
-			// } else if (e.getKeyCode() == KeyEvent.VK_S) {
-			// down = false;
-			// } else if (e.getKeyCode() == KeyEvent.VK_UP) {
-			// up = false;
-			// } else if (e.getKeyCode() == KeyEvent.VK_DOWN) {
-			// down = false;
 		}
 	}
 
@@ -146,41 +128,20 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// Sets the initial state of the game
 	// Could be modified to allow for multiple levels
 	public void setUpGame() {
-		// if (level == 99) { // quiet the code not used lsp warnings
-		// onWin();
-		// onLose();
-		// }
 		level = 1;
 
 		if (timer != null) {
 			timer.stop();
 		}
 
-		timer = new Timer(1000 / 60, this); // roughly 30 frames per second
+		timer = new Timer(1000 / 30, this); // roughly 30 frames per second
 		timer.start();
 
-		// up = down = false;
 		left = right = false;
 
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
-		ball = new Rectangle(goalStartX, goalStartY, size, size);
-		// badguys.clear();
-		// int randomx;
-		// int randomy;
-		// randomx = (int) (Math.random() * (gameWidth - 2 * radius - pad) + radius);
-		// randomy = (int) (Math.random() * (gameHeight - 2 * radius - pad) + radius);
-		// badguys.add(new SpinningEnemy(randomx, randomy, size, size, radius));
-		// randomx = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
-		// randomy = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
-		// badguys.add(new VerticalEnemy(randomx, randomy, size, size, gameHeight, 5));
-		// randomx = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
-		// randomy = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
-		// badguys.add(new DiagonalEnemy(randomx, randomy, size, size, gameHeight, 5,
-		// gameWidth, 6));
-		// randomx = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
-		// randomy = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
-		// badguys.add(new StalkerEnemy(randomx, randomy, size, size, player));
-		// System.out.println("Level: " + level);
+		ball = new Rectangle(ballStartX, ballStartY, size, size);
+		System.out.println("Level: " + level);
 	}
 
 	// private void enterFullScreen() {
@@ -212,16 +173,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// 2 - it prevents the player from leaving the screen
 	// 3 - it checks if the player has reached the goal, and if so congratualtes
 	// them and restarts the game
-	// 4 - it checks if any of the Enemy objects are touching the player, and if so
-	// notifies the player of their defeat and restarts the game
-	// 5 - it tells each of the Enemy objects to update()
 	public void update() {
-		// if (up) {
-		// player.y -= 3;
-		// }
-		// if (down) {
-		// player.y += 3;
-		// }
 		if (left) {
 			player.x -= 10;
 		}
@@ -235,36 +187,19 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 			player.x = gameWidth - player.width;
 		}
 
-		// if (player.y < 0) {
-		// player.y = 0;
-		// } else if (player.y + player.height >= gameHeight) {
-		// player.y = gameHeight - player.height;
-		// }
-
-		// int newX = ball.x + vel.x;
-		// int newY = ball.y + vel.y;
 		newBall = new Point(ball.x + vel.x, ball.y + vel.y);
 
-		// if (player.intersects(ball)) { // check for win
-		// int crossPt = (ball.x + newBall.x) / 2;
-		// if (newBall.y >= player.y && crossPt >= player.x && crossPt <= player.x +
-		// playerW)
-		// {
-		if (Line2D.linesIntersect(ball.x, ball.y, newBall.x, newBall.y, player.x, player.y, player.x + playerW,
-				player.y)) {
+		if (vel.y > 0
+				&& Line2D.linesIntersect(ball.x, ball.y, newBall.x, newBall.y, player.x, player.y, player.x + playerW,
+						player.y)) {
 			vel.y *= -1;
 			newBall.y = 2 * player.y - newBall.y;
-			// synchronized (countMutex) {
-			// if (count == 0) {
-			// count++;
-			// onWin();
-			// }
-			// }
 		}
 
 		// bounce off walls
 		while (true) {
 			if (vel.x < 0 && vel.y < 0) {
+				// bounce off blocks going up and to the left
 				// if (hitBlockUL()) {
 				// continue;
 				// }
@@ -344,16 +279,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 				// newBall.y = 0;
 				// vel.y *= -1;
 				// }
-				//
-				// if (newBall.x >= gameWidth - 1 - size) {
-				// newBall.x = gameWidth - 1 - size;
-				// vel.x *= -1;
-				// }
-				// if (newBall.x <= 0) {
-				// newBall.x = 0;
-				// vel.x *= -1;
-				// }
-				// break;
 			}
 			break;
 		}
@@ -361,38 +286,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		ball.x = newBall.x;
 		ball.y = newBall.y;
 
-		// else { // check for lose
-		// for (int i = 0; i < badguys.size(); i++) {
-		// BadGuy badguy;
-		//
-		// try { // badguy may be removed in other thread onLose()
-		// badguy = badguys.get(i);
-		// } catch (Exception e) {
-		// break;
-		// }
-		//
-		// if (badguy == null)
-		// continue;
-		//
-		// badguy.move();
-		//
-		// if (badguy.intersects(player)) {
-		// synchronized (countMutex) {
-		// if (count == 0) {
-		// count++;
-		// onLose();
-		// }
-		// }
-		// }
-		// }
-		// }
 	}
 
 	// The paint method does 3 things
 	// 1 - it draws a white background
 	// 2 - it draws the player in blue
 	// 3 - it draws the ball in green
-	// 4 - it draws all the Enemy objects
+	// 4 - it draws all the blocks
 	public void paint(Graphics g) {
 
 		g.setColor(Color.WHITE);
@@ -411,24 +311,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		g.setColor(Color.GREEN);
 		g.fillRect(ball.x, ball.y, ball.width, ball.height);
-		// System.out.println("ball: (" + ball.x + ", " + ball.y + "), vel: (" + vel.x +
-		// ", " + vel.y + ")");
 
-		// for (int i = 0; i < badguys.size(); i++) {
-		// try {
-		// badguys.get(i).draw(g);
-		// } catch (Exception e) {
-		// System.out.println("Info: badguy " + i + " already deleted");
-		// }
-		// }
-
-		final int blockX = 5;
-		final int blockY = 50;
-		final int padW = 5;
-		final int padH = 5;
-		final int blockW = 30;
-		final int blockH = 10;
-		for (int i = 0; i < 4; i++) {
+		// final int blockX = 5;
+		// final int blockY = 50;
+		// final int padW = 5;
+		// final int padH = 5;
+		// final int blockW = 30;
+		// final int blockH = 10;
+		for (int i = 0; i < blockRows; i++) {
 			switch (i) {
 				case 0:
 					g.setColor(Color.RED);
@@ -443,8 +333,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 					g.setColor(Color.BLUE);
 					break;
 			}
-			for (int j = 0; j < 7; j++) {
-				g.fillRect(blockX + padW * (j + 1) + blockW * j, blockY + padH * (i + 1) + blockH * i, blockW, blockH);
+			for (int j = 0; j < blockCols; j++) {
+				g.fillRect(padCol * (j + 1) + blockWidth * j, padTop + padRow * (i + 1) + blockHeight * i,
+						blockWidth, blockHeight);
 			}
 		}
 	}
@@ -462,27 +353,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 			// System.out.println("HighScore: " + highScore);
 		}
 
-		// int randomx;
-		// int randomy;
-		//
-		// // add new badguy
-		// if (level % 4 == 1) {
-		// randomx = (int) (Math.random() * (gameWidth - 2 * radius - pad) + radius);
-		// randomy = (int) (Math.random() * (gameHeight - 2 * radius - pad) + radius);
-		// badguys.add(new SpinningEnemy(randomx, randomy, size, size, radius));
-		// } else {
-		// randomx = (int) (Math.random() * (gameWidth - size - pad) + pad / 2);
-		// randomy = (int) (Math.random() * (gameHeight - size - pad) + pad / 2);
-		// if (level % 4 == 0) {
-		// badguys.add(new DiagonalEnemy(randomx, randomy, size, size, gameHeight, 5,
-		// gameWidth, 6));
-		// } else if (level % 4 == 2) {
-		// badguys.add(new VerticalEnemy(randomx, randomy, size, size, gameHeight, 5));
-		// } else if (level % 4 == 3) {
-		// badguys.add(new StalkerEnemy(randomx, randomy, size, size, player));
-		// }
-		// }
-
 		// System.out.println("Level: " + level);
 		createDialog("You Won!", 1000);
 	}
@@ -491,21 +361,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		// player.setRect(new Rectangle(playerStartX, playerStartY, playerW, playerH));
 
 		if (level > 1) {
-			// remove badguys greater than 4
-			// if (badguys.size() > 4) {
-			// try {
-			// badguys.remove(badguys.size() - 1);
-			// } catch (Exception e) {
-			// System.out.println("Error: removing badguy. badguys.size(): " +
-			// badguys.size());
-			// }
-			// }
 			level--;
 		}
 
-		// System.out.println("Level: " + level);
+		System.out.println("Level: " + level);
 		createDialog("You Lost", dialogDelay);
-		ball = new Rectangle(goalStartX, goalStartY, size, size);
+		ball = new Rectangle(ballStartX, ballStartY, size, size);
 	}
 
 	// Sets visible a Pseudo-dialog that removes itself after a fixed time interval
