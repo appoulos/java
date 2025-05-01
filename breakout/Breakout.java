@@ -32,7 +32,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 	private final int dialogDelay = 1000;
 
-	private final int frameRate = 30; // roughly frame rate per second
+	private final int frameRate = 60; // roughly frame rate per second
 
 	private Point velocity = new Point(1, 5); // velocity of ball
 	private Point newBall = new Point(ball.x + velocity.x, ball.y + velocity.y);
@@ -348,7 +348,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 				if (newBall.y > maxHeight) {
 					velocity.y *= -1;
 					newBall.y = 2 * (maxHeight) - newBall.y;
-					System.out.println("gameHeight-1: " + (maxHeight) + ", newBall.y: " + newBall.y);
+					// System.out.println("gameHeight-1: " + (maxHeight) + ", newBall.y: " +
+					// newBall.y);
 					continue;
 				}
 				// if (newBall.y >= gameHeight - 1 - size) {
@@ -409,7 +410,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		if (paused) {
 			g.setColor(Color.BLACK);
-			g.drawString("PAUSED", gameWidth / 2, gameHeight / 2);
+			g.drawString("PAUSED (space to toggle)", gameWidth / 2 - 90, gameHeight / 2);
 		}
 	}
 
