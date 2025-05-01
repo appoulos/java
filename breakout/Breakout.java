@@ -3,6 +3,18 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.awt.geom.Line2D;
 
+class Block {
+	Point point;
+	boolean alive;
+	Color color;
+
+	Block(Point p, Color c) {
+		alive = true;
+		point = p;
+		color = c;
+	}
+}
+
 public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 	private int count = 0;
@@ -21,6 +33,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	private final int dialogDelay = 1000;
 
 	private final int size = 10; // ball size
+
 	private final int blockRows = 4;
 	private final int blockCols = 10;
 	private final int blockWidth = 30;
@@ -28,6 +41,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	private final int padCol = size - 1;
 	private final int padRow = size - 1;
 	private final int padTop = 20;
+	private Block[][] blocks = new Block[blockRows][blockCols];
 
 	private final int ballStartX = 10;
 	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
@@ -141,6 +155,32 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
 		ball = new Rectangle(ballStartX, ballStartY, size, size);
+
+		Color color = Color.pink;
+		for (int r = 0; r < blockRows; r++) {
+			switch (r) {
+				case 0:
+					color = Color.RED;
+					break;
+				case 1:
+					color = Color.YELLOW;
+					break;
+				case 2:
+					color = Color.ORANGE;
+					break;
+				case 3:
+					color = Color.BLUE;
+					break;
+			}
+			for (int c = 0; c < blockCols; c++) {
+				blocks[r][c] = new Block(
+						new Point(padCol + (padCol + blockWidth) * c, padTop + padRow + (padRow + blockHeight) * r),
+						color);
+				// g.fillRect(padCol * (c + 1) + blockWidth * c, padTop + padRow * (r + 1) +
+				// blockHeight * r,
+				// blockWidth, blockHeight);
+			}
+		}
 		System.out.println("Level: " + level);
 	}
 
@@ -312,30 +352,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		g.setColor(Color.GREEN);
 		g.fillRect(ball.x, ball.y, ball.width, ball.height);
 
-		// final int blockX = 5;
-		// final int blockY = 50;
-		// final int padW = 5;
-		// final int padH = 5;
-		// final int blockW = 30;
-		// final int blockH = 10;
-		for (int i = 0; i < blockRows; i++) {
-			switch (i) {
-				case 0:
-					g.setColor(Color.RED);
-					break;
-				case 1:
-					g.setColor(Color.YELLOW);
-					break;
-				case 2:
-					g.setColor(Color.ORANGE);
-					break;
-				case 3:
-					g.setColor(Color.BLUE);
-					break;
-			}
-			for (int j = 0; j < blockCols; j++) {
-				g.fillRect(padCol * (j + 1) + blockWidth * j, padTop + padRow * (i + 1) + blockHeight * i,
-						blockWidth, blockHeight);
+		for (int r = 0; r < blockRows; r++) {
+			g.setColor(blocks[r][0].color);
+			for (int c = 0; c < blockCols; c++) {
+				if (blocks[r][c].alive) {
+					g.fillRect(blocks[r][c].point.x, blocks[r][c].point.y, blockWidth, blockHeight);
+				}
 			}
 		}
 	}
