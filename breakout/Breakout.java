@@ -34,7 +34,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 	private final int frameRate = 60; // roughly frame rate per second
 
-	private Point velocity = new Point(1, 3); // velocity of ball
+	private final int velStartX = 1; // roughly frame rate per second
+	private final int velStartY = 3; // roughly frame rate per second
+
+	private Point velocity = new Point(); // velocity of ball
 	private Point newBall = new Point(ball.x + velocity.x, ball.y + velocity.y);
 
 	private final int size = 10; // ball size
@@ -176,6 +179,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
 		ball = new Rectangle(ballStartX, ballStartY, size, size);
+		velocity.x = velStartX;
+		velocity.y = velStartY;
 
 		blockCnt = blockRows * blockCols;
 		Color color = Color.pink;
