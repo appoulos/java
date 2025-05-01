@@ -42,6 +42,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	private final int padRow = size - 1;
 	private final int padTop = 20;
 	private Block[][] blocks = new Block[blockRows][blockCols];
+	private int blockCnt = blockRows * blockCols;
 
 	private final int ballStartX = 10;
 	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
@@ -153,9 +154,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		left = right = false;
 
+		resetLevel();
+	}
+
+	private void resetLevel() {
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
 		ball = new Rectangle(ballStartX, ballStartY, size, size);
 
+		blockCnt = blockRows * blockCols;
 		Color color = Color.pink;
 		for (int r = 0; r < blockRows; r++) {
 			switch (r) {
@@ -205,6 +211,23 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public boolean hitBlockUL() {
+		// return Rectangle.(ball.x, ball.y, ball2.x, ball2.y, block.x, block.x +
+		// block.width, block.y, block.y);
+		for (int r = 0; r < blockRows; r++) {
+			for (int c = 0; c < blockCols; c++) {
+				if (blocks[r][c].alive) {
+					if (ball.intersects(blocks[r][c].point.x, blocks[r][c].point.y, blockWidth, blockHeight)) {
+						blocks[r][c].alive = false;
+						blockCnt--;
+						if (blockCnt <= 0) {
+							onWin();
+						}
+						vel.y *= -1;
+						return true;
+					}
+				}
+			}
+		}
 		return false;
 	}
 
@@ -238,6 +261,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		// bounce off walls
 		while (true) {
+			hitBlockUL();
 			if (vel.x < 0 && vel.y < 0) {
 				// bounce off blocks going up and to the left
 				// if (hitBlockUL()) {
@@ -367,7 +391,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	}
 
 	public void onWin() {
-		player.setRect(new Rectangle(50, 50, size, size));
+		// player.setRect(new Rectangle(50, 50, size, size));
 
 		level++;
 		if (level > highScore) {
@@ -377,6 +401,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		// System.out.println("Level: " + level);
 		createDialog("You Won!", 1000);
+
+		resetLevel();
 	}
 
 	public void onLose() {
