@@ -319,12 +319,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 						// System.out.println("2. block.y: " + block.y + ", newBall.y: " + newBall.y);
 						velocity.y *= -1;
 						blocks[r][c].alive = false;
+						blockCnt--;
 						if (blockColNeighbors) {
-							if (c + 1 < blockCols && ball.x + size >= blocks[r][c + 1].point.x) {
+							if (blocks[r][c + 1].alive && c + 1 < blockCols
+									&& ball.x + size >= blocks[r][c + 1].point.x) {
 								blocks[r][c + 1].alive = false;
+								blockCnt--;
 							}
 						}
-
 						return true;
 					}
 
@@ -336,6 +338,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 						newBall.x = block.x - ((newBall.x + size) - block.x) - size;
 						velocity.x *= -1;
 						blocks[r][c].alive = false;
+						blockCnt--;
 						return true;
 					}
 
@@ -348,6 +351,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 						newBall.y = block.y - ((newBall.y + size) - block.y) - size;
 						velocity.y *= -1;
 						blocks[r][c].alive = false;
+						blockCnt--;
 						return true;
 					}
 
@@ -359,6 +363,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 						newBall.x = block.x - ((newBall.x + size) - block.x) - size;
 						velocity.x *= -1;
 						blocks[r][c].alive = false;
+						blockCnt--;
 						return true;
 					}
 
@@ -371,6 +376,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 						newBall.y = block.y - ((newBall.y + size) - block.y) - size;
 						velocity.y *= -1;
 						blocks[r][c].alive = false;
+						blockCnt--;
 						return true;
 					}
 
@@ -382,6 +388,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 						newBall.x = block.x - ((newBall.x + size) - block.x) - size;
 						velocity.x *= -1;
 						blocks[r][c].alive = false;
+						blockCnt--;
 						return true;
 					}
 
@@ -541,6 +548,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		ball.x = newBall.x;
 		ball.y = newBall.y;
+		if (blockCnt <= 0) {
+			onWin();
+		}
 
 	}
 
