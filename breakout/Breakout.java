@@ -272,17 +272,69 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 				if (blocks[r][c].alive) {
 					block = blocks[r][c].point;
 
-					int x1 = (int) ((block.y - (ball.y + size)) / m - ball.x);
+					// lower left edge of ball
+					int x1 = (int) ((block.y - (ball.y + size)) / m + ball.x);
 					if (x1 >= block.x && x1 <= block.x + blockWidth) {
 						// reflect ball here
+						ball.x = x1;
+						ball.y += block.y - (ball.y + size);
+						newBall.y = block.y - ((newBall.y + size) - block.y);
+						velocity.y *= -1;
 						return true;
 					}
 
-					int y1 = (int) ((block.x - ball.x) * m - (ball.y + size));
+					int y1 = (int) ((block.x - ball.x) * m + (ball.y + size));
 					if (y1 >= block.y && y1 <= block.y + blockHeight) {
 						// reflect ball here
+						ball.y = y1;
+						ball.x += block.x - (ball.x + size);
+						newBall.x = block.x - ((newBall.x + size) - block.x);
+						velocity.x *= -1;
 						return true;
 					}
+
+					// lower right edge of ball
+					x1 += size; // = (int) ((block.y - (ball.y + size)) / m + (ball.x + size));
+					if (x1 >= block.x && x1 <= block.x + blockWidth) {
+						// reflect ball here
+						ball.x = x1 - size;
+						ball.y += block.y - (ball.y + size);
+						newBall.y = block.y - ((newBall.y + size) - block.y);
+						velocity.y *= -1;
+						return true;
+					}
+
+					y1 = (int) ((block.x - (ball.x + size)) * m + (ball.y + size));
+					if (y1 >= block.y && y1 <= block.y + blockHeight) {
+						// reflect ball here
+						ball.y = y1;
+						ball.x += block.x - ball.x;
+						newBall.x = block.x - ((newBall.x + size) - block.x);
+						velocity.x *= -1;
+						return true;
+					}
+
+					// upper right edge of ball
+					x1 = (int) ((block.y - ball.y) / m + (ball.x + size));
+					if (x1 >= block.x && x1 <= block.x + blockWidth) {
+						// reflect ball here
+						ball.x = x1 - size;
+						ball.y += block.y - (ball.y + size);
+						newBall.y = block.y - ((newBall.y + size) - block.y);
+						velocity.y *= -1;
+						return true;
+					}
+
+					y1 += size; // = (int) ((block.x - (ball.x + size)) * m + (ball.y + size));
+					if (y1 >= block.y && y1 <= block.y + blockHeight) {
+						// reflect ball here
+						ball.y = y1;
+						ball.x += block.x - (ball.x + size);
+						newBall.x = block.x - ((newBall.x + size) - block.x);
+						velocity.x *= -1;
+						return true;
+					}
+
 				}
 			}
 		}
