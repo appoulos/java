@@ -22,41 +22,51 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 	private Rectangle player = new Rectangle(); // a rectangle that represents the player
 	private Rectangle ball = new Rectangle(); // a rectangle that represents the ball
+
 	private int level = 1;
-	private Point vel = new Point(5, 20); // velocity of ball
-	private Point newBall = new Point(ball.x + vel.x, ball.y + vel.y);
-	private int highScore = 0;
+	private int highScore = 1;
 
 	private boolean left, right; // booleans that track which keys are currently pressed
 	private Timer timer; // the update timer
+	private boolean paused; // the update timer
 
 	private final int dialogDelay = 1000;
+
+	private final int frameRate = 30; // roughly frame rate per second
+
+	private Point velocity = new Point(1, 5); // velocity of ball
+	private Point newBall = new Point(ball.x + velocity.x, ball.y + velocity.y);
 
 	private final int size = 10; // ball size
 
 	private final int blockRows = 4;
 	private final int blockCols = 10;
-	private final int blockWidth = 30;
-	private final int blockHeight = 10;
-	private final int padCol = size - 1;
-	private final int padRow = size - 1;
+	private final int blockWidth = 40;
+	private final int blockHeight = 15;
+	private final int padCol = 1; // size - 1;
+	private final int padRow = 0; // size - 1;
 	private final int padTop = 20;
+	private final int padMiddle = 100;
+	private final int padBottom = 20;
 	private Block[][] blocks = new Block[blockRows][blockCols];
 	private int blockCnt = blockRows * blockCols;
 
 	private final int ballStartX = 10;
 	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
 
-	private final int gameWidth = padCol + blockCols * (blockWidth + padCol); // 500; // the width of the game area
-	private final int gameHeight = 330; // the height of the game area
+	private final int playerW = 50;
+	private final int playerH = 10;
+
+	// the width of the game area
+	private final int gameWidth = padCol + blockCols * (blockWidth + padCol);
+	// the height of the game area
+	private final int gameHeight = padTop + blockRows * (blockHeight + padRow) + padMiddle + playerH + padBottom;
+
+	private final int playerStartX = 10;
+	private final int playerStartY = gameHeight - padBottom - playerH;
 
 	private final int maxWidth = gameWidth - 1 - size;
 	private final int maxHeight = gameHeight - 1 - size;
-
-	private final int playerStartX = gameHeight - 30;
-	private final int playerStartY = 250;
-	private final int playerW = 50;
-	private final int playerH = 10;
 
 	private static JLabel dialogLabel;
 	private static JFrame frame;
@@ -119,6 +129,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 			System.exit(0);
 		} else if (e.getKeyCode() == KeyEvent.VK_R) {
 			setUpGame();
+		} else if (e.getKeyCode() == KeyEvent.VK_P) {
+			paused = !paused;
+		} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+			paused = !paused;
 		}
 	}
 
@@ -149,7 +163,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 			timer.stop();
 		}
 
-		timer = new Timer(1000 / 30, this); // roughly 30 frames per second
+		timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per second
 		timer.start();
 
 		left = right = false;
@@ -158,6 +172,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	}
 
 	private void resetLevel() {
+		paused = true;
+
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
 		ball = new Rectangle(ballStartX, ballStartY, size, size);
 
@@ -213,6 +229,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	public boolean hitBlockUL() {
 		// return Rectangle.(ball.x, ball.y, ball2.x, ball2.y, block.x, block.x +
 		// block.width, block.y, block.y);
+		boolean found = false;
 		for (int r = 0; r < blockRows; r++) {
 			for (int c = 0; c < blockCols; c++) {
 				if (blocks[r][c].alive) {
@@ -222,11 +239,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 						if (blockCnt <= 0) {
 							onWin();
 						}
-						vel.y *= -1;
-						return true;
+						found = true;
 					}
 				}
 			}
+		}
+		if (found) {
+			// ball.y += velocity.y;
+			velocity.y *= -1;
 		}
 		return false;
 	}
@@ -237,6 +257,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// 3 - it checks if the player has reached the goal, and if so congratualtes
 	// them and restarts the game
 	public void update() {
+		if (paused)
+			return;
 		if (left) {
 			player.x -= 10;
 		}
@@ -250,81 +272,81 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 			player.x = gameWidth - player.width;
 		}
 
-		newBall = new Point(ball.x + vel.x, ball.y + vel.y);
+		newBall = new Point(ball.x + velocity.x, ball.y + velocity.y);
 
-		if (vel.y > 0
+		if (velocity.y > 0
 				&& Line2D.linesIntersect(ball.x, ball.y, newBall.x, newBall.y, player.x, player.y, player.x + playerW,
 						player.y)) {
-			vel.y *= -1;
+			velocity.y *= -1;
 			newBall.y = 2 * player.y - newBall.y;
 		}
 
 		// bounce off walls
+		hitBlockUL();
 		while (true) {
-			hitBlockUL();
-			if (vel.x < 0 && vel.y < 0) {
+			if (velocity.x < 0 && velocity.y < 0) {
 				// bounce off blocks going up and to the left
 				// if (hitBlockUL()) {
 				// continue;
 				// }
 				if (newBall.x < 0 && newBall.y < 0) {
 					if (newBall.x < newBall.y) {
-						ball.y -= ball.x * vel.y / vel.x;
+						ball.y -= ball.x * velocity.y / velocity.x;
 						ball.x = 0;
-						vel.x *= -1;
+						velocity.x *= -1;
 						newBall.x *= -1;
 					} else {
-						ball.x -= ball.y * vel.x / vel.y;
+						ball.x -= ball.y * velocity.x / velocity.y;
 						ball.y = 0;
-						vel.y *= -1;
+						velocity.y *= -1;
 						newBall.y *= -1;
 					}
 					continue;
 				}
 				if (newBall.x < 0) {
-					ball.y -= ball.x * vel.y / vel.x;
+					ball.y -= ball.x * velocity.y / velocity.x;
 					ball.x = 0;
-					vel.x *= -1;
+					velocity.x *= -1;
 					newBall.x *= -1;
 					break;
 				}
 				if (newBall.y < 0) {
-					ball.x -= ball.y * vel.x / vel.y;
+					ball.x -= ball.y * velocity.x / velocity.y;
 					ball.y = 0;
-					vel.y *= -1;
+					velocity.y *= -1;
 					newBall.y *= -1;
 					break;
 				}
-			} else if (vel.x > 0 && vel.y < 0) {
+			} else if (velocity.x > 0 && velocity.y < 0) {
 				if (newBall.x > maxWidth) {
-					vel.x *= -1;
+					velocity.x *= -1;
 					newBall.x = 2 * (maxWidth) - newBall.x;
 					continue;
 				}
 				if (newBall.y < 0) {
-					vel.y *= -1;
+					velocity.y *= -1;
 					newBall.y *= -1;
 					continue;
 				}
-			} else if (vel.x < 0 && vel.y > 0) {
+			} else if (velocity.x < 0 && velocity.y > 0) {
 				if (newBall.x < 0) {
-					vel.x *= -1;
+					velocity.x *= -1;
 					newBall.x *= -1;
 					continue;
 				}
 				if (newBall.y > maxHeight) {
-					vel.y *= -1;
+					velocity.y *= -1;
 					newBall.y = 2 * (maxHeight) - newBall.y;
 					continue;
 				}
 			} else { // (vel.x > 0 && vel.y > 0)
 				if (newBall.x > maxWidth) {
-					vel.x *= -1;
+					velocity.x *= -1;
 					newBall.x = 2 * (maxWidth) - newBall.x;
 					continue;
 				}
 				if (newBall.y > maxHeight) {
-					vel.y *= -1;
+					velocity.y *= -1;
 					newBall.y = 2 * (maxHeight) - newBall.y;
 					System.out.println("gameHeight-1: " + (maxHeight) + ", newBall.y: " + newBall.y);
 					continue;
@@ -359,7 +381,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// 4 - it draws all the blocks
 	public void paint(Graphics g) {
 
-		g.setColor(Color.WHITE);
+		g.setColor(Color.darkGray);
 		g.fillRect(0, 0, gameWidth, gameHeight);
 
 		// Graphics2D g2 = (Graphics2D) g;
@@ -383,6 +405,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 					g.fillRect(blocks[r][c].point.x, blocks[r][c].point.y, blockWidth, blockHeight);
 				}
 			}
+		}
+
+		if (paused) {
+			g.setColor(Color.BLACK);
+			g.drawString("PAUSED", gameWidth / 2, gameHeight / 2);
 		}
 	}
 
