@@ -9,21 +9,22 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	private final Object countMutex = new Object();
 
 	private Rectangle player = new Rectangle(); // a rectangle that represents the player
-	private Rectangle goal = new Rectangle(); // a rectangle that represents the goal
+	private Rectangle ball = new Rectangle(); // a rectangle that represents the ball
 	// private BadGuy[] badguys = new BadGuy[4]; //the array of Enemy objects
 	// public static <BadGuy> Collection<BadGuy>
 	// synchronizedCollection(Collection<BadGuy> badguys);
 	// private ArrayList<BadGuy> badguys = new ArrayList<BadGuy>();
 	private int level = 1;
-	private int velX = 5;
-	private int velY = 20;
+	private Point vel = new Point(5, 20);
+	// private int velX = 5;
+	// private int velY = 20;
 	private int highScore = 0;
 
 	private boolean left, right;// up, down, // booleans that track which keys are currently pressed
 	private Timer timer; // the update timer
 
 	private final int dialogDelay = 1000;
-	private final int size = 10;
+	private final int size = 10; // ball size
 	private final int playerStartX = 200;
 	private final int playerStartY = 250;
 	private final int playerW = 50;
@@ -157,7 +158,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		left = right = false;
 
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
-		goal = new Rectangle(goalStartX, goalStartY, size, size);
+		ball = new Rectangle(goalStartX, goalStartY, size, size);
 		// badguys.clear();
 		// int randomx;
 		// int randomy;
@@ -191,7 +192,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 	}
 
-	public Point calc(Rectangle ball, Rectangle ball2, Rectangle block) {
+	public Point calc(Point ball, Point ball2, Rectangle block) {
 		if (Line2D.linesIntersect(ball.x, ball.y, ball2.x, ball2.y, block.x, block.x + block.width, block.y, block.y)) {
 		}
 		return new Point(0, 0);
@@ -231,16 +232,19 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		// player.y = gameHeight - player.height;
 		// }
 
-		int newY = goal.y + velY;
-		int newX = goal.x + velX;
+		// int newX = ball.x + vel.x;
+		// int newY = ball.y + vel.y;
+		Point newBall = new Point(ball.x + vel.x, ball.y + vel.y);
 
-		// if (player.intersects(goal)) { // check for win
-		// int crossPt = (goal.x + newX) / 2;
-		// if (newY >= player.y && crossPt >= player.x && crossPt <= player.x + playerW)
+		// if (player.intersects(ball)) { // check for win
+		// int crossPt = (ball.x + newBall.x) / 2;
+		// if (newBall.y >= player.y && crossPt >= player.x && crossPt <= player.x +
+		// playerW)
 		// {
-		if (Line2D.linesIntersect(goal.x, goal.y, newX, newY, player.x, player.y, player.x + playerW, player.y)) {
-			velY *= -1;
-			newY = 2 * player.y - newY;
+		if (Line2D.linesIntersect(ball.x, ball.y, newBall.x, newBall.y, player.x, player.y, player.x + playerW,
+				player.y)) {
+			vel.y *= -1;
+			newBall.y = 2 * player.y - newBall.y;
 			// synchronized (countMutex) {
 			// if (count == 0) {
 			// count++;
@@ -251,72 +255,72 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		// bounce off walls
 		while (true) {
-			if (velX < 0 && velY < 0) {
-				if (newX < 0 && newY < 0) {
-					if (newX < newY) {
-						goal.y -= goal.x * velY / velX;
-						goal.x = 0;
-						velX *= -1;
-						newX *= -1;
+			if (vel.x < 0 && vel.y < 0) {
+				if (newBall.x < 0 && newBall.y < 0) {
+					if (newBall.x < newBall.y) {
+						ball.y -= ball.x * vel.y / vel.x;
+						ball.x = 0;
+						vel.x *= -1;
+						newBall.x *= -1;
 					} else {
-						goal.x -= goal.y * velX / velY;
-						goal.y = 0;
-						velY *= -1;
-						newY *= -1;
+						ball.x -= ball.y * vel.x / vel.y;
+						ball.y = 0;
+						vel.y *= -1;
+						newBall.y *= -1;
 					}
 					continue;
 				}
-				if (newX < 0) {
-					goal.y -= goal.x * velY / velX;
-					goal.x = 0;
-					velX *= -1;
-					newX *= -1;
+				if (newBall.x < 0) {
+					ball.y -= ball.x * vel.y / vel.x;
+					ball.x = 0;
+					vel.x *= -1;
+					newBall.x *= -1;
 					break;
 				}
-				if (newY < 0) {
-					goal.x -= goal.y * velX / velY;
-					goal.y = 0;
-					velY *= -1;
-					newY *= -1;
+				if (newBall.y < 0) {
+					ball.x -= ball.y * vel.x / vel.y;
+					ball.y = 0;
+					vel.y *= -1;
+					newBall.y *= -1;
 					break;
 				}
-			} else if (velX > 0 && velY < 0) {
-				if (newX > maxWidth) {
-					velX *= -1;
-					newX = 2 * (maxWidth) - newX;
+			} else if (vel.x > 0 && vel.y < 0) {
+				if (newBall.x > maxWidth) {
+					vel.x *= -1;
+					newBall.x = 2 * (maxWidth) - newBall.x;
 					continue;
 				}
-				if (newY < 0) {
-					velY *= -1;
-					newY *= -1;
+				if (newBall.y < 0) {
+					vel.y *= -1;
+					newBall.y *= -1;
 					continue;
 				}
-			} else if (velX < 0 && velY > 0) {
-				if (newX < 0) {
-					velX *= -1;
-					newX *= -1;
+			} else if (vel.x < 0 && vel.y > 0) {
+				if (newBall.x < 0) {
+					vel.x *= -1;
+					newBall.x *= -1;
 					continue;
 				}
-				if (newY > maxHeight) {
-					velY *= -1;
-					newY = 2 * (maxHeight) - newY;
+				if (newBall.y > maxHeight) {
+					vel.y *= -1;
+					newBall.y = 2 * (maxHeight) - newBall.y;
 					continue;
 				}
-			} else { // (velX > 0 && velY > 0)
-				if (newX > maxWidth) {
-					velX *= -1;
-					newX = 2 * (maxWidth) - newX;
+			} else { // (vel.x > 0 && vel.y > 0)
+				if (newBall.x > maxWidth) {
+					vel.x *= -1;
+					newBall.x = 2 * (maxWidth) - newBall.x;
 					continue;
 				}
-				if (newY > maxHeight) {
-					velY *= -1;
-					newY = 2 * (maxHeight) - newY;
-					System.out.println("gameHeight-1: " + (maxHeight) + ", newY: " + newY);
+				if (newBall.y > maxHeight) {
+					vel.y *= -1;
+					newBall.y = 2 * (maxHeight) - newBall.y;
+					System.out.println("gameHeight-1: " + (maxHeight) + ", newBall.y: " + newBall.y);
 					continue;
 				}
-				// if (newY >= gameHeight - 1 - size) {
-				// newY = gameHeight - 1 - size;
-				// velY *= -1;
+				// if (newBall.y >= gameHeight - 1 - size) {
+				// newBall.y = gameHeight - 1 - size;
+				// vel.y *= -1;
 				// }
 				// // synchronized (countMutex) {
 				// // if (count == 0) {
@@ -324,26 +328,26 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 				// // onLose();
 				// // }
 				// // }
-				// if (newY <= 0) {
-				// newY = 0;
-				// velY *= -1;
+				// if (newBall.y <= 0) {
+				// newBall.y = 0;
+				// vel.y *= -1;
 				// }
 				//
-				// if (newX >= gameWidth - 1 - size) {
-				// newX = gameWidth - 1 - size;
-				// velX *= -1;
+				// if (newBall.x >= gameWidth - 1 - size) {
+				// newBall.x = gameWidth - 1 - size;
+				// vel.x *= -1;
 				// }
-				// if (newX <= 0) {
-				// newX = 0;
-				// velX *= -1;
+				// if (newBall.x <= 0) {
+				// newBall.x = 0;
+				// vel.x *= -1;
 				// }
 				// break;
 			}
 			break;
 		}
 
-		goal.x = newX;
-		goal.y = newY;
+		ball.x = newBall.x;
+		ball.y = newBall.y;
 
 		// else { // check for lose
 		// for (int i = 0; i < badguys.size(); i++) {
@@ -375,7 +379,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// The paint method does 3 things
 	// 1 - it draws a white background
 	// 2 - it draws the player in blue
-	// 3 - it draws the goal in green
+	// 3 - it draws the ball in green
 	// 4 - it draws all the Enemy objects
 	public void paint(Graphics g) {
 
@@ -394,7 +398,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		g.fillRect(player.x, player.y, player.width, player.height);
 
 		g.setColor(Color.GREEN);
-		g.fillRect(goal.x, goal.y, goal.width, goal.height);
+		g.fillRect(ball.x, ball.y, ball.width, ball.height);
+		// System.out.println("ball: (" + ball.x + ", " + ball.y + "), vel: (" + vel.x +
+		// ", " + vel.y + ")");
 
 		// for (int i = 0; i < badguys.size(); i++) {
 		// try {
@@ -487,7 +493,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		// System.out.println("Level: " + level);
 		createDialog("You Lost", dialogDelay);
-		goal = new Rectangle(goalStartX, goalStartY, size, size);
+		ball = new Rectangle(goalStartX, goalStartY, size, size);
 	}
 
 	// Sets visible a Pseudo-dialog that removes itself after a fixed time interval
