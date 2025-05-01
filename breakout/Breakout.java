@@ -146,17 +146,17 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// Sets the initial state of the game
 	// Could be modified to allow for multiple levels
 	public void setUpGame() {
-		if (level == 0) { // quiet the code not used lsp warnings
-			onWin();
-			onLose();
-		}
+		// if (level == 99) { // quiet the code not used lsp warnings
+		// onWin();
+		// onLose();
+		// }
 		level = 1;
 
 		if (timer != null) {
 			timer.stop();
 		}
 
-		timer = new Timer(1000 / 30, this); // roughly 30 frames per second
+		timer = new Timer(1000 / 60, this); // roughly 30 frames per second
 		timer.start();
 
 		// up = down = false;
@@ -243,7 +243,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		// int newX = ball.x + vel.x;
 		// int newY = ball.y + vel.y;
-		// Point newBall = new Point(ball.x + vel.x, ball.y + vel.y);
+		newBall = new Point(ball.x + vel.x, ball.y + vel.y);
 
 		// if (player.intersects(ball)) { // check for win
 		// int crossPt = (ball.x + newBall.x) / 2;
@@ -453,7 +453,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		return gameHeight;
 	}
 
-	private void onWin() {
+	public void onWin() {
 		player.setRect(new Rectangle(50, 50, size, size));
 
 		level++;
@@ -487,7 +487,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		createDialog("You Won!", 1000);
 	}
 
-	private void onLose() {
+	public void onLose() {
 		// player.setRect(new Rectangle(playerStartX, playerStartY, playerW, playerH));
 
 		if (level > 1) {
