@@ -40,7 +40,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	private Point velocity = new Point(); // velocity of ball
 	private Point newBall = new Point(); // ball.x + velocity.x, ball.y + velocity.y);
 
-	private final int size = 10; // ball size
+	private final int size = 15; // ball size
 
 	private final int blockRows = 4;
 	private final int blockCols = 10;
@@ -53,7 +53,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	private final int padBottom = 20;
 	private Block[][] blocks = new Block[blockRows][blockCols];
 	private int blockCnt = blockRows * blockCols;
-	private int blockColNeighbors = (blockWidth + padCol) / size + 1;
+	private final boolean blockColNeighbors = size > padCol + 2; // (blockWidth + padCol) + 1;
 
 	private final int ballStartX = 10;
 	private final int ballStartY = 10; // padTop + blockRows * (blockHeight + padRow) + 10;
@@ -177,6 +177,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// Sets the initial state of the game
 	// Could be modified to allow for multiple levels
 	public void setUpGame() {
+		if (size > blockWidth + 1) {
+			System.out.println("ball size cannot exeed blockWidth + 1");
+			System.exit(1);
+		}
+		if (size > blockHeight + 1) {
+			System.out.println("ball size cannot exeed blockHeight + 1");
+			System.exit(1);
+		}
 		level = 1;
 
 		if (timer != null) {
@@ -311,8 +319,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 						// System.out.println("2. block.y: " + block.y + ", newBall.y: " + newBall.y);
 						velocity.y *= -1;
 						blocks[r][c].alive = false;
-						for (int i = 1; i <= blockColNeighbors; i++) {
-							if (c + i < blockCols && ball.x + size >= blocks[r][c + i].point.x) {
+						if (blockColNeighbors) {
+							if (c + 1 < blockCols && ball.x + size >= blocks[r][c + 1].point.x) {
 								blocks[r][c + 1].alive = false;
 							}
 						}
