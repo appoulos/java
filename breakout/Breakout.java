@@ -226,6 +226,71 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		return new Point(0, 0);
 	}
 
+	public boolean hitBlockDR() {
+		int rowStart = -1;
+		Point block;
+		for (int r = 0; r < blockRows; r++) {
+			block = blocks[r][0].point;
+			if (ball.y <= block.y && newBall.y + size >= block.y + blockHeight) {
+				rowStart = r;
+				break;
+			}
+		}
+		if (rowStart == -1) {
+			return false;
+		}
+
+		int rowStop = rowStart;
+		for (int r = rowStart; r < blockRows; r++) {
+			if (newBall.y + size < blocks[r][0].point.y) {
+				rowStop = r;
+			}
+		}
+
+		int colStart = -1;
+		for (int c = 0; c < blockCols; c++) {
+			block = blocks[0][c].point;
+			if (ball.x <= block.x && newBall.x + size >= block.x + blockWidth) {
+				colStart = c;
+				break;
+			}
+		}
+		if (colStart == -1) {
+			return false;
+		}
+
+		int colStop = colStart;
+		for (int c = colStart; c < blockCols; c++) {
+			if (newBall.x + size < blocks[0][c].point.x) {
+				colStop = c;
+			}
+		}
+
+		float m = (float) velocity.y / velocity.x;
+		for (int r = rowStart; r < rowStop; r++) {
+			for (int c = colStart; c < colStop; c++) {
+				if (blocks[r][c].alive) {
+					block = blocks[r][c].point;
+
+					int x1 = (int) ((block.y - (ball.y + size)) / m - ball.x);
+					if (x1 >= block.x && x1 <= block.x + blockWidth) {
+						// reflect ball here
+						return true;
+					}
+
+					int y1 = (int) ((block.x - ball.x) * m - (ball.y + size));
+					if (y1 >= block.y && y1 <= block.y + blockHeight) {
+						// reflect ball here
+						return true;
+					}
+				}
+			}
+		}
+		// float y1 =
+
+		return false;
+	}
+
 	public boolean hitBlockUL() {
 		// return Rectangle.(ball.x, ball.y, ball2.x, ball2.y, block.x, block.x +
 		// block.width, block.y, block.y);
