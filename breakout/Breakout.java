@@ -16,6 +16,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// private ArrayList<BadGuy> badguys = new ArrayList<BadGuy>();
 	private int level = 1;
 	private Point vel = new Point(5, 20);
+	private Point newBall = new Point(ball.x + vel.x, ball.y + vel.y);
 	// private int velX = 5;
 	// private int velY = 20;
 	private int highScore = 0;
@@ -145,6 +146,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// Sets the initial state of the game
 	// Could be modified to allow for multiple levels
 	public void setUpGame() {
+		if (level == 0) { // quiet the code not used lsp warnings
+			onWin();
+			onLose();
+		}
 		level = 1;
 
 		if (timer != null) {
@@ -198,6 +203,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		return new Point(0, 0);
 	}
 
+	public boolean hitBlockUL() {
+		return false;
+	}
+
 	// The update method does 5 things
 	// 1 - it has the player move based on what key is currently being pressed
 	// 2 - it prevents the player from leaving the screen
@@ -234,7 +243,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 		// int newX = ball.x + vel.x;
 		// int newY = ball.y + vel.y;
-		Point newBall = new Point(ball.x + vel.x, ball.y + vel.y);
+		// Point newBall = new Point(ball.x + vel.x, ball.y + vel.y);
 
 		// if (player.intersects(ball)) { // check for win
 		// int crossPt = (ball.x + newBall.x) / 2;
@@ -256,6 +265,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		// bounce off walls
 		while (true) {
 			if (vel.x < 0 && vel.y < 0) {
+				// if (hitBlockUL()) {
+				// continue;
+				// }
 				if (newBall.x < 0 && newBall.y < 0) {
 					if (newBall.x < newBall.y) {
 						ball.y -= ball.x * vel.y / vel.x;
