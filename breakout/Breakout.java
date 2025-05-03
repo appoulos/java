@@ -49,8 +49,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	private final int blockCols = 10;
 	private final int blockWidth = 40;
 	private final int blockHeight = 15;
-	private final int padCol = 3; // size - 1;
-	private final int padRow = 2; // size - 1;
+	private final int padCol = 1; // size - 1;
+	private final int padRow = 1; // size - 1;
 	private final int padTop = 200;
 	private final int padMiddle = 100;
 	private final int padBottom = 20;
@@ -434,7 +434,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		int colStart = -1;
 		for (int c = blockCols - 1; c >= 0; c--) {
 			block = blocks[0][c].point;
-			if (ball.x >= block.x) {
+			if (newBall.x + size >= block.x) {
 				colStart = c;
 				break;
 			}
