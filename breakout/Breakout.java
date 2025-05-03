@@ -420,6 +420,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 			}
 		}
 		if (rowStart == -1) {
+			// System.out.println("rows: " + rowStart);
 			return false;
 		}
 
@@ -434,19 +435,20 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		int colStart = -1;
 		for (int c = blockCols - 1; c >= 0; c--) {
 			block = blocks[0][c].point;
-			if (newBall.x + size >= block.x) {
+			if (ball.x + size >= block.x && newBall.x <= block.x + blockWidth) {
 				colStart = c;
 				break;
 			}
 		}
 
 		if (colStart == -1) {
+			System.out.println("rows: " + rowStart + "-" + rowStop + ", cols: " + colStart);
 			return false;
 		}
 
-		int colStop = 0;
+		int colStop = colStart;
 		for (int c = colStart - 1; c >= 0; c--) {
-			if (newBall.x < blocks[0][c].point.x) {
+			if (newBall.x + size > blocks[0][c].point.x) {
 				colStop = c;
 				break;
 			}
