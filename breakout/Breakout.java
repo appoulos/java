@@ -3,6 +3,9 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.awt.geom.Line2D;
 
+// import java.awt.Graphics2D;
+// import java.awt.geom.Rectangle2D;
+
 class Block {
 	Point point;
 	boolean alive;
@@ -178,14 +181,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 	// Sets the initial state of the game
 	// Could be modified to allow for multiple levels
 	public void setUpGame() {
-		if (size > blockWidth + 1) {
-			System.out.println("ball size cannot exeed blockWidth + 1");
-			System.exit(1);
-		}
-		if (size > blockHeight + 1) {
-			System.out.println("ball size cannot exeed blockHeight + 1");
-			System.exit(1);
-		}
+		// if (size > blockWidth + 1) {
+		// System.out.println("ball size cannot exeed blockWidth + 1");
+		// System.exit(1);
+		// }
+		// if (size > blockHeight + 1) {
+		// System.out.println("ball size cannot exeed blockHeight + 1");
+		// System.exit(1);
+		// }
 		level = 1;
 
 		if (timer != null) {
@@ -249,6 +252,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 	public static double calculateDistance(double x1, double y1, double x2, double y2) {
 		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+	}
+
+	public static float calculateDistance(int x1, int y1, int x2, int y2) {
+		return (float) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 	}
 
 	public Point calc(Point ball, Point ball2, Rectangle block) {
@@ -452,23 +459,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 				if (blocks[r][c].alive) {
 					block = blocks[r][c].point;
 
-					// DL: lower right edge of ball
-					int x1 = (int) ((block.y - (ball.y + size)) / m + ball.x + size);
-					if (x1 >= block.x && x1 < block.x + blockWidth) {
-						ball.x = x1 - size;
-						ball.y = block.y - size;
-						newBall.y = block.y - ((newBall.y + size) - block.y) - size;
-						velocity.y *= -1;
-						blocks[r][c].alive = false;
-						blockCnt--;
-						if (blockColNeighbors && c - 1 > 0 && blocks[r][c - 1].alive
-								&& ball.x <= blocks[r][c - 1].point.x + blockWidth) {
-							blocks[r][c - 1].alive = false;
-							blockCnt--;
-						}
-						return true;
-					}
-
 					// int y1 = (int) ((block.x + blockWidth - ball.x + size) * m + (ball.y +
 					// size));
 					// if (y1 >= block.y && y1 < block.y + blockHeight) {
@@ -487,36 +477,83 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 					// }
 
 					// DL: lower left edge of ball
-					x1 -= size;
+					int x1 = (int) ((block.y - (ball.y + size)) / m + ball.x + size);
 					if (x1 >= block.x && x1 < block.x + blockWidth) {
+						// hits horiz
 						ball.x = x1;
 						ball.y = block.y - size;
 						newBall.y = block.y - ((newBall.y + size) - block.y) - size;
 						velocity.y *= -1;
 						blocks[r][c].alive = false;
 						blockCnt--;
-						if (blockColNeighbors && c - 1 > 0 && blocks[r][c - 1].alive
-								&& ball.x <= blocks[r][c - 1].point.x + blockWidth) {
-							blocks[r][c - 1].alive = false;
-							blockCnt--;
-						}
 						return true;
-					}
-
-					int y1 = (int) ((ball.x - block.x + blockHeight) * m + (ball.y + size));
-					if (y1 >= block.y && y1 < block.y + blockHeight) {
-						ball.y = y1 - size;
-						ball.x = block.x + blockWidth;
-						newBall.x = block.x + blockWidth + (block.x + blockWidth - newBall.x);
-						velocity.x *= -1;
-						blocks[r][c].alive = false;
-						blockCnt--;
-						if (blockRowNeighbors && r + 1 < blockRows && blocks[r + 1][c].alive
-								&& ball.y + size >= blocks[r + 1][c].point.y) {
-							blocks[r + 1][c].alive = false;
+					} else if (x1 < block.x) {
+						// x1 misses block to left so check lr for horiz hit
+						// DL: lower right edge of ball
+						// int llX = (int) ((block.y - (ball.y + size)) / m + ball.x + size);
+						x1 += size;
+						if (x1 >= block.x && x1 < block.x + blockWidth) {
+							ball.x = x1 - size;
+							ball.y = block.y - size;
+							newBall.y = block.y - ((newBall.y + size) - block.y) - size;
+							velocity.y *= -1;
+							blocks[r][c].alive = false;
 							blockCnt--;
+							if (blockColNeighbors && c - 1 > 0 && blocks[r][c - 1].alive
+									&& ball.x < blocks[r][c - 1].point.x + blockWidth) {
+								blocks[r][c - 1].alive = false;
+								blockCnt--;
+							}
+							return true;
 						}
-						return true;
+					} else {
+						// check for ll hit vertical
+						int y1 = (int) ((ball.x - block.x + blockHeight) * m + (ball.y + size));
+						if (y1 >= block.y && y1 < block.y + blockHeight) {
+							if (r + 1 < blockRows && blocks[r + 1][c].alive) {
+								// check lr for neighbor downward hit here
+								int lrX = (int) ((block.y - (ball.y + size)) / m + ball.x + size);
+								if (lrX >= block.x && lrX < block.x + blockWidth) {
+									float llVertDist = calculateDistance(ball.x, ball.y + size, block.x + blockHeight,
+											y1);
+									float lrDist = calculateDistance(ball.x + size, ball.y + size, lrX, block.y);
+									if (lrDist < llVertDist) {
+										ball.x = lrX - size;
+										ball.y = block.y - size;
+										newBall.y = block.y - ((newBall.y + size) - block.y) - size;
+										velocity.y *= -1;
+										blocks[r][c].alive = false;
+										blockCnt--;
+										return true;
+									}
+								}
+							}
+							ball.y = y1 - size;
+							ball.x = block.x + blockWidth;
+							newBall.x = block.x + blockWidth + (block.x + blockWidth - newBall.x);
+							velocity.x *= -1;
+							blocks[r][c].alive = false;
+							blockCnt--;
+							return true;
+						} else if (y1 >= block.y + blockHeight) {
+							// check for ul hit vertical
+							y1 -= size;
+							if (y1 >= block.y && y1 < block.y + blockHeight) {
+								// TODO: check ll hit neighbor down
+								ball.y = y1;
+								ball.x = block.x; // - (ball.x + size);
+								newBall.x = block.x + blockWidth + (block.x + blockWidth - newBall.x);
+								velocity.x *= -1;
+								blocks[r][c].alive = false;
+								blockCnt--;
+								if (blockRowNeighbors && r + 1 < blockRows && blocks[r + 1][c].alive
+										&& ball.y + size >= blocks[r + 1][c].point.y) {
+									blocks[r + 1][c].alive = false;
+									blockCnt--;
+								}
+								return true;
+							}
+						}
 					}
 
 					// DL: upper left edge of ball
@@ -536,21 +573,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 					// return true;
 					// }
 
-					y1 -= size;
-					if (y1 >= block.y && y1 < block.y + blockHeight) {
-						ball.y = y1;
-						ball.x = block.x; // - (ball.x + size);
-						newBall.x = block.x + blockWidth + (block.x + blockWidth - newBall.x);
-						velocity.x *= -1;
-						blocks[r][c].alive = false;
-						blockCnt--;
-						if (blockRowNeighbors && r + 1 < blockRows && blocks[r + 1][c].alive
-								&& ball.y + size >= blocks[r + 1][c].point.y) {
-							blocks[r + 1][c].alive = false;
-							blockCnt--;
-						}
-						return true;
-					}
 				}
 			}
 		}
@@ -724,17 +746,32 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		g.fillRect(0, 0, gameWidth, gameHeight);
 
 		// Graphics2D g2 = (Graphics2D) g;
-		// g2.setColor(Color.RED);
-		// g2.fill.fillRect(200f, 200f, 40f, 40f);
+		// g2.setColor(Color.red);
+		// g2.fillRect(200f, 200f, 40f, 40f);
+		// Rectangle2D rect = new Rectangle2D.Double(100, 100, 200, 100);
+		// g2.draw(rect);
+
+		// g2.draw(new Line2D.Float(21.50f, 132.50f, 459.50f, 132.50f));
+		// g2.setColor(Color.yellow);
+		// g2.draw(new Line2D.Float(31.50f, 132.70f, 44.50f, 132.70f));
+		// g2.setColor(Color.white);
+		// g2.drawLine(44, 133, 54, 133);
+		// g2.draw(new Line2D.Float(54f, 132.70f, 64.50f, 132.10f));
+		// g2.draw(new Rectangle2D.Float(54f, 134.70f, 100f, 0f));
+		// g.setColor(Color.blue);
+		// g.fillRect(54, 136, 100, 5);
+		// g.setColor(Color.white);
+		// g.drawLine(54, 135, 40, 135);
+		// g.drawLine(54, 140, 40, 140);
 
 		g.setFont(new Font("Algerian", Font.BOLD, 15));
-		g.setColor(Color.BLACK);
+		g.setColor(Color.white);
 		g.drawString("Level: " + level + " Highscore: " + highScore, 5, 15);
 
-		g.setColor(Color.BLUE);
+		g.setColor(Color.blue);
 		g.fillRect(player.x, player.y, player.width, player.height);
 
-		g.setColor(Color.GREEN);
+		g.setColor(Color.green);
 		g.fillRect(ball.x, ball.y, ball.width, ball.height);
 
 		for (int r = 0; r < blockRows; r++) {
@@ -747,7 +784,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		}
 
 		if (paused) {
-			g.setColor(Color.BLACK);
+			g.setColor(Color.white);
 			g.drawString("PAUSED (space to toggle)", gameWidth / 2 - 90, gameHeight / 2);
 		}
 	}
