@@ -254,7 +254,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 	}
 
-	public static float calculateDistance(int x1, int y1, int x2, int y2) {
+	public static float calcDist(int x1, int y1, int x2, int y2) {
 		return (float) Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 	}
 
@@ -511,25 +511,26 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 					} else {
 						// check for ll hit vertical
 						int y1 = (int) ((ball.x - block.x + blockHeight) * m + (ball.y + size));
-						if (y1 >= block.y && y1 < block.y + blockHeight) {
-							if (r + 1 < blockRows && blocks[r + 1][c].alive) {
-								// check lr for neighbor downward hit here
-								int lrX = (int) ((block.y - (ball.y + size)) / m + ball.x + size);
-								if (lrX >= block.x && lrX < block.x + blockWidth) {
-									float llVertDist = calculateDistance(ball.x, ball.y + size, block.x + blockHeight,
-											y1);
-									float lrDist = calculateDistance(ball.x + size, ball.y + size, lrX, block.y);
-									if (lrDist < llVertDist) {
-										ball.x = lrX - size;
-										ball.y = block.y - size;
-										newBall.y = block.y - ((newBall.y + size) - block.y) - size;
-										velocity.y *= -1;
-										blocks[r][c].alive = false;
-										blockCnt--;
-										return true;
-									}
-								}
-							}
+						if (y1 >= block.y && y1 <= block.y + blockHeight) {
+							// if (r + 1 < blockRows && blocks[r + 1][c].alive) {
+							// // check lr for neighbor downward hit here
+							// int lrX = (int) ((block.y - (ball.y + size)) / m + ball.x + size);
+							// if (lrX >= block.x && lrX < block.x + blockWidth) {
+							// float llVertDist = calculateDistance(ball.x, ball.y + size, block.x +
+							// blockHeight,
+							// y1);
+							// float lrDist = calculateDistance(ball.x + size, ball.y + size, lrX, block.y);
+							// if (lrDist < llVertDist) {
+							// ball.x = lrX - size;
+							// ball.y = block.y - size;
+							// newBall.y = block.y - ((newBall.y + size) - block.y) - size;
+							// velocity.y *= -1;
+							// blocks[r][c].alive = false;
+							// blockCnt--;
+							// return true;
+							// }
+							// }
+							// }
 							ball.y = y1 - size;
 							ball.x = block.x + blockWidth;
 							newBall.x = block.x + blockWidth + (block.x + blockWidth - newBall.x);
@@ -541,7 +542,27 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 							// check for ul hit vertical
 							y1 -= size;
 							if (y1 >= block.y && y1 < block.y + blockHeight) {
-								// TODO: check ll hit neighbor down
+								// check ll hit neighbor down
+								if (r + 1 < blockRows && blocks[r + 1][c].alive) {
+									// check lr for neighbor downward hit here
+									Point lowerBlock = blocks[r + 1][c].point;
+									int lrX = (int) ((lowerBlock.y - (ball.y + size)) / m + ball.x + size);
+									if (lrX >= lowerBlock.x && lrX < lowerBlock.x + blockWidth) {
+										float lrDist = calcDist(ball.x + size, ball.y + size, lrX, lowerBlock.y);
+										float ulVertDist = calcDist(ball.x, ball.y,
+												block.x + blockWidth,
+												y1);
+										if (lrDist < ulVertDist) {
+											ball.x = lrX - size;
+											ball.y = block.y - size;
+											newBall.y = block.y - ((newBall.y + size) - block.y) - size;
+											velocity.y *= -1;
+											blocks[r][c].alive = false;
+											blockCnt--;
+											return true;
+										}
+									}
+								}
 								ball.y = y1;
 								ball.x = block.x; // - (ball.x + size);
 								newBall.x = block.x + blockWidth + (block.x + blockWidth - newBall.x);
