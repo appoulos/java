@@ -264,32 +264,39 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		return new Point(0, 0);
 	}
 
-	public int blockRow(int y) {
-		int r = (y - padTop) / (padRow + blockHeight);
-		if (y < 0)
-			return 0;
-		if (y >= blockRows)
-			return blockRows - 1;
-		return r;
+	public int blockCol(int x) {
+		x = (x - padCol);
+		if (x < 0)
+			return -1;
+		// make x = col
+		x /= (blockWidth + padCol);
+		if (x >= blockCols)
+			return blockCols - 1;
+		return x;
 	}
 
-	public int blockCol(int x) {
-		int c = (x - padCol) / (padCol + blockWidth) + 1;
-		if (c < 0)
-			return 0;
-		if (c >= blockCols)
-			return blockCols - 1;
-		return c;
+	public int blockRow(int y) {
+		y = (y - padTop);
+		if (y < 0)
+			return -1;
+		// make y = row
+		y /= (blockHeight + padRow);
+		if (y >= blockRows)
+			return blockRows - 1;
+		return y;
 	}
 
 	public boolean hitBlockDR() {
 
-		if (ball.y > padTop + blockRows * (blockHeight + padRow) || ball.y < padTop) {
+		if (ball.y > padTop + blockRows * (blockHeight + padRow)) { // || ball.y < padTop) {
 			return false;
 		}
 
-		int rowBeg = blockRow(ball.y);
-		int rowEnd = blockRow(newBall.y);
+		int rowBeg = blockRow(ball.y + size) + 1;
+		int rowEnd = blockRow(newBall.y + size) + 1;
+		// System.out.println("rowBeg: " + rowBeg + ", rowEnd: " + rowEnd + ",
+		// ball.y+size: " + (ball.y + size)
+		// + ", padTop: " + padTop + "newBall.y + size: " + (newBall.y + size));
 		int colBeg;
 		int colEnd;
 
@@ -297,14 +304,18 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		boolean hitUR = false;
 		boolean hitLL = false;
 		float m = (float) velocity.y / velocity.x;
-		for (int r = rowBeg; r <= rowEnd; r++) {
-			int x = (int) ((blocks[r][0].point.y - (ball.y + size)) / m + ball.x);
+		for (int r = rowBeg; r < rowEnd; r++) {
+			int x = (int) ((blocks[r][0].point.y - (ball.y + size)) / m + ball.x + size);
 			int bc = blockCol(x);
 			if (blocks[r][bc].alive) {
 				hitLR = true;
 			}
-			if (x - size > padCol && bc != blockCol(x - size) && blocks[r][blockCol(x - size)].alive) {
-				hitLL = true;
+			if (x - size > padCol) {
+				int bc2 = blockCol(x - size);
+				System.out.println("bc:" + bc + ",bc2:" + bc2);
+				if (bc != bc2 && blocks[r][bc2].alive) {
+					hitLL = true;
+				}
 			}
 			colBeg = blockCol(ball.x + size);
 			colEnd = blockCol(newBall.x + size);
@@ -360,7 +371,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 				break;
 			}
 		}
-		System.out.println("rows: " + rowStart + "-" + rowStop + ", cols: " + colStart + "-" + colStop);
+		// System.out.println("rows: " + rowStart + "-" + rowStop + ", cols: " +
+		// colStart + "-" + colStop);
 
 		// float m = (float) velocity.y / velocity.x;
 		for (int r = rowStart; r < rowStop; r++) {
