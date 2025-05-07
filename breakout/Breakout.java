@@ -60,7 +60,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final boolean blockRowNeighbors = size > padRow + 2; // (blockWidth + padCol) + 1;
 
 	private final int ballStartX = 10;
-	private final int ballStartY = 10; // padTop + blockRows * (blockHeight + padRow) + 10;
+	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
 
 	private final int playerW = 50;
 	private final int playerH = 10;
@@ -82,6 +82,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private static JFrame frame;
 	private static JDialog dialog;
 	private static int screenWidth;
+	private boolean keyboard = true;
 
 	// Sets up the basic GUI for the game
 	public static void main(String[] args) {
@@ -103,7 +104,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		game.addKeyListener(game);
 		frame.addKeyListener(game);
 		dialog.addKeyListener(game);
-		frame.addMouseMotionListener(game);
+		// frame.addMouseMotionListener(game);
+		// frame.removeMouseMotionListener(game);
 
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -145,6 +147,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			System.exit(0);
 		} else if (e.getKeyCode() == KeyEvent.VK_R) {
 			setUpGame();
+		} else if (e.getKeyCode() == KeyEvent.VK_K) {
+			if (keyboard) {
+				frame.addMouseMotionListener(this);
+			} else {
+				frame.removeMouseMotionListener(this);
+			}
+			keyboard = !keyboard;
 		} else if (e.getKeyCode() == KeyEvent.VK_P) {
 			paused = !paused;
 		} else if (e.getKeyCode() == KeyEvent.VK_I) {
@@ -722,12 +731,21 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		newBall = new Point(ball.x + velocity.x, ball.y + velocity.y);
 
-		if (velocity.y > 0
-				&& Line2D.linesIntersect(ball.x, ball.y, newBall.x, newBall.y, player.x, player.y, player.x + playerW,
-						player.y)) {
-			velocity.y *= -1;
-			newBall.y = 2 * player.y - newBall.y;
+		if (ball.y + size < player.y && newBall.y + size >= player.y) {
+			int hitX = (int) (ball.x + (float) velocity.x / velocity.y * (player.y - (ball.y + size)));
+			if (hitX >= player.x && hitX <= player.x + playerW) {
+				// float hit = hitX - (2*player.x+playerW)/2;
+				velocity.y *= -1;
+				newBall.y = 2 * player.y - newBall.y - 2 * size;
+			}
 		}
+		// if (velocity.y > 0
+		// && Line2D.linesIntersect(ball.x, ball.y, newBall.x, newBall.y, player.x,
+		// player.y, player.x + playerW,
+		// player.y)) {
+		// velocity.y *= -1;
+		// newBall.y = 2 * player.y - newBall.y;
+		// }
 
 		// bounce off walls
 		while (true) {
