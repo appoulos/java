@@ -18,7 +18,7 @@ class Block {
 	}
 }
 
-public class Breakout extends JPanel implements ActionListener, KeyListener {
+public class Breakout extends JPanel implements ActionListener, KeyListener, MouseMotionListener {
 
 	private int count = 0;
 	private final Object countMutex = new Object();
@@ -75,10 +75,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 
 	private final int maxWidth = gameWidth - 1 - size;
 	private final int maxHeight = gameHeight - 1 - size;
+	// max player.x position
+	private final int mouseWidth = gameWidth - playerW;
 
 	private static JLabel dialogLabel;
 	private static JFrame frame;
 	private static JDialog dialog;
+	private static int screenWidth;
 
 	// Sets up the basic GUI for the game
 	public static void main(String[] args) {
@@ -100,14 +103,19 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		game.addKeyListener(game);
 		frame.addKeyListener(game);
 		dialog.addKeyListener(game);
+		frame.addMouseMotionListener(game);
 
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		frame.pack();
 
+		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		// GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		// System.out.println(graphicsEnvironment.getMaximumWindowBounds());
+		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
 		game.setUpGame();
-		// game.enterFullScreen();
+		game.enterFullScreen();
 	}
 
 	// Constructor for the game panel
@@ -189,6 +197,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		// System.out.println("ball size cannot exeed blockHeight + 1");
 		// System.exit(1);
 		// }
+
 		level = 1;
 
 		if (timer != null) {
@@ -240,15 +249,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 		System.out.println("Level: " + level);
 	}
 
-	// private void enterFullScreen() {
-	// GraphicsEnvironment graphicsEnvironment =
-	// GraphicsEnvironment.getLocalGraphicsEnvironment();
-	// GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-	// if (device.isFullScreenSupported()) {
-	// device.setFullScreenWindow(frame);
-	// frame.validate();
-	// }
-	// }
+	public void enterFullScreen() {
+		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		if (device.isFullScreenSupported()) {
+			device.setFullScreenWindow(frame);
+			frame.validate();
+		}
+	}
 
 	public static double calculateDistance(double x1, double y1, double x2, double y2) {
 		return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
@@ -942,5 +950,21 @@ public class Breakout extends JPanel implements ActionListener, KeyListener {
 			Thread.sleep(m);
 		} catch (Exception e) {
 		}
+	}
+
+	public void mouseDragged(MouseEvent e) {
+		// update the label to show the point
+		// through which point mouse is dragged
+		// label1.setText("mouse is dragged through point "
+		// + e.getX() + " " + e.getY());
+	}
+
+	// invoked when the cursor is moved from
+	// one point to another within the component
+	public void mouseMoved(MouseEvent e) {
+		// update the label to show the point to which the cursor moved
+		// label2.setText("mouse is moved to point "
+		// + e.getX() + " " + e.getY());
+		player.x = mouseWidth * e.getX() / screenWidth;
 	}
 }
