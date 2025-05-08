@@ -850,6 +850,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					continue;
 				}
 				if (newBall.y > maxHeight) {
+					synchronized (countMutex) {
+						if (count == 0) {
+							count++;
+							onLose();
+							resetLevel();
+							return;
+						}
+					}
 					velocity.y *= -1;
 					newBall.y = 2 * (maxHeight) - newBall.y;
 					continue;
@@ -862,26 +870,20 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					continue;
 				}
 				if (newBall.y > maxHeight) {
+					synchronized (countMutex) {
+						if (count == 0) {
+							count++;
+							onLose();
+							resetLevel();
+							return;
+						}
+					}
 					velocity.y *= -1;
 					newBall.y = 2 * (maxHeight) - newBall.y;
 					// System.out.println("gameHeight-1: " + (maxHeight) + ", newBall.y: " +
 					// newBall.y);
 					continue;
 				}
-				// if (newBall.y >= gameHeight - 1 - size) {
-				// newBall.y = gameHeight - 1 - size;
-				// vel.y *= -1;
-				// }
-				// // synchronized (countMutex) {
-				// // if (count == 0) {
-				// // count++;
-				// // onLose();
-				// // }
-				// // }
-				// if (newBall.y <= 0) {
-				// newBall.y = 0;
-				// vel.y *= -1;
-				// }
 			}
 			break;
 		}
