@@ -101,9 +101,17 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		frame.setTitle("Obstacle Game");
 		frame.setLayout(new BorderLayout());
+		// frame.setLayout(new BoxLayout(frame, BoxLayout.Y_AXIS));
 
 		Breakout game = new Breakout();
-		frame.add(game, BorderLayout.CENTER);
+		// frame.add(game, BorderLayout.CENTER);
+
+		Box box = new Box(BoxLayout.Y_AXIS);
+
+		box.add(Box.createVerticalGlue());
+		box.add(game);
+		box.add(Box.createVerticalGlue());
+		frame.add(box);
 
 		game.addKeyListener(game);
 		frame.addKeyListener(game);
@@ -121,12 +129,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// System.out.println(graphicsEnvironment.getMaximumWindowBounds());
 		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
 		game.setUpGame();
-		game.enterFullScreen();
+		// game.enterFullScreen();
 	}
 
 	// Constructor for the game panel
 	public Breakout() {
-		setPreferredSize(new Dimension(gameWidth, gameHeight));
+		Dimension d = new Dimension(gameWidth, gameHeight);
+		setPreferredSize(d);
+		setMinimumSize(d);
+		setMaximumSize(d);
+
 	}
 
 	// Method that is called by the timer 30 times per second (roughly)
@@ -153,8 +165,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			setUpGame();
 		} else if (e.getKeyCode() == KeyEvent.VK_K) {
 			if (keyboard) {
+				enterFullScreen();
 				frame.addMouseMotionListener(this);
 			} else {
+				exitFullScreen();
 				frame.removeMouseMotionListener(this);
 			}
 			keyboard = !keyboard;
@@ -275,6 +289,17 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
 		if (device.isFullScreenSupported()) {
 			device.setFullScreenWindow(frame);
+			// device.getDisplayModes();
+			frame.validate();
+		}
+	}
+
+	public void exitFullScreen() {
+		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		if (device.isFullScreenSupported()) {
+			device.setFullScreenWindow(null);
+			// device.getDisplayModes();
 			frame.validate();
 		}
 	}
