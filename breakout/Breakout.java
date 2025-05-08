@@ -62,7 +62,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int ballStartX = 10;
 	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
 
-	private final int playerW = 50;
+	private final int playerW = 96;
 	private final int playerH = 10;
 
 	// the width of the game area
@@ -70,6 +70,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// the height of the game area
 	private final int gameHeight = padTop + blockRows * (blockHeight + padRow) + padMiddle + playerH + padBottom;
 
+	private final int playerSegments = 6;
+	// private final int playerSegment = playerW / 2 / playerSegments;
+
+	private Point[] bounces = new Point[playerSegments];
 	private final int playerStartX = 10;
 	private final int playerStartY = gameHeight - padBottom - playerH;
 
@@ -207,6 +211,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// System.exit(1);
 		// }
 
+		// for (int i=0;i<bounces.length;i++){
+		bounces[0] = new Point(-3, -1);
+		bounces[1] = new Point(-2, -2);
+		bounces[2] = new Point(-1, -3);
+		bounces[3] = new Point(1, -3);
+		bounces[4] = new Point(2, -2);
+		bounces[5] = new Point(3, -1);
+
 		level = 1;
 
 		if (timer != null) {
@@ -329,7 +341,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			}
 			if (x - size > padCol) {
 				int bc2 = blockCol(x - size);
-				System.out.println("bc:" + bc + ",bc2:" + bc2);
+				// System.out.println("bc:" + bc + ",bc2:" + bc2);
 				if (bc != bc2 && blocks[r][bc2].alive) {
 					hitLL = true;
 				}
@@ -343,7 +355,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				}
 			}
 		}
-		System.out.println("hitLR:" + hitLR + ", hitLL:" + hitLL + ", hitUR:" + hitUR);
+		// System.out.println("hitLR:" + hitLR + ", hitLL:" + hitLL + ", hitUR:" +
+		// hitUR);
 
 		Point block;
 		int rowStart = -1;
@@ -534,7 +547,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				break;
 			}
 		}
-		System.out.println("rows: " + rowStart + "-" + rowStop + ", cols: " + colStart + "-" + colStop);
+		// System.out.println("rows: " + rowStart + "-" + rowStop + ", cols: " +
+		// colStart + "-" + colStop);
 
 		float m = (float) -velocity.y / velocity.x;
 		for (int r = rowStart; r < rowStop; r++) {
@@ -734,9 +748,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		if (ball.y + size < player.y && newBall.y + size >= player.y) {
 			int hitX = (int) (ball.x + (float) velocity.x / velocity.y * (player.y - (ball.y + size)));
 			if (hitX >= player.x && hitX <= player.x + playerW) {
-				// float hit = hitX - (2*player.x+playerW)/2;
-				velocity.y *= -1;
+				int hit = (hitX - player.x) * playerSegments / playerW;
+				velocity.x = bounces[hit].x;
+				velocity.y = bounces[hit].y;
+				// System.out.println("vel:" + velocity + ", hit:" + hit);
+				// velocity.y *= -1;
 				newBall.y = 2 * player.y - newBall.y - 2 * size;
+				// newBall.y = player.y - size;
 			}
 		}
 		// if (velocity.y > 0
