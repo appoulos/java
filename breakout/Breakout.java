@@ -106,6 +106,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		Breakout game = new Breakout();
 		// frame.add(game, BorderLayout.CENTER);
 
+		// add box to keep game in center while resizing window
+		// from:
+		// https://stackoverflow.com/questions/7223530/how-can-i-properly-center-a-jpanel-fixed-size-inside-a-jframe
 		Box box = new Box(BoxLayout.Y_AXIS);
 
 		box.add(Box.createVerticalGlue());
