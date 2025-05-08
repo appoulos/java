@@ -219,14 +219,15 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// Sets the initial state of the game
 	// Could be modified to allow for multiple levels
 	public void setUpGame() {
-		// if (size > blockWidth + 1) {
-		// System.out.println("ball size cannot exeed blockWidth + 1");
-		// System.exit(1);
-		// }
-		// if (size > blockHeight + 1) {
-		// System.out.println("ball size cannot exeed blockHeight + 1");
-		// System.exit(1);
-		// }
+		boolean ignoreDeadCode = Math.random() == 2;
+		if (size > blockWidth + 1 || ignoreDeadCode) {
+			System.out.println("ball size cannot exeed blockWidth + 1");
+			System.exit(1);
+		}
+		if (size > blockHeight + 1 || ignoreDeadCode) {
+			System.out.println("ball size cannot exeed blockHeight + 1");
+			System.exit(1);
+		}
 
 		// for (int i=0;i<bounces.length;i++){
 		bounces[0] = new Point(-3, -1);
