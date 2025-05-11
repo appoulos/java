@@ -8,7 +8,6 @@ import javax.sound.midi.*;
 
 class MidiPlayNote {
 	static Receiver rcvr;
-
 	static Synthesizer synth = null;
 
 	public static void main(String[] args) {

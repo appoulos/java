@@ -1,4 +1,9 @@
 import java.awt.*;
+
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.Receiver;
+import javax.sound.midi.ShortMessage;
+import javax.sound.midi.Synthesizer;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.geom.Line2D;
@@ -25,6 +30,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	private Rectangle player = new Rectangle(); // a rectangle that represents the player
 	private Rectangle ball = new Rectangle(); // a rectangle that represents the ball
+	private Point nextCalc = new Point();
 
 	private int level = 1;
 	private int highScore = 1;
@@ -49,11 +55,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int blockCols = 10;
 	private final int blockWidth = 40;
 	private final int blockHeight = 15;
-	private final int padCol = 1; // size - 1;
-	private final int padRow = 1; // size - 1;
-	private final int padTop = 200;
-	private final int padMiddle = 100;
-	private final int padBottom = 20;
+	private final int padCol = 1; // padding between columns
+	private final int padRow = 1; // padding between rows
+	private final int padTop = 60; // padding above blocks
+	private final int padMiddle = 130; // padding between blocks and paddle
+	private final int padBottom = 20; // padding below paddle
 	private Block[][] blocks = new Block[blockRows][blockCols];
 	private int blockCnt = blockRows * blockCols;
 	private final boolean blockColNeighbors = size > padCol + 2; // (blockWidth + padCol) + 1;
@@ -88,8 +94,32 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private static int screenWidth;
 	private boolean keyboard = true;
 
+	// MIDI
+	static Receiver rcvr;
+	static Synthesizer synth = null;
+	static ShortMessage myMsg = new ShortMessage();
+	private boolean mute = false;
+
+	void playSound() {
+		if (!mute) {
+			// long t = synth.getMicrosecondPosition();
+			rcvr.send(myMsg, -1); // t); // time in microseconds
+		}
+	}
+
 	// Sets up the basic GUI for the game
 	public static void main(String[] args) {
+		try {
+			synth = MidiSystem.getSynthesizer();
+			synth.open();
+			// note Middle C = 60,
+			// moderately loud (velocity = 93).
+			myMsg.setMessage(ShortMessage.NOTE_ON, 0, 100, 83);
+			rcvr = MidiSystem.getReceiver();
+		} catch (Exception e) {
+			System.out.println("Error: cound not initialize the MIDI system for audio");
+			System.exit(1);
+		}
 		frame = new JFrame();
 
 		dialog = new JDialog(frame, "Status");
@@ -180,6 +210,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				frame.removeMouseMotionListener(this);
 			}
 			keyboard = !keyboard;
+		} else if (e.getKeyCode() == KeyEvent.VK_M) {
+			mute = !mute;
 		} else if (e.getKeyCode() == KeyEvent.VK_P) {
 			paused = !paused;
 		} else if (e.getKeyCode() == KeyEvent.VK_I) {
@@ -263,6 +295,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		ball = new Rectangle(ballStartX, ballStartY, size, size);
 		velocity.x = velStartX;
 		velocity.y = velStartY;
+		int framesTillNextCalc = (player.y - 1 - size - ball.y) / velocity.y;
+		nextCalc.x = ball.x + velocity.x * framesTillNextCalc;
+		nextCalc.y = ball.y + velocity.y * framesTillNextCalc;
+		System.out.println(nextCalc + ", " + framesTillNextCalc);
 
 		blockCnt = blockRows * blockCols;
 		Color color = Color.pink;
@@ -363,21 +399,21 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		int colBeg;
 		int colEnd;
 
-		boolean hitLR = false;
-		boolean hitUR = false;
-		boolean hitLL = false;
+		// boolean hitLR = false;
+		// boolean hitUR = false;
+		// boolean hitLL = false;
 		float m = (float) velocity.y / velocity.x;
 		for (int r = rowBeg; r < rowEnd; r++) {
 			int x = (int) ((blocks[r][0].point.y - (ball.y + size)) / m + ball.x + size);
 			int bc = blockCol(x);
 			if (bc > -1 && blocks[r][bc].alive) {
-				hitLR = true;
+				// hitLR = true;
 			}
 			if (x - size > padCol) {
 				int bc2 = blockCol(x - size);
 				// System.out.println("bc:" + bc + ",bc2:" + bc2);
 				if (bc2 > -1 && bc != bc2 && blocks[r][bc2].alive) {
-					hitLL = true;
+					// hitLL = true;
 				}
 			}
 			colBeg = blockCol(ball.x + size);
@@ -385,7 +421,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			for (int c = colBeg; c < colEnd; c++) {
 				int y = (int) ((blocks[r][c].point.x - (ball.x + size)) * m + ball.y);
 				if (y >= blocks[r][c].point.y && y < blocks[r][c].point.y + blockHeight) {
-					hitUR = true;
+					// hitUR = true;
 				}
 			}
 		}
@@ -734,11 +770,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	public boolean hitBlock() {
 		// return Rectangle.(ball.x, ball.y, ball2.x, ball2.y, block.x, block.x +
 		// block.width, block.y, block.y);
+		// int hitCnt = 0;
 		boolean found = false;
 		for (int r = 0; r < blockRows; r++) {
 			for (int c = 0; c < blockCols; c++) {
 				if (blocks[r][c].alive) {
 					if (ball.intersects(blocks[r][c].point.x, blocks[r][c].point.y, blockWidth, blockHeight)) {
+						// hitCnt++;
 						blocks[r][c].alive = false;
 						blockCnt--;
 						if (blockCnt <= 0) {
@@ -751,9 +789,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		}
 		if (found) {
 			// ball.y += velocity.y;
-			velocity.y *= -1;
+			// velocity.y *= -1;
+			velocity.y = Math.abs(velocity.y);
 		}
-		return false;
+		return found;
 	}
 
 	// The update method does 5 things
@@ -777,6 +816,24 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			player.x = gameWidth - player.width;
 		}
 
+		// if (ball.x != nextCalc.x || ball.y != nextCalc.y)
+		// return;
+		// System.out.println(ball);
+
+		// if (ball.x == nextCalc.x && ball.y == nextCalc.y) {
+		// if (ball.y + size == player.y - 1) {
+		// // check player hit
+		// }
+		// int framesTillNextCalc = (player.y - 1 - size - ball.y) / velocity.y;
+		// nextCalc.x = ball.x + velocity.x * framesTillNextCalc;
+		// nextCalc.y = ball.y + velocity.y * framesTillNextCalc;
+		// System.out.println(nextCalc + ", " + framesTillNextCalc);
+		// paused = true;
+		// }
+
+		// if ((int) Math.random() == 0)
+		// return;
+
 		newBall = new Point(ball.x + velocity.x, ball.y + velocity.y);
 
 		if (ball.y + size < player.y && newBall.y + size >= player.y) {
@@ -788,6 +845,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				// System.out.println("vel:" + velocity + ", hit:" + hit);
 				// velocity.y *= -1;
 				newBall.y = 2 * player.y - newBall.y - 2 * size;
+				playSound();
 				// newBall.y = player.y - size;
 			}
 		}
@@ -802,7 +860,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// bounce off walls
 		while (true) {
 			if (velocity.x < 0 && velocity.y < 0) {
-				hitBlock();
+				if (hitBlock())
+					playSound();
 				// bounce off blocks going up and to the left
 				// if (hitBlock()) {
 				// continue;
@@ -836,7 +895,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					break;
 				}
 			} else if (velocity.x > 0 && velocity.y < 0) {
-				hitBlock();
+				if (hitBlock())
+					playSound();
 				if (newBall.x > maxWidth) {
 					velocity.x *= -1;
 					newBall.x = 2 * (maxWidth) - newBall.x;
@@ -848,7 +908,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					continue;
 				}
 			} else if (velocity.x < 0 && velocity.y > 0) {
-				hitBlockDL();
+				if (hitBlock()) // was DL
+					playSound();
 				if (newBall.x < 0) {
 					velocity.x *= -1;
 					newBall.x *= -1;
@@ -868,7 +929,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					continue;
 				}
 			} else { // (vel.x > 0 && vel.y > 0)
-				hitBlockDR();
+				if (hitBlockDR())
+					playSound();
 				if (newBall.x > maxWidth) {
 					velocity.x *= -1;
 					newBall.x = 2 * (maxWidth) - newBall.x;
@@ -951,7 +1013,19 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		if (paused) {
 			g.setColor(Color.white);
-			g.drawString("PAUSED (space to toggle)", gameWidth / 2 - 90, gameHeight / 2);
+			int startY = padTop + blockRows * (blockHeight + padRow) + 10;
+			int height = 20;
+			g.drawString("Left/Right Arrows or A/D: move paddle left/right", 20, startY);
+			startY += height;
+			g.drawString("R: Reset Level", 20, startY);
+			startY += height;
+			g.drawString("Q: Quit", 20, startY);
+			startY += height;
+			g.drawString("M: Mute", 20, startY);
+			startY += height;
+			g.drawString("K: toggle Mouse/Keyboard", 20, startY);
+			startY += height;
+			g.drawString("P or Space: toggle pause", 20, startY);
 		}
 	}
 
