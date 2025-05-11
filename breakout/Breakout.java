@@ -132,6 +132,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// System.out.println(graphicsEnvironment.getMaximumWindowBounds());
 		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
 		game.setUpGame();
+		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		System.out.println("refresh rate: " + device.getDisplayMode().getRefreshRate());
 		// game.enterFullScreen();
 	}
 
