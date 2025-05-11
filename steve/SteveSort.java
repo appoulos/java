@@ -1,4 +1,3 @@
-
 import javax.swing.*;
 // import java.util.ArrayList;
 
@@ -13,11 +12,18 @@ public class SteveSort {
 		// f.setVisible(true);
 		// makeFrame(100, 100, 100, 100, "Hi");
 		// makeFrame(300, 300, 100, 100, "Hi");
-		int[] arr = new int[20];
+		// int[] arr = new int[20];
+		int[] arr={0, 6, 6, 9, 6, 2, 2, 3, 5, 6, 6, 3, 4, 3, 5, 1, 5, 7, 8, 5};
+		// System.out.println(printArr(arr));
+		// randomizeArr(arr);
 		System.out.println(printArr(arr));
-		randomizeArr(arr);
-		System.out.println(printArr(arr));
+		// Using System.nanoTime()
+		long startTime = System.nanoTime();
 		int[] newArr = StevenSort(arr);
+		long endTime = System.nanoTime();
+		long elapsedTime = endTime - startTime;
+		System.out.println("Elapsed time (nanoseconds): " + elapsedTime);
+
 		System.out.println(printArr(newArr));
 		System.out.println(printSortedSpecialArr(newArr));
 	}
@@ -82,9 +88,11 @@ public class SteveSort {
 
 	public static int[] StevenSort(int[] arr) {
 		int number = findLargestNumber(arr);
+		// System.out.println(number);
 		int[] newArr = new int[number + 1];
 		for (int i = 0; i < arr.length; i++) {
-			newArr[arr[i]] += 1;
+			int j = arr[i];
+			newArr[j] += 1;
 		}
 		return newArr;
 	}
@@ -93,7 +101,7 @@ public class SteveSort {
 		int max = 0;
 		for (int i = 0; i < arr.length; i++) {
 			if (arr[i] > max) {
-				max = i;
+				max = arr[i];
 			}
 		}
 		return max;
