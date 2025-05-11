@@ -58,7 +58,7 @@ class MidiPlayNote {
 
 		// long timeStamp = 1000000;
 
-		System.out.println(synth.getMicrosecondPosition());
+		System.out.println("usec position: " + synth.getMicrosecondPosition());
 		try {
 			rcvr = MidiSystem.getReceiver();
 		} catch (Exception e) {

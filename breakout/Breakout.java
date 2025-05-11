@@ -68,7 +68,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int ballStartX = 10;
 	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
 
-	private final int playerW = 96;
+	private final int ballMiddle = size / 2;
+	private final int playerW = 96 - ballMiddle;
 	private final int playerH = 10;
 
 	// the width of the game area
@@ -99,9 +100,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	static Synthesizer synth = null;
 	static ShortMessage myMsg = new ShortMessage();
 	private boolean mute = false;
+	static boolean soundPossible = false;
 
 	void playSound() {
-		if (!mute) {
+		if (!mute && soundPossible) {
 			// long t = synth.getMicrosecondPosition();
 			rcvr.send(myMsg, -1); // t); // time in microseconds
 		}
@@ -116,9 +118,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			// moderately loud (velocity = 93).
 			myMsg.setMessage(ShortMessage.NOTE_ON, 0, 100, 83);
 			rcvr = MidiSystem.getReceiver();
+			soundPossible = true;
 		} catch (Exception e) {
-			System.out.println("Error: cound not initialize the MIDI system for audio");
-			System.exit(1);
+			System.out.println("Warning: cound not initialize the MIDI system for audio. Sound disabled");
+			// System.exit(1);
 		}
 		frame = new JFrame();
 
@@ -838,8 +841,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		if (ball.y + size < player.y && newBall.y + size >= player.y) {
 			int hitX = (int) (ball.x + (float) velocity.x / velocity.y * (player.y - (ball.y + size)));
-			if (hitX >= player.x && hitX <= player.x + playerW) {
-				int hit = (hitX - player.x) * playerSegments / playerW;
+			if (hitX >= player.x - (size - 1) && hitX <= player.x + playerW) {
+				int hit = (hitX - (player.x + (size - 1))) * playerSegments / (playerW + (size - 1));
 				velocity.x = bounces[hit].x;
 				velocity.y = bounces[hit].y;
 				// System.out.println("vel:" + velocity + ", hit:" + hit);
