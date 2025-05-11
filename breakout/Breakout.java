@@ -365,13 +365,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		for (int r = rowBeg; r < rowEnd; r++) {
 			int x = (int) ((blocks[r][0].point.y - (ball.y + size)) / m + ball.x + size);
 			int bc = blockCol(x);
-			if (blocks[r][bc].alive) {
+			if (bc > -1 && blocks[r][bc].alive) {
 				hitLR = true;
 			}
 			if (x - size > padCol) {
 				int bc2 = blockCol(x - size);
 				// System.out.println("bc:" + bc + ",bc2:" + bc2);
-				if (bc != bc2 && blocks[r][bc2].alive) {
+				if (bc2 > -1 && bc != bc2 && blocks[r][bc2].alive) {
 					hitLL = true;
 				}
 			}
