@@ -65,7 +65,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final boolean blockColNeighbors = size > padCol + 2; // (blockWidth + padCol) + 1;
 	private final boolean blockRowNeighbors = size > padRow + 2; // (blockWidth + padCol) + 1;
 
-	private final int ballStartX = 10;
+	private final int ballStartX = 60;
 	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
 
 	private final int ballMiddle = size / 2;
@@ -841,8 +841,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		if (ball.y + size < player.y && newBall.y + size >= player.y) {
 			int hitX = (int) (ball.x + (float) velocity.x / velocity.y * (player.y - (ball.y + size)));
-			if (hitX >= player.x - (size - 1) && hitX <= player.x + playerW) {
-				int hit = (hitX - (player.x + (size - 1))) * playerSegments / (playerW + (size - 1));
+			if (hitX >= player.x - (size - 1) && hitX < player.x + playerW) {
+				int hit = (hitX - (player.x - (size - 1))) * playerSegments / (playerW + (size - 1));
 				velocity.x = bounces[hit].x;
 				velocity.y = bounces[hit].y;
 				// System.out.println("vel:" + velocity + ", hit:" + hit);
