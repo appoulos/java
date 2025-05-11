@@ -35,7 +35,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	private final int dialogDelay = 1000;
 
-	private int frameRate = 60; // roughly frame rate per second
+	private static int frameRate = 60; // roughly frame rate per second
 
 	private final int velStartX = 1; // roughly frame rate per second
 	private final int velStartY = 3; // roughly frame rate per second
@@ -131,9 +131,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
 		// System.out.println(graphicsEnvironment.getMaximumWindowBounds());
 		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
-		game.setUpGame();
+
 		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
 		System.out.println("refresh rate: " + device.getDisplayMode().getRefreshRate());
+		frameRate = device.getDisplayMode().getRefreshRate();
+
+		game.setUpGame();
 		// game.enterFullScreen();
 	}
 
