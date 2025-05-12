@@ -101,13 +101,18 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	static ShortMessage paddleMsg = new ShortMessage();
 	static ShortMessage wallMsg = new ShortMessage();
 	static ShortMessage brickMsg = new ShortMessage();
+	static ShortMessage paddleOffMsg = new ShortMessage();
+	static ShortMessage wallOffMsg = new ShortMessage();
+	static ShortMessage brickOffMsg = new ShortMessage();
 	private boolean mute = false;
 	static boolean soundPossible = false;
 
 	void playSound(ShortMessage msg, int time) {
-		if (!mute && soundPossible) {
-			// long t = synth.getMicrosecondPosition();
-			rcvr.send(msg, time); // time in microseconds
+		if (!mute) {
+			long t = synth.getMicrosecondPosition();
+			rcvr.send(msg, -1); // time in microseconds
+			rcvr.send(paddleOffMsg, t + 100000); // time in microseconds
+			rcvr.send(wallOffMsg, t + 100000); // time in microseconds
 		}
 	}
 
@@ -122,6 +127,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			paddleMsg.setMessage(ShortMessage.NOTE_ON, 0, 50, noteVelocity);
 			wallMsg.setMessage(ShortMessage.NOTE_ON, 0, 40, noteVelocity);
 			brickMsg.setMessage(ShortMessage.NOTE_ON, 0, 100, noteVelocity);
+			paddleOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 50, noteVelocity);
+			wallOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 40, noteVelocity);
+			brickOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 100, noteVelocity);
 			rcvr = MidiSystem.getReceiver();
 			soundPossible = true;
 		} catch (Exception e) {
@@ -197,19 +205,20 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// Called every time a key is pressed
 	// Stores the down state for use in the update method
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+		int keyCode = e.getKeyCode();
+		if (keyCode == KeyEvent.VK_LEFT) {
 			left = true;
-		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+		} else if (keyCode == KeyEvent.VK_RIGHT) {
 			right = true;
-		} else if (e.getKeyCode() == KeyEvent.VK_A) {
+		} else if (keyCode == KeyEvent.VK_A) {
 			left = true;
-		} else if (e.getKeyCode() == KeyEvent.VK_D) {
+		} else if (keyCode == KeyEvent.VK_D) {
 			right = true;
-		} else if (e.getKeyCode() == KeyEvent.VK_Q) {
+		} else if (keyCode == KeyEvent.VK_Q) {
 			System.exit(0);
-		} else if (e.getKeyCode() == KeyEvent.VK_R) {
+		} else if (keyCode == KeyEvent.VK_R) {
 			setUpGame();
-		} else if (e.getKeyCode() == KeyEvent.VK_K) {
+		} else if (keyCode == KeyEvent.VK_K) {
 			if (keyboard) {
 				enterFullScreen();
 				frame.addMouseMotionListener(this);
@@ -218,11 +227,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				frame.removeMouseMotionListener(this);
 			}
 			keyboard = !keyboard;
-		} else if (e.getKeyCode() == KeyEvent.VK_M) {
-			mute = !mute;
-		} else if (e.getKeyCode() == KeyEvent.VK_P) {
+		} else if (keyCode == KeyEvent.VK_M) {
+			if (soundPossible)
+				mute = !mute;
+		} else if (keyCode == KeyEvent.VK_P) {
 			paused = !paused;
-		} else if (e.getKeyCode() == KeyEvent.VK_I) {
+		} else if (keyCode == KeyEvent.VK_MINUS) {
 			if (frameRate > 2) {
 				frameRate /= 2;
 			}
@@ -231,14 +241,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			}
 			timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per second
 			timer.start();
-		} else if (e.getKeyCode() == KeyEvent.VK_O) {
+		} else if (keyCode == KeyEvent.VK_EQUALS || keyCode == KeyEvent.VK_PLUS) {
 			frameRate *= 2;
 			if (timer != null) {
 				timer.stop();
 			}
 			timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per second
 			timer.start();
-		} else if (e.getKeyCode() == KeyEvent.VK_SPACE) {
+		} else if (keyCode == KeyEvent.VK_SPACE) {
 			paused = !paused;
 		}
 	}
@@ -246,13 +256,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// Called every time a key is released
 	// Stores the down state for use in the update method
 	public void keyReleased(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_LEFT) {
+		int keyCode = e.getKeyCode();
+		if (keyCode == KeyEvent.VK_LEFT) {
 			left = false;
-		} else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
+		} else if (keyCode == KeyEvent.VK_RIGHT) {
 			right = false;
-		} else if (e.getKeyCode() == KeyEvent.VK_A) {
+		} else if (keyCode == KeyEvent.VK_A) {
 			left = false;
-		} else if (e.getKeyCode() == KeyEvent.VK_D) {
+		} else if (keyCode == KeyEvent.VK_D) {
 			right = false;
 		}
 	}
@@ -845,6 +856,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		newBall = new Point(ball.x + velocity.x, ball.y + velocity.y);
 
+		// Check for player paddle hit ball
 		if (ball.y + size < player.y && newBall.y + size >= player.y) {
 			int hitX = (int) (ball.x + (float) velocity.x / velocity.y * (player.y - (ball.y + size)));
 			if (hitX >= player.x - (size - 1) && hitX < player.x + playerW) {
@@ -1038,9 +1050,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			startY += height;
 			g.drawString("R: Reset Level", 20, startY);
 			startY += height;
-			g.drawString("Q: Quit", 20, startY);
-			startY += height;
-			g.drawString("M: Mute", 20, startY);
+			g.drawString("Q: Quit, +: Speed up, -: Slow down", 20, startY);
+
+			if (soundPossible) {
+				startY += height;
+				g.drawString("M: Mute", 20, startY);
+			}
+
 			startY += height;
 			g.drawString("K: toggle Mouse/Keyboard", 20, startY);
 			startY += height;
