@@ -66,7 +66,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final boolean blockRowNeighbors = size > padRow + 2; // (blockWidth + padCol) + 1;
 
 	private final int ballStartX = 60;
-	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
+	private final int ballStartY = 10; // padTop + blockRows * (blockHeight + padRow) + 10;
 
 	private final int ballMiddle = size / 2;
 	private final int playerW = 96 - ballMiddle;
@@ -421,28 +421,72 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// boolean hitLR = false;
 		// boolean hitUR = false;
 		// boolean hitLL = false;
+		final double maxDist = 100;
+		double hitLR = maxDist;
+		double hitUR = maxDist;
+		double hitLL = maxDist;
+		int hitLRr = -1;
+		int hitLRc = -1;
+		int hitLLr = -1;
+		int hitLLc = -1;
+		int hitURr = -1;
+		int hitURc = -1;
 		float m = (float) velocity.y / velocity.x;
 		for (int r = rowBeg; r < rowEnd; r++) {
 			int x = (int) ((blocks[r][0].point.y - (ball.y + size)) / m + ball.x + size);
 			int bc = blockCol(x);
 			if (bc > -1 && blocks[r][bc].alive) {
 				// hitLR = true;
+				double dist = Math.pow(x - (ball.x + size), 2)
+						+ Math.pow(blocks[r][bc].point.y - (ball.y + size), 2);
+				if (dist < hitLR) {
+					hitLR = dist;
+					hitLRr = r;
+					hitLRc = bc;
+				}
 			}
 			if (x - size > padCol) {
 				int bc2 = blockCol(x - size);
 				// System.out.println("bc:" + bc + ",bc2:" + bc2);
 				if (bc2 > -1 && bc != bc2 && blocks[r][bc2].alive) {
 					// hitLL = true;
+					double dist = Math.pow(x - size - ball.x, 2)
+							+ Math.pow(blocks[r][bc2].point.y - (ball.y + size), 2);
+					if (dist < hitLL) {
+						hitLL = dist;
+						hitLLr = r;
+						hitLLc = bc2;
+					}
 				}
 			}
 			colBeg = blockCol(ball.x + size);
 			colEnd = blockCol(newBall.x + size);
 			for (int c = colBeg; c < colEnd; c++) {
 				int y = (int) ((blocks[r][c].point.x - (ball.x + size)) * m + ball.y);
-				if (y >= blocks[r][c].point.y && y < blocks[r][c].point.y + blockHeight) {
+				if (y >= blocks[r][c].point.y && y < blocks[r][c].point.y + blockHeight && blocks[r][c].alive) {
 					// hitUR = true;
+					double dist = Math.pow(blocks[r][c].point.x - (ball.x + size), 2)
+							+ Math.pow(blocks[r][c].point.y - ball.y, 2);
+					if (dist < hitUR) {
+						hitUR = dist;
+						hitURr = r;
+						hitURc = c;
+					}
 				}
 			}
+		}
+
+		if (hitLR == hitUR && hitLR < hitLL) {
+			System.out.println("2 hits LR,UR: (" + hitLRr + "," + hitLRc + ") (" + hitURr + "," + hitURc + ")");
+		} else if (hitLL == hitLR && hitLL < hitUR) {
+			System.out.println("2 hits LL,LR: (" + hitLLr + "," + hitLLc + ") (" + hitLRr + "," + hitLRc + ")");
+		} else if (hitLR < hitUR && hitLR < hitLL) {
+			System.out.println("1 hit LR: (" + hitLRr + "," + hitLRc + ")");
+			// System.out.println("hitLR: " + hitLR + ", hitLL: " + hitLL);
+		} else if (hitLL < hitLR && hitLL < hitUR) {
+			System.out.println("1 hit LL: (" + hitLLr + "," + hitLLc + ")");
+		} else if (hitUR < hitLR && hitUR < hitLL) {
+			System.out.println("1 hit UR: (" + hitURr + "," + hitURc + ")");
 		}
 		// System.out.println("hitLR:" + hitLR + ", hitLL:" + hitLL + ", hitUR:" +
 		// hitUR);
