@@ -39,7 +39,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private Timer timer; // the update timer
 	private boolean paused; // the update timer
 
-	private final int dialogDelay = 1000;
+	private final int dialogDelay = 2000;
 
 	private static int frameRate = 60; // roughly frame rate per second
 
@@ -98,14 +98,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// MIDI
 	static Receiver rcvr;
 	static Synthesizer synth = null;
-	static ShortMessage myMsg = new ShortMessage();
+	static ShortMessage paddleMsg = new ShortMessage();
+	static ShortMessage wallMsg = new ShortMessage();
+	static ShortMessage brickMsg = new ShortMessage();
 	private boolean mute = false;
 	static boolean soundPossible = false;
 
-	void playSound() {
+	void playSound(ShortMessage msg, int time) {
 		if (!mute && soundPossible) {
 			// long t = synth.getMicrosecondPosition();
-			rcvr.send(myMsg, -1); // t); // time in microseconds
+			rcvr.send(msg, time); // time in microseconds
 		}
 	}
 
@@ -116,7 +118,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			synth.open();
 			// note Middle C = 60,
 			// moderately loud (velocity = 93).
-			myMsg.setMessage(ShortMessage.NOTE_ON, 0, 100, 83);
+			final int noteVelocity = 83;
+			paddleMsg.setMessage(ShortMessage.NOTE_ON, 0, 50, noteVelocity);
+			wallMsg.setMessage(ShortMessage.NOTE_ON, 0, 40, noteVelocity);
+			brickMsg.setMessage(ShortMessage.NOTE_ON, 0, 100, noteVelocity);
 			rcvr = MidiSystem.getReceiver();
 			soundPossible = true;
 		} catch (Exception e) {
@@ -783,7 +788,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						blocks[r][c].alive = false;
 						blockCnt--;
 						if (blockCnt <= 0) {
-							onWin();
+							// onWin();
+							return true;
 						}
 						found = true;
 					}
@@ -848,7 +854,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				// System.out.println("vel:" + velocity + ", hit:" + hit);
 				// velocity.y *= -1;
 				newBall.y = 2 * player.y - newBall.y - 2 * size;
-				playSound();
+				playSound(paddleMsg, -1);
 				// newBall.y = player.y - size;
 			}
 		}
@@ -864,7 +870,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		while (true) {
 			if (velocity.x < 0 && velocity.y < 0) {
 				if (hitBlock())
-					playSound();
+					playSound(brickMsg, -1);
 				// bounce off blocks going up and to the left
 				// if (hitBlock()) {
 				// continue;
@@ -875,11 +881,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						ball.x = 0;
 						velocity.x *= -1;
 						newBall.x *= -1;
+						playSound(wallMsg, -1);
 					} else {
 						ball.x -= ball.y * velocity.x / velocity.y;
 						ball.y = 0;
 						velocity.y *= -1;
 						newBall.y *= -1;
+						playSound(wallMsg, -1);
 					}
 					continue;
 				}
@@ -888,6 +896,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					ball.x = 0;
 					velocity.x *= -1;
 					newBall.x *= -1;
+					playSound(wallMsg, -1);
 					break;
 				}
 				if (newBall.y < 0) {
@@ -895,27 +904,31 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					ball.y = 0;
 					velocity.y *= -1;
 					newBall.y *= -1;
+					playSound(wallMsg, -1);
 					break;
 				}
 			} else if (velocity.x > 0 && velocity.y < 0) {
 				if (hitBlock())
-					playSound();
+					playSound(brickMsg, -1);
 				if (newBall.x > maxWidth) {
 					velocity.x *= -1;
 					newBall.x = 2 * (maxWidth) - newBall.x;
+					playSound(wallMsg, -1);
 					continue;
 				}
 				if (newBall.y < 0) {
 					velocity.y *= -1;
 					newBall.y *= -1;
+					playSound(wallMsg, -1);
 					continue;
 				}
 			} else if (velocity.x < 0 && velocity.y > 0) {
 				if (hitBlock()) // was DL
-					playSound();
+					playSound(brickMsg, -1);
 				if (newBall.x < 0) {
 					velocity.x *= -1;
 					newBall.x *= -1;
+					playSound(wallMsg, -1);
 					continue;
 				}
 				if (newBall.y > maxHeight) {
@@ -933,10 +946,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				}
 			} else { // (vel.x > 0 && vel.y > 0)
 				if (hitBlockDR())
-					playSound();
+					playSound(brickMsg, -1);
 				if (newBall.x > maxWidth) {
 					velocity.x *= -1;
 					newBall.x = 2 * (maxWidth) - newBall.x;
+					playSound(wallMsg, -1);
 					continue;
 				}
 				if (newBall.y > maxHeight) {
@@ -950,6 +964,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					}
 					velocity.y *= -1;
 					newBall.y = 2 * (maxHeight) - newBall.y;
+					playSound(wallMsg, -1);
 					// System.out.println("gameHeight-1: " + (maxHeight) + ", newBall.y: " +
 					// newBall.y);
 					continue;
@@ -962,6 +977,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		ball.y = newBall.y;
 		if (blockCnt <= 0) {
 			onWin();
+			return;
 		}
 
 	}
@@ -1060,7 +1076,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		System.out.println("Level: " + level);
 		createDialog("You Lost", dialogDelay);
-		ball = new Rectangle(ballStartX, ballStartY, size, size);
+
+		resetLevel();
 	}
 
 	// Sets visible a Pseudo-dialog that removes itself after a fixed time interval
