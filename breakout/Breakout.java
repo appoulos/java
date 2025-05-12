@@ -103,9 +103,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	static ShortMessage brickMsg = new ShortMessage();
 	static ShortMessage paddleOffMsg = new ShortMessage();
 	static ShortMessage wallOffMsg = new ShortMessage();
-	static ShortMessage brickOffMsg = new ShortMessage();
-	private boolean mute = false;
+	// static ShortMessage brickOffMsg = new ShortMessage();
 	static boolean soundPossible = false;
+	private boolean mute = false;
 
 	void playSound(ShortMessage msg, int time) {
 		if (!mute) {
@@ -129,7 +129,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			brickMsg.setMessage(ShortMessage.NOTE_ON, 0, 100, noteVelocity);
 			paddleOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 50, noteVelocity);
 			wallOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 40, noteVelocity);
-			brickOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 100, noteVelocity);
+			// brickOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 100, noteVelocity);
 			rcvr = MidiSystem.getReceiver();
 			soundPossible = true;
 		} catch (Exception e) {
