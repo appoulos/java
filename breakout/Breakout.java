@@ -46,10 +46,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int velStartX = 1; // roughly frame rate per second
 	private final int velStartY = 3; // roughly frame rate per second
 
-	private Point velocity = new Point(); // velocity of ball
+	private Point vel = new Point(); // velocity of ball
+	private Point velSign = new Point(); // velocity of ball
 	private Point newBall = new Point(); // ball.x + velocity.x, ball.y + velocity.y);
 
 	private final int size = 10; // ball size
+	private final int radius = 5; // ball radius
 
 	private final int blockRows = 4;
 	private final int blockCols = 10;
@@ -65,8 +67,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final boolean blockColNeighbors = size > padCol + 2; // (blockWidth + padCol) + 1;
 	private final boolean blockRowNeighbors = size > padRow + 2; // (blockWidth + padCol) + 1;
 
-	private final int ballStartX = 60;
-	private final int ballStartY = 10; // padTop + blockRows * (blockHeight + padRow) + 10;
+	private final int ballStartX = 90;
+	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
 
 	private final int ballMiddle = size / 2;
 	private final int playerW = 96 - ballMiddle;
@@ -95,6 +97,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private static int screenWidth;
 	private boolean keyboard = true;
 
+	// Distance calcs
+	static Distances dist = new Distances();
+
 	// MIDI
 	static Receiver rcvr;
 	static Synthesizer synth = null;
@@ -105,7 +110,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	static ShortMessage wallOffMsg = new ShortMessage();
 	// static ShortMessage brickOffMsg = new ShortMessage();
 	static boolean soundPossible = false;
-	private boolean mute = false;
+	static boolean mute = true;
 
 	void playSound(ShortMessage msg, int time) {
 		if (!mute) {
@@ -132,6 +137,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			// brickOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 100, noteVelocity);
 			rcvr = MidiSystem.getReceiver();
 			soundPossible = true;
+			mute = false;
 		} catch (Exception e) {
 			System.out.println("Warning: cound not initialize the MIDI system for audio. Sound disabled");
 			// System.exit(1);
@@ -312,11 +318,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
 		ball = new Rectangle(ballStartX, ballStartY, size, size);
-		velocity.x = velStartX;
-		velocity.y = velStartY;
-		int framesTillNextCalc = (player.y - 1 - size - ball.y) / velocity.y;
-		nextCalc.x = ball.x + velocity.x * framesTillNextCalc;
-		nextCalc.y = ball.y + velocity.y * framesTillNextCalc;
+		vel.x = velStartX;
+		vel.y = velStartY;
+		int framesTillNextCalc = (player.y - 1 - size - ball.y) / vel.y;
+		nextCalc.x = ball.x + vel.x * framesTillNextCalc;
+		nextCalc.y = ball.y + vel.y * framesTillNextCalc;
 		System.out.println(nextCalc + ", " + framesTillNextCalc);
 
 		blockCnt = blockRows * blockCols;
@@ -404,6 +410,91 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		return y;
 	}
 
+	public void nextHitDR() {
+		double m = (double) vel.y / vel.x;
+
+		if (velSign.x > 0 && velSign.y > 0) {
+			if (newBall.x + radius > maxWidth) {
+				double dx = (maxWidth - (ball.x + radius));
+				double dy = dx * m;
+				dist.wall[0].vert = Math.pow(dx, 2) + Math.pow(dy, 2);
+			}
+			if (newBall.y + radius > maxHeight) {
+				double dy = (maxHeight - (ball.y + radius));
+				double dx = dy / m;
+				dist.wall[0].horz = Math.pow(dx, 2) + Math.pow(dy, 2);
+			}
+			int rowBeg = blockRow(ball.y + radius) + 1;
+			int rowEnd = blockRow(newBall.y + radius) + 1;
+			int colBeg;
+			int colEnd;
+			for (int r = rowBeg; r < rowEnd; r++) {
+				// LR hit horiz block check
+				int x = (int) ((blocks[r][0].point.y - (ball.y + radius)) / m + ball.x + radius);
+				int bc = blockCol(x);
+				if (bc > -1 && blocks[r][bc].alive) {
+					double d = Math.pow(x - (ball.x + radius), 2)
+							+ Math.pow(blocks[r][bc].point.y - (ball.y + radius), 2);
+					if (d < dist.block[1].horz) {
+						dist.block[1].horz = d;
+						dist.block[1].r = r;
+						dist.block[1].c = bc;
+					}
+				}
+				if (x - radius > padCol) {
+					// LL hit horiz block check
+					int bc2 = blockCol(x - radius);
+					// System.out.println("bc:" + bc + ",bc2:" + bc2);
+					if (bc2 > -1 && bc != bc2 && blocks[r][bc2].alive) {
+						double d = Math.pow(x - radius - ball.x, 2)
+								+ Math.pow(blocks[r][bc2].point.y - (ball.y + radius), 2);
+						if (d < dist.block[0].horz) {
+							dist.block[0].horz = d;
+							dist.block[0].r = r;
+							dist.block[0].c = bc2;
+						}
+					}
+				}
+				colBeg = blockCol(ball.x + radius);
+				colEnd = blockCol(newBall.x + radius);
+				// int y = 0;
+				for (int c = colBeg; c < colEnd; c++) {
+					// LR hit vert block check
+					int y = (int) ((blocks[r][c].point.x - (ball.x + radius)) * m + ball.y + radius);
+					int br = blockRow(y);
+					if (br > -1 && y >= blocks[br][c].point.y && y < blocks[br][c].point.y + blockHeight
+							&& blocks[br][c].alive) {
+						double d = Math.pow(blocks[br][c].point.x - (ball.x + radius), 2)
+								+ Math.pow(blocks[br][c].point.y - (ball.y + radius), 2);
+						if (d < dist.block[2].vert) {
+							dist.block[2].vert = d;
+							dist.block[2].r = br;
+							dist.block[2].c = c;
+						}
+					}
+					if (y - radius > padTop) {
+						// LR hit vert block check
+						int br2 = blockRow(y - radius);
+						// System.out.println("br:" + br + ",br2:" + br2);
+						if (br2 > -1 && br != br2 && blocks[br2][c].alive) {
+							double d = Math.pow(y - radius - ball.y, 2)
+									+ Math.pow(blocks[br2][c].point.y - (ball.y - radius), 2);
+							if (d < dist.block[3].horz) {
+								dist.block[3].horz = d;
+								dist.block[3].r = br2;
+								dist.block[3].c = c;
+							}
+						}
+					}
+				}
+			}
+		} else if (velSign.x > 0 && velSign.y < 0) {
+		} else if (velSign.x < 0 && velSign.y > 0) {
+		} else { // if (velSign.x < 0 && velSign.y < 0) {
+		}
+
+	}
+
 	public boolean hitBlockDR() {
 
 		if (ball.y > padTop + blockRows * (blockHeight + padRow)) { // || ball.y < padTop) {
@@ -431,7 +522,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		int hitLLc = -1;
 		int hitURr = -1;
 		int hitURc = -1;
-		float m = (float) velocity.y / velocity.x;
+		float m = (float) vel.y / vel.x;
 		for (int r = rowBeg; r < rowEnd; r++) {
 			int x = (int) ((blocks[r][0].point.y - (ball.y + size)) / m + ball.x + size);
 			int bc = blockCol(x);
@@ -551,7 +642,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						ball.y = block.y - size; // (ball.y + size);
 						// System.out.println("1. block.y: " + block.y + ", newBall.y: " + newBall.y);
 						newBall.y = block.y - ((newBall.y + size) - block.y) - size;
-						velocity.y *= -1;
+						vel.y *= -1;
 						blocks[r][c].alive = false;
 						blockCnt--;
 						if (blockColNeighbors) {
@@ -570,7 +661,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						ball.y = y1;
 						ball.x = block.x - size; // (ball.x + size);
 						newBall.x = block.x - ((newBall.x + size) - block.x) - size;
-						velocity.x *= -1;
+						vel.x *= -1;
 						blocks[r][c].alive = false;
 						blockCnt--;
 						if (blockRowNeighbors) {
@@ -590,7 +681,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						ball.x = x1 - size;
 						ball.y = block.y - size; // (ball.y + size);
 						newBall.y = block.y - ((newBall.y + size) - block.y) - size;
-						velocity.y *= -1;
+						vel.y *= -1;
 						blocks[r][c].alive = false;
 						blockCnt--;
 						return true;
@@ -602,7 +693,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						ball.y = y1;
 						ball.x = block.x - size; // ball.x;
 						newBall.x = block.x - ((newBall.x + size) - block.x) - size;
-						velocity.x *= -1;
+						vel.x *= -1;
 						blocks[r][c].alive = false;
 						blockCnt--;
 						return true;
@@ -614,7 +705,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						ball.x = x1 - size;
 						ball.y = block.y - size; // (ball.y + size);
 						newBall.y = block.y - ((newBall.y + size) - block.y) - size;
-						velocity.y *= -1;
+						vel.y *= -1;
 						blocks[r][c].alive = false;
 						blockCnt--;
 						return true;
@@ -625,7 +716,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						ball.y = y1;
 						ball.x = block.x - size; // (ball.x + size);
 						newBall.x = block.x - ((newBall.x + size) - block.x) - size;
-						velocity.x *= -1;
+						vel.x *= -1;
 						blocks[r][c].alive = false;
 						blockCnt--;
 						return true;
@@ -683,7 +774,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// System.out.println("rows: " + rowStart + "-" + rowStop + ", cols: " +
 		// colStart + "-" + colStop);
 
-		float m = (float) -velocity.y / velocity.x;
+		float m = (float) -vel.y / vel.x;
 		for (int r = rowStart; r < rowStop; r++) {
 			for (int c = colStart; c >= colStop; c--) {
 				if (blocks[r][c].alive) {
@@ -713,7 +804,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						ball.x = x1;
 						ball.y = block.y - size;
 						newBall.y = block.y - ((newBall.y + size) - block.y) - size;
-						velocity.y *= -1;
+						vel.y *= -1;
 						blocks[r][c].alive = false;
 						blockCnt--;
 						return true;
@@ -726,7 +817,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							ball.x = x1 - size;
 							ball.y = block.y - size;
 							newBall.y = block.y - ((newBall.y + size) - block.y) - size;
-							velocity.y *= -1;
+							vel.y *= -1;
 							blocks[r][c].alive = false;
 							blockCnt--;
 							if (blockColNeighbors && c - 1 > 0 && blocks[r][c - 1].alive
@@ -762,7 +853,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							ball.y = y1 - size;
 							ball.x = block.x + blockWidth;
 							newBall.x = block.x + blockWidth + (block.x + blockWidth - newBall.x);
-							velocity.x *= -1;
+							vel.x *= -1;
 							blocks[r][c].alive = false;
 							blockCnt--;
 							return true;
@@ -783,7 +874,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 											ball.x = lrX - size;
 											ball.y = block.y - size;
 											newBall.y = block.y - ((newBall.y + size) - block.y) - size;
-											velocity.y *= -1;
+											vel.y *= -1;
 											blocks[r][c].alive = false;
 											blockCnt--;
 											return true;
@@ -793,7 +884,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 								ball.y = y1;
 								ball.x = block.x; // - (ball.x + size);
 								newBall.x = block.x + blockWidth + (block.x + blockWidth - newBall.x);
-								velocity.x *= -1;
+								vel.x *= -1;
 								blocks[r][c].alive = false;
 								blockCnt--;
 								if (blockRowNeighbors && r + 1 < blockRows && blocks[r + 1][c].alive
@@ -854,7 +945,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		if (found) {
 			// ball.y += velocity.y;
 			// velocity.y *= -1;
-			velocity.y = Math.abs(velocity.y);
+			vel.y = Math.abs(vel.y);
 		}
 		return found;
 	}
@@ -898,15 +989,15 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// if ((int) Math.random() == 0)
 		// return;
 
-		newBall = new Point(ball.x + velocity.x, ball.y + velocity.y);
+		newBall = new Point(ball.x + vel.x, ball.y + vel.y);
 
 		// Check for player paddle hit ball
 		if (ball.y + size < player.y && newBall.y + size >= player.y) {
-			int hitX = (int) (ball.x + (float) velocity.x / velocity.y * (player.y - (ball.y + size)));
+			int hitX = (int) (ball.x + (float) vel.x / vel.y * (player.y - (ball.y + size)));
 			if (hitX >= player.x - (size - 1) && hitX < player.x + playerW) {
 				int hit = (hitX - (player.x - (size - 1))) * playerSegments / (playerW + (size - 1));
-				velocity.x = bounces[hit].x;
-				velocity.y = bounces[hit].y;
+				vel.x = bounces[hit].x;
+				vel.y = bounces[hit].y;
 				// System.out.println("vel:" + velocity + ", hit:" + hit);
 				// velocity.y *= -1;
 				newBall.y = 2 * player.y - newBall.y - 2 * size;
@@ -924,7 +1015,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		// bounce off walls
 		while (true) {
-			if (velocity.x < 0 && velocity.y < 0) {
+			if (vel.x < 0 && vel.y < 0) {
 				if (hitBlock())
 					playSound(brickMsg, -1);
 				// bounce off blocks going up and to the left
@@ -933,70 +1024,72 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				// }
 				if (newBall.x < 0 && newBall.y < 0) {
 					if (newBall.x < newBall.y) {
-						ball.y -= ball.x * velocity.y / velocity.x;
+						ball.y -= ball.x * vel.y / vel.x;
 						ball.x = 0;
-						velocity.x *= -1;
+						vel.x *= -1;
 						newBall.x *= -1;
 						playSound(wallMsg, -1);
 					} else {
-						ball.x -= ball.y * velocity.x / velocity.y;
+						ball.x -= ball.y * vel.x / vel.y;
 						ball.y = 0;
-						velocity.y *= -1;
+						vel.y *= -1;
 						newBall.y *= -1;
 						playSound(wallMsg, -1);
 					}
 					continue;
 				}
 				if (newBall.x < 0) {
-					ball.y -= ball.x * velocity.y / velocity.x;
+					ball.y -= ball.x * vel.y / vel.x;
 					ball.x = 0;
-					velocity.x *= -1;
+					vel.x *= -1;
 					newBall.x *= -1;
 					playSound(wallMsg, -1);
 					break;
 				}
 				if (newBall.y < 0) {
-					ball.x -= ball.y * velocity.x / velocity.y;
+					ball.x -= ball.y * vel.x / vel.y;
 					ball.y = 0;
-					velocity.y *= -1;
+					vel.y *= -1;
 					newBall.y *= -1;
 					playSound(wallMsg, -1);
 					break;
 				}
-			} else if (velocity.x > 0 && velocity.y < 0) {
+			} else if (vel.x > 0 && vel.y < 0) {
 				if (hitBlock())
 					playSound(brickMsg, -1);
 				if (newBall.x > maxWidth) {
-					velocity.x *= -1;
+					vel.x *= -1;
 					newBall.x = 2 * (maxWidth) - newBall.x;
 					playSound(wallMsg, -1);
 					continue;
 				}
 				if (newBall.y < 0) {
-					velocity.y *= -1;
+					vel.y *= -1;
 					newBall.y *= -1;
 					playSound(wallMsg, -1);
 					continue;
 				}
-			} else if (velocity.x < 0 && velocity.y > 0) {
+			} else if (vel.x < 0 && vel.y > 0) {
 				if (hitBlock()) // was DL
 					playSound(brickMsg, -1);
 				if (newBall.x < 0) {
-					velocity.x *= -1;
+					vel.x *= -1;
 					newBall.x *= -1;
 					playSound(wallMsg, -1);
 					continue;
 				}
 				if (newBall.y > maxHeight) {
-					synchronized (countMutex) {
-						if (count == 0) {
-							count++;
-							onLose();
-							resetLevel();
-							return;
+					if (level > 1) {
+						synchronized (countMutex) {
+							if (count == 0) {
+								count++;
+								onLose();
+								resetLevel();
+								return;
+							}
 						}
 					}
-					velocity.y *= -1;
+					vel.y *= -1;
 					newBall.y = 2 * (maxHeight) - newBall.y;
 					continue;
 				}
@@ -1004,21 +1097,23 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				if (hitBlockDR())
 					playSound(brickMsg, -1);
 				if (newBall.x > maxWidth) {
-					velocity.x *= -1;
+					vel.x *= -1;
 					newBall.x = 2 * (maxWidth) - newBall.x;
 					playSound(wallMsg, -1);
 					continue;
 				}
 				if (newBall.y > maxHeight) {
-					synchronized (countMutex) {
-						if (count == 0) {
-							count++;
-							onLose();
-							resetLevel();
-							return;
+					if (level > 1) {
+						synchronized (countMutex) {
+							if (count == 0) {
+								count++;
+								onLose();
+								resetLevel();
+								return;
+							}
 						}
 					}
-					velocity.y *= -1;
+					vel.y *= -1;
 					newBall.y = 2 * (maxHeight) - newBall.y;
 					playSound(wallMsg, -1);
 					// System.out.println("gameHeight-1: " + (maxHeight) + ", newBall.y: " +
@@ -1032,7 +1127,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		ball.x = newBall.x;
 		ball.y = newBall.y;
 		if (blockCnt <= 0) {
-			onWin();
+			synchronized (countMutex) {
+				if (count == 0) {
+					count++;
+					onWin();
+					resetLevel();
+					return;
+				}
+			}
 			return;
 		}
 
@@ -1166,6 +1268,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			synchronized (countMutex) {
 				count--;
+				System.out.println("count: " + count);
 			}
 		});
 		thread.start();
@@ -1193,4 +1296,18 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// + e.getX() + " " + e.getY());
 		player.x = mouseWidth * e.getX() / screenWidth;
 	}
+}
+
+class Distances {
+	Dist[] wall = new Dist[2]; // 0-1: horz, vert
+	Dist[] block = new Dist[4]; // 0-3: LL, LR horz hit, LR vert hit, UR
+}
+
+class Dist {
+	double horz = Double.MAX_VALUE;
+	double vert = Double.MAX_VALUE;
+	int r;
+	int c;
+	// double distToHorzBlck = Float.MAX_VALUE;
+	// double distToVertBlck = Float.MAX_VALUE;
 }
