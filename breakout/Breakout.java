@@ -464,8 +464,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				}
 				int rowBeg = blockRow(ball.y + size) + 1;
 				int rowEnd = blockRow(newBall.y + size) + 1;
-				int colBeg;
-				int colEnd;
 				for (int r = rowBeg; r < rowEnd; r++) {
 					// LR hit horiz block check
 					int hitY = blocks[r][0].point.y;
@@ -504,11 +502,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						}
 					}
 				}
-				colBeg = blockCol(ball.x + size) + 1;
-				colEnd = blockCol(newBall.x + size) + 1;
+				int colBeg = blockCol(ball.x + size) + 1;
+				int colEnd = blockCol(newBall.x + size) + 1;
 				for (int c = colBeg; c < colEnd; c++) {
-					System.out.println(colBeg + " " + colEnd + " " + ball.x + " " + newBall.x + " "
-							+ (colBeg * (blockWidth + padCol) + padCol));
+					// System.out.println(colBeg + " " + colEnd + " " + ball.x + " " + newBall.x + "
+					// "
+					// + (colBeg * (blockWidth + padCol) + padCol));
 					// LR hit vert block check
 					int hitX2 = blocks[0][c].point.x;
 					int hitY2 = (int) ((hitX2 - (ball.x + size)) * m + ball.y + size);
@@ -529,12 +528,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						}
 					}
 					hitY2 -= size;
-					System.out.println("hitY2: " + hitY2);
+					// System.out.println("hitY2: " + hitY2);
 					if (hitY2 - 0 > padTop) {
 						// UR hit vert block check
 						int br2 = blockRow(hitY2 - 0);
-						System.out.println("br2: " + br2);
-						if (br2 > -1 && blocks[br2][c].alive) { // br != br2 &&
+						// System.out.println("br2: " + br2);
+						if (br2 > -1 && hitY2 >= blocks[br2][c].point.y && hitY2 < blocks[br2][c].point.y + blockHeight
+								&& blocks[br2][c].alive) { // br != br2 &&
 							foundHit = true;
 							int x2 = hitX2 - (ball.x + size);
 							double d = Math.pow(x2 - 0 - ball.x, 2)
@@ -636,7 +636,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			} else if (vel.x < 0 && vel.y > 0) {
 			} else { // if (vel.x < 0 && vel.y < 0) {
 			}
-			return foundHit; // INFO: fill in rest of this method
+			return foundHit; // INFO: fill in rest of this method RESET dist to MAX here!
 		} while (foundHit);
 	}
 
