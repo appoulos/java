@@ -487,7 +487,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					hitX -= size;
 					if (hitX - 0 > padCol) {
 						int bc2 = blockCol(hitX - 0);
-						if (bc2 > -1 && bc != bc2 && blocks[r][bc2].alive) {
+						if (bc2 > -1 && hitX >= blocks[r][bc2].point.x && hitX < blocks[r][bc2].point.x + blockWidth
+								&& blocks[r][bc2].alive) {
+							// if (bc2 > -1 && bc != bc2 && blocks[r][bc2].alive) { // efficient for blocks
+							// all the way to wall
 							foundHit = true;
 							double d = Math.pow((hitX - 0) - ball.x, 2)
 									+ Math.pow(hitY - (ball.y + size), 2);
@@ -555,13 +558,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					return false;
 				}
 
-				System.out.println("min: " + min);
-				for (int i = 0; i < dist.wall.length; i++) {
-					System.out.println("dist wall  " + i + ": " + dist.wall[i].dist);
-				}
-				for (int i = 0; i < dist.block.length; i++) {
-					System.out.println("dist block " + i + ": " + dist.block[i].dist);
-				}
+				System.out.println(dist);
 
 				if (dist.wall[vertWall].dist == min) {
 					if (dist.block[horzBlockRight].dist == min) { // LR
@@ -633,6 +630,207 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					ball.y = newBall.y;
 				}
 			} else if (vel.x > 0 && vel.y < 0) {
+
+				// horizontal wall hit
+				if (newBall.y < 0) {
+					foundHit = true;
+					double dy = (0 - (ball.y + size));
+					double dx = dy / m;
+					double d = Math.pow(dx, 2) + Math.pow(dy, 2);
+					if (d <= min) {
+						min = d;
+						dist.wall[horzWall].dist = d;
+						dist.wall[horzWall].ballX = ball.x + (int) dx;
+						dist.wall[horzWall].ballY = 0;
+					}
+				}
+				// vertical wall hit
+				if (newBall.x > maxWidth) {
+					foundHit = true;
+					double dx = (maxWidth - ball.x);
+					double dy = dx * m;
+					double d = Math.pow(dx, 2) + Math.pow(dy, 2);
+					if (d <= min) {
+						min = d;
+						dist.wall[vertWall].dist = d;
+						dist.wall[vertWall].ballX = maxWidth;
+						dist.wall[vertWall].ballY = ball.y + (int) dy;
+						// System.out.println("a. ball.x: " + ball.x + ", ball.y: " + ball.y + ",
+						// newBall.x: " + newBall.x
+						// + ", newBall.y: " + newBall.y);
+						// System.out.println(
+						// "ballX: " + maxWidth + ", ball.y: " + ball.y + ", dx: " + (int) dx + ", dy: "
+						// + (int) dy);
+					}
+				}
+				int rowBeg = blockRow(ball.y + size) + 1;
+				int rowEnd = blockRow(newBall.y + size) + 1;
+				for (int r = rowBeg; r < rowEnd; r++) {
+					// UR hit horiz block check
+					int hitY = blocks[r][0].point.y + blockHeight;
+					int hitX = (int) ((hitY - (ball.y + 0)) / m + (ball.x + size));
+					int bc = blockCol(hitX);
+					if (bc > -1 && hitX >= blocks[r][bc].point.x && hitX < blocks[r][bc].point.x + blockWidth
+							&& blocks[r][bc].alive) {
+						foundHit = true;
+						double d = Math.pow(hitX - (ball.x + size), 2)
+								+ Math.pow(hitY - (ball.y + size), 2);
+						if (d <= min) {
+							min = d;
+							dist.block[horzBlockRight].dist = d;
+							dist.block[horzBlockRight].blockRow = r;
+							dist.block[horzBlockRight].blockCol = bc;
+							dist.block[horzBlockRight].ballX = hitX;
+							dist.block[horzBlockRight].ballY = hitY - 0;
+						}
+					}
+					// UL hit horiz block check
+					hitX -= size;
+					if (hitX - 0 > padCol) {
+						int bc2 = blockCol(hitX - 0);
+						if (bc2 > -1 && hitX >= blocks[r][bc2].point.x && hitX < blocks[r][bc2].point.x + blockWidth
+								&& blocks[r][bc2].alive) {
+							// if (bc2 > -1 && bc != bc2 && blocks[r][bc2].alive) { // efficient for blocks
+							// all the way to wall
+							foundHit = true;
+							double d = Math.pow((hitX - 0) - ball.x, 2)
+									+ Math.pow(hitY - (ball.y + 0), 2);
+							if (d <= min) {
+								min = d;
+								dist.block[horzBlockLeft].dist = d;
+								dist.block[horzBlockLeft].blockRow = r;
+								dist.block[horzBlockLeft].blockCol = bc2;
+								dist.block[horzBlockLeft].ballX = hitX;
+								dist.block[horzBlockLeft].ballY = hitY - 0;
+							}
+						}
+					}
+				}
+				int colBeg = blockCol(ball.x + size) + 1;
+				int colEnd = blockCol(newBall.x + size) + 1;
+				for (int c = colBeg; c < colEnd; c++) {
+					// System.out.println(colBeg + " " + colEnd + " " + ball.x + " " + newBall.x + "
+					// "
+					// + (colBeg * (blockWidth + padCol) + padCol));
+					// LR hit vert block check
+					int hitX2 = blocks[0][c].point.x;
+					int hitY2 = (int) ((hitX2 - (ball.x + size)) * m + ball.y + size);
+					int br = blockRow(hitY2);
+					if (br > -1 && hitY2 >= blocks[br][c].point.y && hitY2 < blocks[br][c].point.y + blockHeight
+							&& blocks[br][c].alive) {
+						foundHit = true;
+						int x2 = hitX2 - (ball.x + size);
+						double d = Math.pow(x2, 2)
+								+ Math.pow(hitY2 - (ball.y + size), 2);
+						if (d <= min) {
+							min = d;
+							dist.block[vertBlockBottom].dist = d;
+							dist.block[vertBlockBottom].blockRow = br;
+							dist.block[vertBlockBottom].blockCol = c;
+							dist.block[vertBlockBottom].ballX = hitX2 - size;
+							dist.block[vertBlockBottom].ballY = hitY2 - size;
+						}
+					}
+					hitY2 -= size;
+					// System.out.println("hitY2: " + hitY2);
+					if (hitY2 - 0 > padTop) {
+						// UR hit vert block check
+						int br2 = blockRow(hitY2 - 0);
+						// System.out.println("br2: " + br2);
+						if (br2 > -1 && hitY2 >= blocks[br2][c].point.y && hitY2 < blocks[br2][c].point.y + blockHeight
+								&& blocks[br2][c].alive) { // br != br2 &&
+							foundHit = true;
+							int x2 = hitX2 - (ball.x + size);
+							double d = Math.pow(x2 - 0 - ball.x, 2)
+									+ Math.pow(blocks[br2][c].point.y - (ball.y - 0), 2);
+							if (d <= min) {
+								min = d;
+								dist.block[vertBlockTop].dist = d;
+								dist.block[vertBlockTop].blockRow = br2;
+								dist.block[vertBlockTop].blockCol = c;
+								dist.block[vertBlockTop].ballX = hitX2 - size;
+								dist.block[vertBlockTop].ballX = hitY2 - 0;
+							}
+						}
+					}
+				}
+
+				if (!foundHit) {
+					return false;
+				}
+
+				System.out.println(dist);
+
+				if (dist.wall[vertWall].dist == min) {
+					if (dist.block[horzBlockRight].dist == min) { // LR
+						BlockDist bd = dist.block[horzBlockRight];
+						blocks[bd.blockRow][bd.blockCol].alive = false;
+						vel.y *= -1;
+						// newBall.x = ball.x - (newBall.x - ball.x);
+						newBall.y = 2 * ball.y - newBall.y;
+					} else {
+					}
+					ball.x = dist.wall[vertWall].ballX;
+					ball.y = dist.wall[vertWall].ballY;
+					vel.x *= -1;
+					// System.out.println("b. ball.x: " + ball.x + ", ball.y: " + ball.y + ",
+					// newBall.x: " + newBall.x
+					// + ", newBall.y: " + newBall.y);
+					newBall.x = 2 * ball.x - newBall.x;
+					// System.out.println("c. ball.x: " + ball.x + ", ball.y: " + ball.y + ",
+					// newBall.x: " + newBall.x
+					// + ", newBall.y: " + newBall.y);
+				} else if (dist.block[vertBlockBottom].dist == min || dist.block[vertBlockTop].dist == min) {
+					if (dist.block[vertBlockBottom].dist == min) {
+						BlockDist bd = dist.block[vertBlockBottom];
+						blocks[bd.blockRow][bd.blockCol].alive = false;
+						ball.x = bd.ballX;
+						ball.y = bd.ballY;
+					}
+					if (dist.block[vertBlockTop].dist == min) {
+						BlockDist bd = dist.block[vertBlockTop];
+						blocks[bd.blockRow][bd.blockCol].alive = false;
+						ball.x = bd.ballX;
+						ball.y = bd.ballY;
+					}
+					vel.x *= -1;
+					newBall.x = 2 * ball.x - newBall.x;
+				} else if (dist.block[horzBlockLeft].dist == min || dist.block[horzBlockRight].dist == min) {
+					if (dist.block[horzBlockLeft].dist == min) {
+						BlockDist bd = dist.block[horzBlockLeft];
+						blocks[bd.blockRow][bd.blockCol].alive = false;
+						ball.x = bd.ballX;
+						ball.y = bd.ballY;
+					}
+					if (dist.block[horzBlockRight].dist == min) {
+						BlockDist bd = dist.block[horzBlockRight];
+						blocks[bd.blockRow][bd.blockCol].alive = false;
+						ball.x = bd.ballX;
+						ball.y = bd.ballY;
+					}
+					vel.y *= -1;
+					newBall.y = 2 * ball.y - newBall.y;
+				} else if (dist.wall[horzWall].dist == min) { // Possible to have padTop small enough to hit top and
+																// block
+					ball.x = dist.wall[horzWall].ballX;
+					ball.y = dist.wall[horzWall].ballY;
+					vel.y *= -1;
+					newBall.y = 2 * ball.y - newBall.y;
+					// if (level > 1) {
+					// synchronized (countMutex) {
+					// if (count == 0) {
+					// count++;
+					// onLose();
+					// resetLevel();
+					// return false;
+					// }
+					// }
+					// }
+				} else { // no hits
+					ball.x = newBall.x;
+					ball.y = newBall.y;
+				}
+
 			} else if (vel.x < 0 && vel.y > 0) {
 			} else { // if (vel.x < 0 && vel.y < 0) {
 			}
@@ -1460,18 +1658,16 @@ class Distances {
 		}
 	}
 
-	enum WallHit {
-		horzWall,
-		vertWall,
+	public String toString() {
+		String str = "";
+		for (int i = 0; i < wall.length; i++) {
+			str += "dist wall  " + i + ": " + wall[i].dist + "\n";
+		}
+		for (int i = 0; i < block.length; i++) {
+			str += "dist block " + i + ": " + block[i].dist + "\n";
+		}
+		return str;
 	}
-
-	enum BlockHit {
-		horzBrickLeft,
-		horzBrickRight,
-		vertBrickTop,
-		vertBrickBottom,
-	}
-
 }
 
 class WallDist {
@@ -1482,12 +1678,8 @@ class WallDist {
 
 class BlockDist {
 	double dist = Double.MAX_VALUE;
-	// double vert = Double.MAX_VALUE;
 	int blockRow;
 	int blockCol;
 	int ballX;
 	int ballY;
-
-	// double distToHorzBlck = Float.MAX_VALUE;
-	// double distToVertBlck = Float.MAX_VALUE;
 }
