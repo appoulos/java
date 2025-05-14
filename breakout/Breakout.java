@@ -51,7 +51,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private Point newBall = new Point(); // ball.x + velocity.x, ball.y + velocity.y);
 
 	private final int size = 10; // ball size
-	private final int radius = 5; // ball radius
+	// private final int radius = 5; // ball radius
 
 	private final int blockRows = 4;
 	private final int blockCols = 10;
@@ -96,6 +96,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private static JDialog dialog;
 	private static int screenWidth;
 	private boolean keyboard = true;
+
+	final int horzBlockLeft = 0;
+	final int horzBlockRight = 1;
+	final int vertBlockBottom = 2;
+	final int vertBlockTop = 3;
+	final int horzWall = 0;
+	final int vertWall = 1;
 
 	// Distance calcs
 	static Distances dist = new Distances();
@@ -418,17 +425,17 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			if (newBall.y + size > maxHeight) {
 				double dy = (maxHeight - (ball.y + size));
 				double dx = dy / m;
-				dist.wall[0].d = Math.pow(dx, 2) + Math.pow(dy, 2);
-				dist.wall[0].x = ball.x + (int) dx;
-				dist.wall[0].y = maxHeight;
+				dist.wall[horzWall].dist = Math.pow(dx, 2) + Math.pow(dy, 2);
+				dist.wall[horzWall].ballX = ball.x + (int) dx;
+				dist.wall[horzWall].ballY = maxHeight;
 			}
 			// vertical wall hit
 			if (newBall.x + size > maxWidth) {
 				double dx = (maxWidth - (ball.x + size));
 				double dy = dx * m;
-				dist.wall[1].d = Math.pow(dx, 2) + Math.pow(dy, 2);
-				dist.wall[1].x = maxWidth;
-				dist.wall[1].y = ball.y + (int) dy;
+				dist.wall[vertWall].dist = Math.pow(dx, 2) + Math.pow(dy, 2);
+				dist.wall[vertWall].ballX = maxWidth;
+				dist.wall[vertWall].ballY = ball.y + (int) dy;
 			}
 			int rowBeg = blockRow(ball.y + size) + 1;
 			int rowEnd = blockRow(newBall.y + size) + 1;
@@ -444,12 +451,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						&& blocks[r][bc].alive) {
 					double d = Math.pow(hitX - (ball.x + size), 2)
 							+ Math.pow(hitY - (ball.y + size), 2);
-					if (d < min) {
-						dist.block[1].d = d;
-						dist.block[1].r = r;
-						dist.block[1].c = bc;
-						dist.block[1].x = hitX;
-						dist.block[1].y = hitY - size;
+					if (d <= min) {
+						dist.block[horzBlockRight].dist = d;
+						dist.block[horzBlockRight].blockRow = r;
+						dist.block[horzBlockRight].blockCol = bc;
+						dist.block[horzBlockRight].ballX = hitX;
+						dist.block[horzBlockRight].ballY = hitY - size;
 					}
 				}
 				// LL hit horiz block check
@@ -459,12 +466,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					if (bc2 > -1 && bc != bc2 && blocks[r][bc2].alive) {
 						double d = Math.pow((hitX - 0) - ball.x, 2)
 								+ Math.pow(hitY - (ball.y + size), 2);
-						if (d < min) {
-							dist.block[0].d = d;
-							dist.block[0].r = r;
-							dist.block[0].c = bc2;
-							dist.block[0].x = hitX;
-							dist.block[0].y = hitY - size;
+						if (d <= min) {
+							dist.block[horzBlockLeft].dist = d;
+							dist.block[horzBlockLeft].blockRow = r;
+							dist.block[horzBlockLeft].blockCol = bc2;
+							dist.block[horzBlockLeft].ballX = hitX;
+							dist.block[horzBlockLeft].ballY = hitY - size;
 						}
 					}
 				}
@@ -480,12 +487,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						int x2 = hitX2 - (ball.x + size);
 						double d = Math.pow(x2, 2)
 								+ Math.pow(hitY2 - (ball.y + size), 2);
-						if (d < min) {
-							dist.block[2].d = d;
-							dist.block[2].r = br;
-							dist.block[2].c = c;
-							dist.block[2].x = x2;
-							dist.block[2].y = hitY2 - size;
+						if (d <= min) {
+							dist.block[vertBlockBottom].dist = d;
+							dist.block[vertBlockBottom].blockRow = br;
+							dist.block[vertBlockBottom].blockCol = c;
+							dist.block[vertBlockBottom].ballX = hitX2 - size;
+							dist.block[vertBlockBottom].ballY = hitY2 - size;
 						}
 					}
 					hitY2 -= size;
@@ -496,26 +503,26 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							int x2 = hitX2 - (ball.x + size);
 							double d = Math.pow(x2 - 0 - ball.x, 2)
 									+ Math.pow(blocks[br2][c].point.y - (ball.y - 0), 2);
-							if (d < min) {
-								dist.block[3].d = d;
-								dist.block[3].r = br2;
-								dist.block[3].c = c;
-								dist.block[3].x = x2;
-								dist.block[3].x = hitY2 - 0;
+							if (d <= min) {
+								dist.block[vertBlockTop].dist = d;
+								dist.block[vertBlockTop].blockRow = br2;
+								dist.block[vertBlockTop].blockCol = c;
+								dist.block[vertBlockTop].ballX = hitX2 - size;
+								dist.block[vertBlockTop].ballX = hitY2 - 0;
 							}
 						}
 					}
 				}
 			}
-			if (dist.wall[1].d == min) { // vert wall
-				if (dist.block[0].d == min) { // LR hit block horiz
-					blocks[dist.block[0].r][dist.block[0].c].alive = false;
-					ball.x = dist.block[0].x;
-					ball.y = dist.block[0].y;
+			if (dist.wall[vertWall].dist == min) {
+				if (dist.block[horzBlockRight].dist == min) { // LR
+					blocks[dist.block[horzBlockRight].blockRow][dist.block[0].blockCol].alive = false;
+					ball.x = dist.block[horzBlockRight].ballX;
+					ball.y = dist.block[horzBlockRight].ballY;
 				}
-			} else if (dist.block[2].d == min || dist.block[3].d == min) { // LR, UR vert
-			} else if (dist.block[0].d == min || dist.block[1].d == min) { // LL, LR horiz
-			} else if (dist.wall[0].d == min) { // horiz wall
+			} else if (dist.block[vertBlockBottom].dist == min || dist.block[vertBlockTop].dist == min) {
+			} else if (dist.block[horzBlockLeft].dist == min || dist.block[horzBlockRight].dist == min) {
+			} else if (dist.wall[horzWall].dist == min) {
 			} else {
 				ball.x = newBall.x;
 				ball.y = newBall.y;
@@ -1363,21 +1370,22 @@ class Distances {
 		vertBrickTop,
 		vertBrickBottom,
 	}
+
 }
 
 class WallDist {
-	double d = Double.MAX_VALUE;
-	int x;
-	int y;
+	double dist = Double.MAX_VALUE;
+	int ballX;
+	int ballY;
 }
 
 class BlockDist {
-	double d = Double.MAX_VALUE;
+	double dist = Double.MAX_VALUE;
 	// double vert = Double.MAX_VALUE;
-	int r;
-	int c;
-	int x;
-	int y;
+	int blockRow;
+	int blockCol;
+	int ballX;
+	int ballY;
 
 	// double distToHorzBlck = Float.MAX_VALUE;
 	// double distToVertBlck = Float.MAX_VALUE;
