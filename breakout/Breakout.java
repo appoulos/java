@@ -413,105 +413,131 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	public void nextHitDR() {
 		double m = (double) vel.y / vel.x;
 
-		if (velSign.x > 0 && velSign.y > 0) {
+		if (vel.x > 0 && vel.y > 0) {
 			// horizontal wall hit
-			if (newBall.y + radius > maxHeight) {
-				double dy = (maxHeight - (ball.y + radius));
+			if (newBall.y + size > maxHeight) {
+				double dy = (maxHeight - (ball.y + size));
 				double dx = dy / m;
 				dist.wall[0].d = Math.pow(dx, 2) + Math.pow(dy, 2);
 				dist.wall[0].x = ball.x + (int) dx;
 				dist.wall[0].y = maxHeight;
 			}
 			// vertical wall hit
-			if (newBall.x + radius > maxWidth) {
-				double dx = (maxWidth - (ball.x + radius));
+			if (newBall.x + size > maxWidth) {
+				double dx = (maxWidth - (ball.x + size));
 				double dy = dx * m;
 				dist.wall[1].d = Math.pow(dx, 2) + Math.pow(dy, 2);
 				dist.wall[1].x = maxWidth;
 				dist.wall[1].y = ball.y + (int) dy;
 			}
-			int rowBeg = blockRow(ball.y + radius) + 1;
-			int rowEnd = blockRow(newBall.y + radius) + 1;
+			int rowBeg = blockRow(ball.y + size) + 1;
+			int rowEnd = blockRow(newBall.y + size) + 1;
 			int colBeg;
 			int colEnd;
+			double min = Double.MAX_VALUE;
 			for (int r = rowBeg; r < rowEnd; r++) {
 				// LR hit horiz block check
-				int x = (int) ((blocks[r][0].point.y - (ball.y + radius)) / m + ball.x + radius);
-				int bc = blockCol(x);
-				if (bc > -1 && x >= blocks[r][bc].point.x && x < blocks[r][bc].point.x + blockWidth
+				int hitY = blocks[r][0].point.y;
+				int hitX = (int) ((hitY - (ball.y + size)) / m + (ball.x + size));
+				int bc = blockCol(hitX);
+				if (bc > -1 && hitX >= blocks[r][bc].point.x && hitX < blocks[r][bc].point.x + blockWidth
 						&& blocks[r][bc].alive) {
-					double d = Math.pow(x - (ball.x + radius), 2)
-							+ Math.pow(blocks[r][bc].point.y - (ball.y + radius), 2);
-					if (d < dist.block[1].d) {
+					double d = Math.pow(hitX - (ball.x + size), 2)
+							+ Math.pow(hitY - (ball.y + size), 2);
+					if (d < min) {
 						dist.block[1].d = d;
 						dist.block[1].r = r;
 						dist.block[1].c = bc;
+						dist.block[1].x = hitX;
+						dist.block[1].y = hitY - size;
 					}
 				}
-				if (x - radius > padCol) {
-					// LL hit horiz block check
-					int bc2 = blockCol(x - radius);
-					// System.out.println("bc:" + bc + ",bc2:" + bc2);
+				// LL hit horiz block check
+				hitX -= size;
+				if (hitX - 0 > padCol) {
+					int bc2 = blockCol(hitX - 0);
 					if (bc2 > -1 && bc != bc2 && blocks[r][bc2].alive) {
-						double d = Math.pow(x - radius - ball.x, 2)
-								+ Math.pow(blocks[r][bc2].point.y - (ball.y + radius), 2);
-						if (d < dist.block[0].d) {
+						double d = Math.pow((hitX - 0) - ball.x, 2)
+								+ Math.pow(hitY - (ball.y + size), 2);
+						if (d < min) {
 							dist.block[0].d = d;
 							dist.block[0].r = r;
 							dist.block[0].c = bc2;
+							dist.block[0].x = hitX;
+							dist.block[0].y = hitY - size;
 						}
 					}
 				}
-				colBeg = blockCol(ball.x + radius);
-				colEnd = blockCol(newBall.x + radius);
-				// int y = 0;
+				colBeg = blockCol(ball.x + size);
+				colEnd = blockCol(newBall.x + size);
 				for (int c = colBeg; c < colEnd; c++) {
 					// LR hit vert block check
-					int y = (int) ((blocks[r][c].point.x - (ball.x + radius)) * m + ball.y + radius);
-					int br = blockRow(y);
-					if (br > -1 && y >= blocks[br][c].point.y && y < blocks[br][c].point.y + blockHeight
+					int hitX2 = blocks[r][c].point.x;
+					int hitY2 = (int) ((hitX2 - (ball.x + size)) * m + ball.y + size);
+					int br = blockRow(hitY2);
+					if (br > -1 && hitY2 >= blocks[br][c].point.y && hitY2 < blocks[br][c].point.y + blockHeight
 							&& blocks[br][c].alive) {
-						double d = Math.pow(blocks[br][c].point.x - (ball.x + radius), 2)
-								+ Math.pow(y - (ball.y + radius), 2);
-						if (d < dist.block[2].d) {
+						int x2 = hitX2 - (ball.x + size);
+						double d = Math.pow(x2, 2)
+								+ Math.pow(hitY2 - (ball.y + size), 2);
+						if (d < min) {
 							dist.block[2].d = d;
 							dist.block[2].r = br;
 							dist.block[2].c = c;
+							dist.block[2].x = x2;
+							dist.block[2].y = hitY2 - size;
 						}
 					}
-					if (y - radius > padTop) {
-						// LR hit vert block check
-						int br2 = blockRow(y - radius);
-						// System.out.println("br:" + br + ",br2:" + br2);
+					hitY2 -= size;
+					if (hitY2 - 0 > padTop) {
+						// UR hit vert block check
+						int br2 = blockRow(hitY2 - 0);
 						if (br2 > -1 && br != br2 && blocks[br2][c].alive) {
-							double d = Math.pow(y - radius - ball.y, 2)
-									+ Math.pow(blocks[br2][c].point.y - (ball.y - radius), 2);
-							if (d < dist.block[3].d) {
+							int x2 = hitX2 - (ball.x + size);
+							double d = Math.pow(x2 - 0 - ball.x, 2)
+									+ Math.pow(blocks[br2][c].point.y - (ball.y - 0), 2);
+							if (d < min) {
 								dist.block[3].d = d;
 								dist.block[3].r = br2;
 								dist.block[3].c = c;
+								dist.block[3].x = x2;
+								dist.block[3].x = hitY2 - 0;
 							}
 						}
 					}
 				}
 			}
+			if (dist.wall[1].d == min) { // vert wall
+				if (dist.block[0].d == min) { // LR hit block horiz
+					blocks[dist.block[0].r][dist.block[0].c].alive = false;
+					ball.x = dist.block[0].x;
+					ball.y = dist.block[0].y;
+				}
+			} else if (dist.block[2].d == min || dist.block[3].d == min) { // LR, UR vert
+			} else if (dist.block[0].d == min || dist.block[1].d == min) { // LL, LR horiz
+			} else if (dist.wall[0].d == min) { // horiz wall
+			} else {
+				ball.x = newBall.x;
+				ball.y = newBall.y;
+			}
+
 			// do bounce here
-			double wallMin = Double.MAX_VALUE;
-			int wallHits = 0;
-			for (int i = 0; i < dist.wall.length; i++) {
-				if (dist.wall[i].d < wallMin) {
-					wallMin = dist.wall[i].d;
-					wallHits += i + 1;
-				}
-			}
-			double blockMin = Double.MAX_VALUE;
-			int blockHits = 0;
-			for (int i = 0; i < dist.block.length; i++) {
-				if (dist.block[i].d < blockMin) {
-					blockMin = dist.block[i].d;
-					blockHits += i + 1;
-				}
-			}
+			// double wallMin = Double.MAX_VALUE;
+			// int wallHits = 0;
+			// for (int i = 0; i < dist.wall.length; i++) {
+			// if (dist.wall[i].d < wallMin) {
+			// wallMin = dist.wall[i].d;
+			// wallHits += i + 1;
+			// }
+			// }
+			// double blockMin = Double.MAX_VALUE;
+			// int blockHits = 0;
+			// for (int i = 0; i < dist.block.length; i++) {
+			// if (dist.block[i].d < blockMin) {
+			// blockMin = dist.block[i].d;
+			// blockHits += i + 1;
+			// }
+			// }
 		} else if (velSign.x > 0 && velSign.y < 0) {
 		} else if (velSign.x < 0 && velSign.y > 0) {
 		} else { // if (velSign.x < 0 && velSign.y < 0) {
@@ -1350,6 +1376,8 @@ class BlockDist {
 	// double vert = Double.MAX_VALUE;
 	int r;
 	int c;
+	int x;
+	int y;
 
 	// double distToHorzBlck = Float.MAX_VALUE;
 	// double distToVertBlck = Float.MAX_VALUE;
