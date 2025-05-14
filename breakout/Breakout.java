@@ -821,6 +821,27 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					// System.out.println("c. ball.x: " + ball.x + ", ball.y: " + ball.y + ",
 					// newBall.x: " + newBall.x
 					// + ", newBall.y: " + newBall.y);
+				} else if ((dist.block[vertBlockBottom].dist == min || dist.block[vertBlockTop].dist == min)
+						&& (dist.block[horzBlockLeft].dist == min || dist.block[horzBlockRight].dist == min)) {
+					System.out.println("hit two: reversing");
+					if (dist.block[vertBlockTop].dist == min) {
+						System.out.println("    hit vertBlockBottom");
+						BlockDist bd = dist.block[vertBlockBottom];
+						blocks[bd.blockRow][bd.blockCol].alive = false;
+						ball.x = bd.ballX;
+						ball.y = bd.ballY;
+					}
+					if (dist.block[horzBlockLeft].dist == min) {
+						System.out.println("    hit horzBlockLeft");
+						BlockDist bd = dist.block[horzBlockLeft];
+						blocks[bd.blockRow][bd.blockCol].alive = false;
+						ball.x = bd.ballX;
+						ball.y = bd.ballY;
+					}
+					vel.x *= -1;
+					vel.y *= -1;
+					newBall.y = 2 * ball.y + newBall.y;
+					newBall.x = 2 * ball.x - newBall.x;
 				} else if (dist.block[vertBlockBottom].dist == min || dist.block[vertBlockTop].dist == min) {
 					if (dist.block[vertBlockBottom].dist == min) {
 						BlockDist bd = dist.block[vertBlockBottom];
@@ -850,7 +871,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						ball.y = bd.ballY;
 					}
 					vel.y *= -1;
-					newBall.y = 2 * ball.y + newBall.y;
+					newBall.y = 2 * ball.y - newBall.y;
 					System.out.println(ball.x + "," + ball.y + " " + newBall.x + "," + newBall.y);
 				} else if (dist.wall[horzWall].dist == min) { // Possible to have padTop small enough to hit top and
 																// block
