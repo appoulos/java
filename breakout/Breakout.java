@@ -22,6 +22,14 @@ class Block {
 	}
 }
 
+class Dist {
+	double dist = Double.MAX_VALUE;
+	int blockRow;
+	int blockCol;
+	int ballX;
+	int ballY;
+}
+
 public class Breakout extends JPanel implements ActionListener, KeyListener, MouseMotionListener {
 
 	private int count = 0;
@@ -142,6 +150,19 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		if (blocks[r][c].alive) {
 			blocks[r][c].alive = false;
 			blockCnt--;
+		}
+	}
+
+	private void lose() {
+		if (level > 1) {
+			synchronized (countMutex) {
+				if (count == 0) {
+					count++;
+					onLose();
+					resetLevel();
+					return;
+				}
+			}
 		}
 	}
 
@@ -451,7 +472,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		double min;
 		boolean foundHit;
 		int cnt = 0;
-		do {
+		do { // bounces
 			min = Double.MAX_VALUE;
 			for (int i = 0; i < dists.length; i++) {
 				dists[i].dist = Double.MAX_VALUE;
@@ -714,19 +735,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					ball.y = dists[horzWall].ballY;
 					vel.y *= -1;
 					newBall.y = 2 * ball.y - newBall.y;
-					// if (level > 1) {
-					// synchronized (countMutex) {
-					// if (count == 0) {
-					// count++;
-					// onLose();
-					// resetLevel();
-					// return false;
-					// }
-					// }
-					// }
+					lose();
+					return true;
 				} else { // no hits
-					ball.x = newBall.x;
-					ball.y = newBall.y;
+					// ball.x = newBall.x;
+					// ball.y = newBall.y;
 				}
 			} else if (vel.x > 0 && vel.y < 0) {
 				// *********************************** Up and Right Ball movement *************
@@ -953,19 +966,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					ball.y = dists[horzWall].ballY;
 					vel.y *= -1;
 					newBall.y = 2 * ball.y + newBall.y;
-					// if (level > 1) {
-					// synchronized (countMutex) {
-					// if (count == 0) {
-					// count++;
-					// onLose();
-					// resetLevel();
-					// return false;
-					// }
-					// }
-					// }
 				} else { // no hits
-					ball.x = newBall.x;
-					ball.y = newBall.y;
+					// ball.x = newBall.x;
+					// ball.y = newBall.y;
 				}
 
 			} else if (vel.x < 0 && vel.y > 0) {
@@ -1205,23 +1208,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					ball.y = dists[horzWall].ballY;
 					vel.y *= -1;
 					newBall.y = 2 * ball.y - newBall.y;
-					// if (level > 1) {
-					// synchronized (countMutex) {
-					// if (count == 0) {
-					// count++;
-					// onLose();
-					// resetLevel();
-					// return false;
-					// }
-					// }
-					// }
+					lose();
+					return true;
 				} else { // no hits
-					ball.x = newBall.x;
-					ball.y = newBall.y;
+					// ball.x = newBall.x;
+					// ball.y = newBall.y;
 				}
-
 			} else { // if (vel.x < 0 && vel.y < 0) {
-
 				// *********************************** Up and Left Ball movement *************
 				// horizontal wall hit
 				if (newBall.y < 0) {
@@ -1469,16 +1462,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					ball.y = dists[horzWall].ballY;
 					vel.y *= -1;
 					newBall.y = 2 * ball.y + newBall.y;
-					// if (level > 1) {
-					// synchronized (countMutex) {
-					// if (count == 0) {
-					// count++;
-					// onLose();
-					// resetLevel();
-					// return false;
-					// }
-					// }
-					// }
 				} else { // no hits
 					// ball.x = newBall.x;
 					// ball.y = newBall.y;
@@ -1486,6 +1469,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			}
 		} while (foundHit);
+
 		return false;
 	}
 
@@ -1581,7 +1565,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// newBall.y = 2 * player.y - newBall.y;
 		// }
 
-		nextHit();
+		if (nextHit()) { // level lost
+			return;
+		}
 		ball.x = newBall.x;
 		ball.y = newBall.y;
 		if (blockCnt <= 0) {
@@ -1766,74 +1752,4 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		}
 	}
 
-}
-
-class Distances {
-	WallDist[] wall = new WallDist[2]; // 0-1: horz, vert
-	BlockDist[] block = new BlockDist[4]; // 0-3: LL, LR horz hit, LR vert hit, UR
-	String[] wallNames = new String[2];
-	String[] blockNames = new String[4];
-
-	Distances() {
-		for (int i = 0; i < wall.length; i++) {
-			wall[i] = new WallDist();
-		}
-		for (int i = 0; i < block.length; i++) {
-			block[i] = new BlockDist();
-		}
-		blockNames[0] = "horzBlockLeft  ";
-		blockNames[1] = "horzBlockRight ";
-		blockNames[2] = "vertBlockBottom";
-		blockNames[3] = "vertBlockTop   ";
-		wallNames[0] = "horzWall       ";
-		wallNames[1] = "vertWall       ";
-	}
-
-	// final int horzBlockLeft = 0;
-	// final int horzBlockRight = 1;
-	// final int vertBlockBottom = 2;
-	// final int vertBlockTop = 3;
-	// final int horzWall = 0;
-	// final int vertWall = 1;
-
-	public String toString() {
-		String str = "";
-		for (int i = 0; i < wall.length; i++) {
-			if (wall[i].dist < Double.MAX_VALUE) {
-				str += "dist wall  " + wallNames[i] + ": " + String.format("%.2f", wall[i].dist) + " ballX: "
-						+ wall[i].ballX + " ballY: "
-						+ wall[i].ballY + "\n";
-			}
-		}
-		for (int i = 0; i < block.length; i++) {
-			if (block[i].dist < Double.MAX_VALUE) {
-				str += "dist block " + blockNames[i] + ": " + String.format("%.2f", block[i].dist) + " ballX: "
-						+ block[i].ballX + " ballY: "
-						+ block[i].ballY + " Row: " + block[i].blockRow + " Col: " + block[i].blockCol + "\n";
-			}
-		}
-		return str;
-	}
-}
-
-class WallDist {
-	double dist = Double.MAX_VALUE;
-	int ballX;
-	int ballY;
-}
-
-class BlockDist {
-	double dist = Double.MAX_VALUE;
-	int blockRow;
-	int blockCol;
-	int ballX;
-	int ballY;
-}
-
-class Dist {
-	double dist = Double.MAX_VALUE;
-	int blockRow;
-	int blockCol;
-	int ballX;
-	int ballY;
 }
