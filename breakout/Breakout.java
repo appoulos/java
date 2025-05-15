@@ -58,7 +58,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private Point newBall = new Point(); // ball.x + velocity.x, ball.y + velocity.y);
 
 	private final int size = 5; // ball size
-	// private final int radius = 5; // ball radius
 
 	private final int blockRows = 8;
 	private final int blockCols = 10;
@@ -80,7 +79,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
 
 	private final int ballMiddle = size / 2;
-	private final int playerW = 48 - ballMiddle;
+	private final int playerW = 48 - ballMiddle; // pick number divisible by 6 - ballMiddle
 	private final int playerH = 10;
 
 	// the width of the game area
