@@ -538,35 +538,41 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					// LR hit vert block check
 					int hitX2 = blocks[0][c].point.x;
 					int hitY2 = (int) ((hitX2 - (ball.x + size)) * m + ball.y + size);
-					int br = blockRow(hitY2);
-					if (br > -1 && hitY2 >= blocks[br][c].point.y && hitY2 < blocks[br][c].point.y + blockHeight
-							&& blocks[br][c].alive) {
-						foundHit = true;
-						// int x2 = hitX2 - (ball.x + size);
-						double d = Math.pow(hitX2 - (ball.x + size), 2)
-								+ Math.pow(hitY2 - (ball.y + size), 2);
-						if (d <= min) {
-							min = d;
-							dist.block[vertBlockBottom].dist = d;
-							dist.block[vertBlockBottom].blockRow = br;
-							dist.block[vertBlockBottom].blockCol = c;
-							dist.block[vertBlockBottom].ballX = hitX2 - size;
-							dist.block[vertBlockBottom].ballY = hitY2 - size;
+					if (hitY2 <= newBall.y) {
+						int br = blockRow(hitY2);
+						if (br > -1 && hitY2 >= blocks[br][c].point.y && hitY2 < blocks[br][c].point.y + blockHeight
+								&& blocks[br][c].alive) {
+							foundHit = true;
+							// int x2 = hitX2 - (ball.x + size);
+							double d = Math.pow(hitX2 - (ball.x + size), 2)
+									+ Math.pow(hitY2 - (ball.y + size), 2);
+							if (d <= min) {
+								min = d;
+								dist.block[vertBlockBottom].dist = d;
+								dist.block[vertBlockBottom].blockRow = br;
+								dist.block[vertBlockBottom].blockCol = c;
+								dist.block[vertBlockBottom].ballX = hitX2 - size;
+								dist.block[vertBlockBottom].ballY = hitY2 - size;
+							}
 						}
 					}
 					hitY2 -= size;
 					// System.out.println("hitY2: " + hitY2);
-					if (hitY2 - 0 > padTop) {
+					if (hitY2 <= newBall.y && hitY2 - 0 > padTop) {
 						// UR hit vert block check
 						int br2 = blockRow(hitY2 - 0);
 						// System.out.println("br2: " + br2);
 						if (br2 > -1 && hitY2 >= blocks[br2][c].point.y && hitY2 < blocks[br2][c].point.y + blockHeight
 								&& blocks[br2][c].alive) { // br != br2 &&
 							foundHit = true;
+							paused = true;
 							// int x2 = hitX2 - (ball.x + size);
 							// double d = Math.pow(hitX2 - 0 - ball.x, 2)
 							double d = Math.pow(hitX2 - (ball.x + size), 2)
 									+ Math.pow(blocks[br2][c].point.y - (ball.y - 0), 2);
+							if (d > 15) {
+								paused = true;
+							}
 							if (d <= min) {
 								min = d;
 								dist.block[vertBlockTop].dist = d;
@@ -583,6 +589,25 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					return false;
 				}
 
+				/*
+				 * hit vertBlockTop
+				 * Ball dir DR, min: 37.0
+				 * dist wall horzWall : 1.7976931348623157E308
+				 * dist wall vertWall : 1.7976931348623157E308
+				 * dist block horzBlockLeft : 1.7976931348623157E308
+				 * dist block horzBlockRight : 1.7976931348623157E308
+				 * dist block vertBlockBottom: 1.7976931348623157E308
+				 * dist block vertBlockTop : 37.0
+				 * 
+				 * hit vertBlockTop
+				 * Ball dir DL, min: 37.0
+				 * dist wall horzWall : 1.7976931348623157E308
+				 * dist wall vertWall : 1.7976931348623157E308
+				 * dist block horzBlockLeft : 1.7976931348623157E308
+				 * dist block horzBlockRight : 1.7976931348623157E308
+				 * dist block vertBlockBottom: 1.7976931348623157E308
+				 * dist block vertBlockTop : 37.0
+				 */
 				System.out.println("Ball dir DR, min: " + min);
 				System.out.println(dist);
 
@@ -993,25 +1018,27 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					// LL hit vert block check
 					int hitX2 = blocks[0][c].point.x;
 					int hitY2 = (int) ((hitX2 - (ball.x + 0)) * m + ball.y + size);
-					int br = blockRow(hitY2);
-					if (br > -1 && hitY2 >= blocks[br][c].point.y && hitY2 < blocks[br][c].point.y + blockHeight
-							&& blocks[br][c].alive) {
-						foundHit = true;
-						// int x2 = hitX2 - (ball.x + size);
-						double d = Math.pow(hitX2 - (ball.x + 0), 2)
-								+ Math.pow(hitY2 - (ball.y + size), 2);
-						if (d <= min) {
-							min = d;
-							dist.block[vertBlockBottom].dist = d;
-							dist.block[vertBlockBottom].blockRow = br;
-							dist.block[vertBlockBottom].blockCol = c;
-							dist.block[vertBlockBottom].ballX = hitX2 - 0;
-							dist.block[vertBlockBottom].ballY = hitY2 - size;
+					if (hitY2 <= newBall.y) {
+						int br = blockRow(hitY2);
+						if (br > -1 && hitY2 >= blocks[br][c].point.y && hitY2 < blocks[br][c].point.y + blockHeight
+								&& blocks[br][c].alive) {
+							foundHit = true;
+							// int x2 = hitX2 - (ball.x + size);
+							double d = Math.pow(hitX2 - (ball.x + 0), 2)
+									+ Math.pow(hitY2 - (ball.y + size), 2);
+							if (d <= min) {
+								min = d;
+								dist.block[vertBlockBottom].dist = d;
+								dist.block[vertBlockBottom].blockRow = br;
+								dist.block[vertBlockBottom].blockCol = c;
+								dist.block[vertBlockBottom].ballX = hitX2 - 0;
+								dist.block[vertBlockBottom].ballY = hitY2 - size;
+							}
 						}
 					}
 					hitY2 -= size;
 					// System.out.println("hitY2: " + hitY2);
-					if (hitY2 - 0 > padTop) {
+					if (hitY2 <= newBall.y && hitY2 - 0 > padTop) {
 						// UL hit vert block check
 						int br2 = blockRow(hitY2 - 0);
 						// System.out.println("br2: " + br2);
@@ -1022,6 +1049,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							// double d = Math.pow(hitX2 - 0 - ball.x, 2)
 							double d = Math.pow(hitX2 - (ball.x + 0), 2)
 									+ Math.pow(blocks[br2][c].point.y - (ball.y - 0), 2);
+							if (d > 15) {
+								paused = true;
+							}
 							if (d <= min) {
 								min = d;
 								dist.block[vertBlockTop].dist = d;
@@ -1228,34 +1258,38 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							+ newBall.x + " colBeg.x:"
 							+ (colBeg * (blockWidth + padCol) + padCol));
 					// UL hit vert block check
-					int hitX2 = blocks[0][c].point.x;
+					int hitX2 = blocks[0][c].point.x + blockWidth;
 					int hitY2 = (int) ((hitX2 - (ball.x + 0)) * m + ball.y + 0);
-					int br = blockRow(hitY2);
-					if (br > -1 && hitY2 >= blocks[br][c].point.y && hitY2 < blocks[br][c].point.y + blockHeight
-							&& blocks[br][c].alive) {
-						foundHit = true;
-						// int x2 = hitX2 - (ball.x + 0);
-						double d = Math.pow(hitX2 - (ball.x + 0), 2)
-								+ Math.pow(hitY2 - (ball.y + 0), 2);
-						if (d > 5) {
-							System.err.println("Line #" + new Throwable().getStackTrace()[0].getLineNumber());
-							System.out.println("d: " + d);
-							paused = true;
-						}
-						if (d <= min) {
-							min = d;
-							dist.block[vertBlockBottom].dist = d;
-							dist.block[vertBlockBottom].blockRow = br;
-							dist.block[vertBlockBottom].blockCol = c;
-							dist.block[vertBlockBottom].ballX = hitX2 - 0;
-							dist.block[vertBlockBottom].ballY = hitY2 - 0;
-							System.out.println("d: " + d + " br: " + br + " c: " + c);
-							paused = true;
+					if (hitY2 >= newBall.y) {
+						System.out.println("m: " + m + " hitX2: " + hitX2 + " hitY2: " + hitY2);
+						int br = blockRow(hitY2);
+						if (br > -1 && hitY2 >= newBall.y && hitY2 >= blocks[br][c].point.y
+								&& hitY2 < blocks[br][c].point.y + blockHeight
+								&& blocks[br][c].alive) {
+							foundHit = true;
+							// int x2 = hitX2 - (ball.x + 0);
+							double d = Math.pow(hitX2 - (ball.x + 0), 2)
+									+ Math.pow(hitY2 - (ball.y + 0), 2);
+							if (d > 5) {
+								System.err.println("Line #" + new Throwable().getStackTrace()[0].getLineNumber());
+								System.out.println("d: " + d);
+								paused = true;
+							}
+							if (d <= min) {
+								min = d;
+								dist.block[vertBlockBottom].dist = d;
+								dist.block[vertBlockBottom].blockRow = br;
+								dist.block[vertBlockBottom].blockCol = c;
+								dist.block[vertBlockBottom].ballX = hitX2 - 0;
+								dist.block[vertBlockBottom].ballY = hitY2 - 0;
+								System.out.println("d: " + d + " br: " + br + " c: " + c);
+								paused = true;
+							}
 						}
 					}
 					hitY2 += size;
 					// System.out.println("hitY2: " + hitY2);
-					if (hitY2 - 0 < padTop + blockRows * (blockHeight + padRow)) {
+					if (hitY2 >= newBall.y && hitY2 - 0 < padTop + blockRows * (blockHeight + padRow)) {
 						// LL hit vert block check
 						int br2 = blockRow(hitY2 - 0);
 						// System.out.println("br2: " + br2);
@@ -1372,8 +1406,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					// }
 					// }
 				} else { // no hits
-					ball.x = newBall.x;
-					ball.y = newBall.y;
+					// ball.x = newBall.x;
+					// ball.y = newBall.y;
 				}
 
 			}
@@ -1900,7 +1934,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// }
 
 		// bounce off walls
-		while (true) {
+		while (vel.x > 10) {
 			if (vel.x < 0 && vel.y < 0) {
 				nextHitDR();
 				// if (hitBlock())
@@ -2018,6 +2052,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			break;
 		}
 
+		nextHitDR();
 		ball.x = newBall.x;
 		ball.y = newBall.y;
 		if (blockCnt <= 0) {
