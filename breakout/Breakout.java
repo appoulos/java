@@ -57,17 +57,17 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// private Point velSign = new Point(); // velocity of ball
 	private Point newBall = new Point(); // ball.x + velocity.x, ball.y + velocity.y);
 
-	private final int size = 10; // ball size
+	private final int size = 5; // ball size
 	// private final int radius = 5; // ball radius
 
-	private final int blockRows = 4;
+	private final int blockRows = 8;
 	private final int blockCols = 10;
 	private final int blockWidth = 40;
 	private final int blockHeight = 15;
-	private final int padCol = 8; // padding between columns
-	private final int padRow = 8; // padding between rows
+	private final int padCol = 18; // padding between columns
+	private final int padRow = 18; // padding between rows
 	private final int padTop = 60; // padding above blocks
-	private final int padMiddle = 130; // padding between blocks and paddle
+	private final int padMiddle = 150; // padding between blocks and paddle
 	private final int padBottom = 20; // padding below paddle
 	private Block[][] blocks = new Block[blockRows][blockCols];
 	private int blockCnt = blockRows * blockCols;
@@ -80,7 +80,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
 
 	private final int ballMiddle = size / 2;
-	private final int playerW = 96 - ballMiddle;
+	private final int playerW = 48 - ballMiddle;
 	private final int playerH = 10;
 
 	// the width of the game area
@@ -610,7 +610,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							// paused = true;
 							// double d = Math.pow(hitX2 - 0 - ball.x, 2)
 							double d = Math.pow(hitX2 - (ball.x + size), 2)
-									+ Math.pow(blocks[br2][c].point.y - (ball.y - 0), 2);
+									+ Math.pow(hitY2 - (ball.y - 0), 2);
 							// if (d > 15) {
 							// paused = true;
 							// }
@@ -1105,7 +1105,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							foundHit = true;
 							// double d = Math.pow(hitX2 - 0 - ball.x, 2)
 							double d = Math.pow(hitX2 - (ball.x + 0), 2)
-									+ Math.pow(blocks[br2][c].point.y - (ball.y - 0), 2);
+									+ Math.pow(hitY2 - (ball.y - 0), 2);
 							// if (d > 15) {
 							// paused = true;
 							// }
@@ -1370,7 +1370,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 								&& blocks[br2][c].alive) { // br != br2 &&
 							foundHit = true;
 							double d = Math.pow(hitX2 - (ball.x + 0), 2)
-									+ Math.pow(blocks[br2][c].point.y - (ball.y - 0), 2);
+									+ Math.pow(hitY2 - (ball.y - 0), 2);
 							if (d <= min) {
 								min = d;
 								dists[vertBlockBottom].dist = d;
