@@ -824,7 +824,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 								+ Math.pow(hitY2 - (ball.y + 0), 2);
 						if (d > 15) {
 							System.out.print(dist);
-							System.out.println("problem d: " + d + " cnt: " + cnt);
+							System.out.println("1. problem d: " + d + " cnt: " + cnt);
 							paused = true;
 							return false;
 						}
@@ -851,7 +851,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 									+ Math.pow(blocks[br2][c].point.y - (ball.y - 0), 2);
 							if (d > 15) {
 								System.out.print(dist);
-								System.out.println("problem d: " + d + " cnt: " + cnt);
+								System.out.println("2. problem d: " + d + " cnt: " + cnt);
 								paused = true;
 								return false;
 							}
