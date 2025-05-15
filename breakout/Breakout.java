@@ -819,8 +819,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					if (br > -1 && hitY2 >= blocks[br][c].point.y && hitY2 < blocks[br][c].point.y + blockHeight
 							&& blocks[br][c].alive) {
 						foundHit = true;
-						int x2 = hitX2 - (ball.x + size);
-						double d = Math.pow(x2, 2)
+						double d = Math.pow(hitX2 - (ball.x + size), 2)
 								+ Math.pow(hitY2 - (ball.y + 0), 2);
 						if (d > 15) {
 							System.out.print(dist);
@@ -846,12 +845,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						if (br2 > -1 && hitY2 >= blocks[br2][c].point.y && hitY2 < blocks[br2][c].point.y + blockHeight
 								&& blocks[br2][c].alive) { // br != br2 &&
 							foundHit = true;
-							int x2 = hitX2 - (ball.x + size);
-							double d = Math.pow(x2 - 0 - ball.x, 2)
-									+ Math.pow(blocks[br2][c].point.y - (ball.y - 0), 2);
+							// int x2 = hitX2 - (ball.x + size);
+							double d = Math.pow(hitX2 - (ball.x + size), 2)
+									+ Math.pow(hitY2 - (ball.y + size), 2);
 							if (d > 15) {
 								System.out.print(dist);
 								System.out.println("2. problem d: " + d + " cnt: " + cnt);
+								System.out
+										.println("dx: " + (hitX2 - (ball.x + size)) + " dy: "
+												+ (hitY2 - (ball.y + size)));
+								System.out.println("br2: " + br2 + " c: " + c);
 								paused = true;
 								return false;
 							}
