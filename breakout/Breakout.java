@@ -15,12 +15,14 @@ import java.awt.geom.Rectangle2D;
 class Block {
 	Point point;
 	boolean alive;
+	int hits;
 	Color color;
 
-	Block(Point p, Color c) {
+	Block(Point p, Color c, int h) {
 		alive = true;
 		point = p;
 		color = c;
+		hits = h;
 	}
 }
 
@@ -159,8 +161,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	private void blockRemove(int r, int c) {
 		if (blocks[r][c].alive) {
-			blocks[r][c].alive = false;
-			blockCnt--;
+			blocks[r][c].hits--;
+			if (blocks[r][c].hits <= 0) {
+				blocks[r][c].alive = false;
+				blockCnt--;
+			}
 		}
 	}
 
@@ -426,7 +431,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			for (int c = 0; c < blockCols; c++) {
 				blocks[r][c] = new Block(
 						new Point(padCol + (padCol + blockWidth) * c, padTop + padRow + (padRow + blockHeight) * r),
-						color);
+						color, blockRows - r + 1);
 				// g.fillRect(padCol * (c + 1) + blockWidth * c, padTop + padRow * (r + 1) +
 				// blockHeight * r,
 				// blockWidth, blockHeight);
@@ -707,14 +712,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					newBall.y = 2 * ball.y - newBall.y;
 					newBall.x = 2 * ball.x - newBall.x;
 				} else if (dists[vertBlockBottom].dist == min || dists[vertBlockTop].dist == min) {
+					boolean hit = false;
 					if (dists[vertBlockBottom].dist == min) {
 						System.out.println("hit vertBlockBottom");
 						Dist bd = dists[vertBlockBottom];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
+						hit = true;
 					}
-					if (dists[vertBlockTop].dist == min) {
+					if (hit == false && dists[vertBlockTop].dist == min) {
 						System.out.println("hit vertBlockTop");
 						Dist bd = dists[vertBlockTop];
 						blockRemove(bd.blockRow, bd.blockCol);
@@ -724,14 +731,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					vel.x *= -1;
 					newBall.x = 2 * ball.x - newBall.x;
 				} else if (dists[horzBlockLeft].dist == min || dists[horzBlockRight].dist == min) {
+					boolean hit = false;
 					if (dists[horzBlockLeft].dist == min) {
 						System.out.println("hit horzBlockLeft");
 						Dist bd = dists[horzBlockLeft];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
+						hit = true;
 					}
-					if (dists[horzBlockRight].dist == min) {
+					if (hit == false && dists[horzBlockRight].dist == min) {
 						System.out.println("hit horzBlockRight");
 						Dist bd = dists[horzBlockRight];
 						blockRemove(bd.blockRow, bd.blockCol);
@@ -944,13 +953,17 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					newBall.y = 2 * ball.y + newBall.y;
 					newBall.x = 2 * ball.x - newBall.x;
 				} else if (dists[vertBlockBottom].dist == min || dists[vertBlockTop].dist == min) {
+					boolean hit = false;
 					if (dists[vertBlockBottom].dist == min) {
+						System.out.println("    hit vertBlockBottom");
 						Dist bd = dists[vertBlockBottom];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
+						hit = true;
 					}
-					if (dists[vertBlockTop].dist == min) {
+					if (hit == false && dists[vertBlockTop].dist == min) {
+						System.out.println("    hit vertBlockTop");
 						Dist bd = dists[vertBlockTop];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
@@ -959,13 +972,17 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					vel.x *= -1;
 					newBall.x = 2 * ball.x - newBall.x;
 				} else if (dists[horzBlockLeft].dist == min || dists[horzBlockRight].dist == min) {
+					boolean hit = false;
 					if (dists[horzBlockLeft].dist == min) {
+						System.out.println("    hit horzBlockLeft");
 						Dist bd = dists[horzBlockLeft];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
+						hit = true;
 					}
-					if (dists[horzBlockRight].dist == min) {
+					if (hit == false && dists[horzBlockRight].dist == min) {
+						System.out.println("    hit horzBlockRight");
 						Dist bd = dists[horzBlockRight];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
@@ -1215,14 +1232,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					newBall.y = 2 * ball.y - newBall.y;
 					newBall.x = 2 * ball.x - newBall.x;
 				} else if (dists[vertBlockBottom].dist == min || dists[vertBlockTop].dist == min) {
+					boolean hit = false;
 					if (dists[vertBlockBottom].dist == min) {
 						System.out.println("hit vertBlockBottom");
 						Dist bd = dists[vertBlockBottom];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
+						hit = true;
 					}
-					if (dists[vertBlockTop].dist == min) {
+					if (hit == false && dists[vertBlockTop].dist == min) {
 						System.out.println("hit vertBlockTop");
 						Dist bd = dists[vertBlockTop];
 						blockRemove(bd.blockRow, bd.blockCol);
@@ -1237,14 +1256,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					System.out.println("after     ball: " + ball.x + "," + ball.y);
 					// newBall.x = ball.x + (ball.x - newBall.x);
 				} else if (dists[horzBlockLeft].dist == min || dists[horzBlockRight].dist == min) {
+					boolean hit = false;
 					if (dists[horzBlockLeft].dist == min) {
 						System.out.println("hit horzBlockLeft");
 						Dist bd = dists[horzBlockLeft];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
+						hit = true;
 					}
-					if (dists[horzBlockRight].dist == min) {
+					if (hit == false && dists[horzBlockRight].dist == min) {
 						System.out.println("hit horzBlockRight");
 						Dist bd = dists[horzBlockRight];
 						blockRemove(bd.blockRow, bd.blockCol);
@@ -1485,30 +1506,40 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					newBall.y = 2 * ball.y + newBall.y;
 					newBall.x = 2 * ball.x - newBall.x;
 				} else if (dists[vertBlockBottom].dist == min || dists[vertBlockTop].dist == min) {
+					boolean hit = false;
 					if (dists[vertBlockBottom].dist == min) {
+						System.out.println("hit vertBlockBottom");
 						Dist bd = dists[vertBlockBottom];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX + 1;
 						ball.y = bd.ballY;
+						hit = true;
 					}
-					if (dists[vertBlockTop].dist == min) {
+					if (hit == false && dists[vertBlockTop].dist == min) {
+						System.out.println("hit vertBlockTop");
 						Dist bd = dists[vertBlockTop];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX + 1;
 						ball.y = bd.ballY;
 					}
 					vel.x *= -1;
-					System.out.println("(((((((((((((((((((((((((( newBall: " + newBall.x + "," + newBall.y);
+					// System.out.println("(((((((((((((((((((((((((( newBall: " + newBall.x + "," +
+					// newBall.y);
 					newBall.x = 2 * ball.x - newBall.x;
-					System.out.println(")))))))))))))))))))))))))) newBall: " + newBall.x + "," + newBall.y);
+					// System.out.println(")))))))))))))))))))))))))) newBall: " + newBall.x + "," +
+					// newBall.y);
 				} else if (dists[horzBlockLeft].dist == min || dists[horzBlockRight].dist == min) {
+					boolean hit = false;
 					if (dists[horzBlockLeft].dist == min) {
+						System.out.println("hit horzBlockLeft");
 						Dist bd = dists[horzBlockLeft];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
+						hit = true;
 					}
-					if (dists[horzBlockRight].dist == min) {
+					if (hit == false && dists[horzBlockRight].dist == min) {
+						System.out.println("hit horzBlockRight");
 						Dist bd = dists[horzBlockRight];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
@@ -1695,10 +1726,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// g.drawLine(345, 11, 348, 11);
 
 		for (int r = 0; r < blockRows; r++) {
-			g.setColor(blocks[r][0].color);
 			for (int c = 0; c < blockCols; c++) {
+				g.setColor(blocks[r][0].color);
 				if (blocks[r][c].alive) {
 					g.fillRect(blocks[r][c].point.x, blocks[r][c].point.y, blockWidth, blockHeight);
+					g.setColor(Color.black);
+					g.drawString("" + blocks[r][c].hits, blocks[r][c].point.x + 5, blocks[r][c].point.y + 10);
 				}
 			}
 		}
