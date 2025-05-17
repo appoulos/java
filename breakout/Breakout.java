@@ -90,7 +90,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// padCol) + 1;
 
 	private final int ballStartX = 90;
-	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
+	private final int ballStartY = 10; // padTop + blockRows * (blockHeight + padRow) + 10;
 
 	private final int ballMiddle = ballSize / 2; // ballSize must be odd
 	private final int playerW = 48 - ballMiddle; // pick number divisible by playerSegments - ballMiddle
@@ -532,11 +532,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				// ********************************* Down and Right Ball movement *************
 				// horizontal wall hit
 				if (newBall.y > maxHeight) {
-					foundHit = true;
 					float dy = (maxHeight - (ball.y + 0));
 					float dx = dy / m;
 					float d = dx * dx + dy * dy;
 					if (d <= min) {
+						foundHit = true;
 						min = d;
 						dists[horzWall].dist = d;
 						dists[horzWall].ballX = ball.x + dx;
@@ -545,11 +545,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				}
 				// vertical wall hit
 				if (newBall.x > maxWidth) {
-					foundHit = true;
 					float dx = (maxWidth - ball.x);
 					float dy = dx * m;
 					float d = dx * dx + dy * dy;
 					if (d <= min) {
+						foundHit = true;
 						min = d;
 						dists[vertWall].dist = d;
 						dists[vertWall].ballX = maxWidth;
@@ -569,13 +569,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					int hitY = blocks[r][0].point.y;
 					float hitX = ((hitY - (ball.y + lowerEdge)) / m + (ball.x + rightEdge));
 					int bc = blockColPos(hitX);
+					float d = -1;
+					boolean hit = false;
 					if (bc > -1 && hitX >= blocks[r][bc].point.x && hitX < blocks[r][bc].point.x + blockWidth
 							&& blocks[r][bc].alive) {
-						foundHit = true;
 						float dx = hitX - (ball.x + rightEdge);
 						float dy = hitY - (ball.y + lowerEdge);
-						float d = dx * dx + dy * dy;
+						d = dx * dx + dy * dy;
 						if (d <= min) {
+							foundHit = true;
+							hit = true;
 							min = d;
 							dists[horzBlockRight].dist = d;
 							dists[horzBlockRight].blockRow = r;
@@ -592,15 +595,18 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					hitX -= otherEdge;
 					if (hitX - 0 > padCol) {
 						int bc2 = blockColPos(hitX - 0);
-						if (bc2 > -1 && hitX >= blocks[r][bc2].point.x && hitX < blocks[r][bc2].point.x + blockWidth
+						if (!(hit && bc2 == bc) && bc2 > -1 && hitX >= blocks[r][bc2].point.x
+								&& hitX < blocks[r][bc2].point.x + blockWidth
 								&& blocks[r][bc2].alive) {
 							// if (bc2 > -1 && bc != bc2 && blocks[r][bc2].alive) { // efficient for blocks
 							// all the way to wall
-							foundHit = true;
-							float dx = hitX - (ball.x + leftEdge);
-							float dy = hitY - (ball.y + lowerEdge);
-							float d = dx * dx + dy * dy;
+							if (d == -1) {
+								float dx = hitX - (ball.x + leftEdge);
+								float dy = hitY - (ball.y + lowerEdge);
+								d = dx * dx + dy * dy;
+							}
 							if (d <= min) {
+								foundHit = true;
 								min = d;
 								dists[horzBlockLeft].dist = d;
 								dists[horzBlockLeft].blockRow = r;
