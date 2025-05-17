@@ -712,16 +712,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					newBall.y = 2 * ball.y - newBall.y;
 					newBall.x = 2 * ball.x - newBall.x;
 				} else if (dists[vertBlockBottom].dist == min || dists[vertBlockTop].dist == min) {
-					boolean hit = false;
 					if (dists[vertBlockBottom].dist == min) {
 						System.out.println("hit vertBlockBottom");
 						Dist bd = dists[vertBlockBottom];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
-						hit = true;
-					}
-					if (hit == false && dists[vertBlockTop].dist == min) {
+					} else if (dists[vertBlockTop].dist == min) {
 						System.out.println("hit vertBlockTop");
 						Dist bd = dists[vertBlockTop];
 						blockRemove(bd.blockRow, bd.blockCol);
@@ -731,16 +728,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					vel.x *= -1;
 					newBall.x = 2 * ball.x - newBall.x;
 				} else if (dists[horzBlockLeft].dist == min || dists[horzBlockRight].dist == min) {
-					boolean hit = false;
 					if (dists[horzBlockLeft].dist == min) {
 						System.out.println("hit horzBlockLeft");
 						Dist bd = dists[horzBlockLeft];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
-						hit = true;
-					}
-					if (hit == false && dists[horzBlockRight].dist == min) {
+					} else if (dists[horzBlockRight].dist == min) {
 						System.out.println("hit horzBlockRight");
 						Dist bd = dists[horzBlockRight];
 						blockRemove(bd.blockRow, bd.blockCol);
@@ -953,16 +947,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					newBall.y = 2 * ball.y + newBall.y;
 					newBall.x = 2 * ball.x - newBall.x;
 				} else if (dists[vertBlockBottom].dist == min || dists[vertBlockTop].dist == min) {
-					boolean hit = false;
 					if (dists[vertBlockBottom].dist == min) {
 						System.out.println("    hit vertBlockBottom");
 						Dist bd = dists[vertBlockBottom];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
-						hit = true;
-					}
-					if (hit == false && dists[vertBlockTop].dist == min) {
+					} else if (dists[vertBlockTop].dist == min) {
 						System.out.println("    hit vertBlockTop");
 						Dist bd = dists[vertBlockTop];
 						blockRemove(bd.blockRow, bd.blockCol);
@@ -972,16 +963,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					vel.x *= -1;
 					newBall.x = 2 * ball.x - newBall.x;
 				} else if (dists[horzBlockLeft].dist == min || dists[horzBlockRight].dist == min) {
-					boolean hit = false;
 					if (dists[horzBlockLeft].dist == min) {
 						System.out.println("    hit horzBlockLeft");
 						Dist bd = dists[horzBlockLeft];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
-						hit = true;
-					}
-					if (hit == false && dists[horzBlockRight].dist == min) {
+					} else if (dists[horzBlockRight].dist == min) {
 						System.out.println("    hit horzBlockRight");
 						Dist bd = dists[horzBlockRight];
 						blockRemove(bd.blockRow, bd.blockCol);
@@ -1232,16 +1220,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					newBall.y = 2 * ball.y - newBall.y;
 					newBall.x = 2 * ball.x - newBall.x;
 				} else if (dists[vertBlockBottom].dist == min || dists[vertBlockTop].dist == min) {
-					boolean hit = false;
 					if (dists[vertBlockBottom].dist == min) {
 						System.out.println("hit vertBlockBottom");
 						Dist bd = dists[vertBlockBottom];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
-						hit = true;
-					}
-					if (hit == false && dists[vertBlockTop].dist == min) {
+					} else if (dists[vertBlockTop].dist == min) {
 						System.out.println("hit vertBlockTop");
 						Dist bd = dists[vertBlockTop];
 						blockRemove(bd.blockRow, bd.blockCol);
@@ -1249,23 +1234,20 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						ball.y = bd.ballY;
 					}
 					vel.x *= -1;
-					System.out.println("before newBall: " + newBall.x + "," + newBall.y);
-					System.out.println("before    ball: " + ball.x + "," + ball.y);
+					// System.out.println("before newBall: " + newBall.x + "," + newBall.y);
+					// System.out.println("before ball: " + ball.x + "," + ball.y);
 					newBall.x = 2 * ball.x - newBall.x;
-					System.out.println("after  newBall: " + newBall.x + "," + newBall.y);
-					System.out.println("after     ball: " + ball.x + "," + ball.y);
+					// System.out.println("after newBall: " + newBall.x + "," + newBall.y);
+					// System.out.println("after ball: " + ball.x + "," + ball.y);
 					// newBall.x = ball.x + (ball.x - newBall.x);
 				} else if (dists[horzBlockLeft].dist == min || dists[horzBlockRight].dist == min) {
-					boolean hit = false;
 					if (dists[horzBlockLeft].dist == min) {
 						System.out.println("hit horzBlockLeft");
 						Dist bd = dists[horzBlockLeft];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
-						hit = true;
-					}
-					if (hit == false && dists[horzBlockRight].dist == min) {
+					} else if (dists[horzBlockRight].dist == min) {
 						System.out.println("hit horzBlockRight");
 						Dist bd = dists[horzBlockRight];
 						blockRemove(bd.blockRow, bd.blockCol);
@@ -1506,16 +1488,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					newBall.y = 2 * ball.y + newBall.y;
 					newBall.x = 2 * ball.x - newBall.x;
 				} else if (dists[vertBlockBottom].dist == min || dists[vertBlockTop].dist == min) {
-					boolean hit = false;
 					if (dists[vertBlockBottom].dist == min) {
 						System.out.println("hit vertBlockBottom");
 						Dist bd = dists[vertBlockBottom];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX + 1;
 						ball.y = bd.ballY;
-						hit = true;
-					}
-					if (hit == false && dists[vertBlockTop].dist == min) {
+					} else if (dists[vertBlockTop].dist == min) {
 						System.out.println("hit vertBlockTop");
 						Dist bd = dists[vertBlockTop];
 						blockRemove(bd.blockRow, bd.blockCol);
@@ -1529,16 +1508,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					// System.out.println(")))))))))))))))))))))))))) newBall: " + newBall.x + "," +
 					// newBall.y);
 				} else if (dists[horzBlockLeft].dist == min || dists[horzBlockRight].dist == min) {
-					boolean hit = false;
 					if (dists[horzBlockLeft].dist == min) {
 						System.out.println("hit horzBlockLeft");
 						Dist bd = dists[horzBlockLeft];
 						blockRemove(bd.blockRow, bd.blockCol);
 						ball.x = bd.ballX;
 						ball.y = bd.ballY;
-						hit = true;
-					}
-					if (hit == false && dists[horzBlockRight].dist == min) {
+					} else if (dists[horzBlockRight].dist == min) {
 						System.out.println("hit horzBlockRight");
 						Dist bd = dists[horzBlockRight];
 						blockRemove(bd.blockRow, bd.blockCol);
