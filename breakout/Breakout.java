@@ -57,26 +57,26 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	private static int frameRate = 60; // roughly frame rate per second
 
-	private final int velStartX = 4; // roughly frame rate per second
-	private final int velStartY = 12; // roughly frame rate per second
+	private final int velStartX = 1; // roughly frame rate per second
+	private final int velStartY = 3; // roughly frame rate per second
 
 	private Point vel = new Point(); // velocity of ball
 	// private Point velSign = new Point(); // velocity of ball
 	private Point2D.Float newBall = new Point2D.Float(); // ball.x + velocity.x, ball.y + velocity.y);
 
-	private final int ballSize = 7; // ball size
+	private final int ballSize = 7; // ODD ball size
 	private final int otherEdge = ballSize - 1; // ball size
 	private final int leftEdge = 0; // ball size
 	private final int rightEdge = ballSize - 1; // ball size
 	private final int upperEdge = 0; // ball size
 	private final int lowerEdge = ballSize - 1; // ball size
 
-	private final int blockRows = 8;
+	private final int blockRows = 4;
 	private final int blockCols = 10;
 	private final int blockWidth = 40;
 	private final int blockHeight = 15;
-	private final int padCol = 1; // padding between columns
-	private final int padRow = 1; // padding between rows
+	private final int padCol = 2; // padding between columns
+	private final int padRow = 2; // padding between rows
 	private final int padTop = 30; // padding above blocks
 	private final int padMiddle = 150; // padding between blocks and paddle
 	private final int padBottom = 20; // padding below paddle
@@ -88,7 +88,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// padCol) + 1;
 
 	private final int ballStartX = 90;
-	private final int ballStartY = 5; // padTop + blockRows * (blockHeight + padRow) + 10;
+	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
 
 	private final int ballMiddle = ballSize / 2; // ballSize must be odd
 	private final int playerW = 48 - ballMiddle; // pick number divisible by playerSegments - ballMiddle
@@ -366,19 +366,19 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		bounces[4] = new Point(2, -2);
 		bounces[5] = new Point(3, -1);
 
-		bounces[0] = new Point(-6, -2);
-		bounces[1] = new Point(-4, -4);
-		bounces[2] = new Point(-2, -6);
-		bounces[3] = new Point(2, -6);
-		bounces[4] = new Point(4, -4);
-		bounces[5] = new Point(6, -2);
-
-		bounces[0] = new Point(-12, -4);
-		bounces[1] = new Point(-8, -8);
-		bounces[2] = new Point(-4, -12);
-		bounces[3] = new Point(4, -12);
-		bounces[4] = new Point(8, -8);
-		bounces[5] = new Point(12, -4);
+		// bounces[0] = new Point(-6, -2);
+		// bounces[1] = new Point(-4, -4);
+		// bounces[2] = new Point(-2, -6);
+		// bounces[3] = new Point(2, -6);
+		// bounces[4] = new Point(4, -4);
+		// bounces[5] = new Point(6, -2);
+		//
+		// bounces[0] = new Point(-12, -4);
+		// bounces[1] = new Point(-8, -8);
+		// bounces[2] = new Point(-4, -12);
+		// bounces[3] = new Point(4, -12);
+		// bounces[4] = new Point(8, -8);
+		// bounces[5] = new Point(12, -4);
 
 		level = 1;
 
@@ -502,7 +502,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	public boolean nextHit() {
 		boolean retLose = false; // return true if game over
 		float m = (float) vel.y / vel.x;
-		float ballx = 0, bally = 0;
+		// float ballx = 0, bally = 0;
 
 		float min;
 		boolean foundHit;
@@ -523,7 +523,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				// horizontal wall hit
 				if (newBall.y > maxHeight) {
 					foundHit = true;
-					float dy = (maxHeight - (ball.x + 0));
+					float dy = (maxHeight - (ball.y + 0));
 					float dx = dy / m;
 					float d = dx * dx + dy * dy;
 					if (d <= min) {
@@ -675,8 +675,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						newBall.y = 2 * ball.y - newBall.y;
 					} else {
 					}
-					ballx = dists[vertWall].ballX;
-					bally = dists[vertWall].ballY;
+					ball.x = dists[vertWall].ballX;
+					ball.y = dists[vertWall].ballY;
 					vel.x *= -1;
 					// System.out.println("b. ball.x: " + ball.x + ", ball.y: " + ball.y + ",
 					// newBall.x: " + newBall.x
@@ -1255,8 +1255,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					newBall.y = 2 * ball.y - newBall.y;
 				} else if (dists[horzWall].dist == min) { // Possible to have padTop small enough to hit top and
 															// block
-					ballx = dists[horzWall].ballX;
-					bally = dists[horzWall].ballY;
+					ball.x = dists[horzWall].ballX;
+					ball.y = dists[horzWall].ballY;
 					vel.y *= -1;
 					newBall.y = 2 * ball.y - newBall.y;
 					lose();
@@ -1453,8 +1453,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						newBall.y = 2 * ball.y + newBall.y;
 					} else {
 					}
-					ballx = dists[vertWall].ballX;
-					bally = dists[vertWall].ballY;
+					ball.x = dists[vertWall].ballX;
+					ball.y = dists[vertWall].ballY;
 					vel.x *= -1;
 					// System.out.println("b. ball.x: " + ball.x + ", ball.y: " + ball.y + ",
 					// newBall.x: " + newBall.x
@@ -1470,15 +1470,15 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						System.out.println("    hit vertBlockBottom");
 						Dist bd = dists[vertBlockBottom];
 						blockRemove(bd.blockRow, bd.blockCol);
-						ballx = bd.ballX;
-						bally = bd.ballY;
+						ball.x = bd.ballX;
+						ball.y = bd.ballY;
 					}
 					if (dists[horzBlockRight].dist == min) {
 						System.out.println("    hit horzBlockRight");
 						Dist bd = dists[horzBlockRight];
 						blockRemove(bd.blockRow, bd.blockCol);
-						ballx = bd.ballX;
-						bally = bd.ballY;
+						ball.x = bd.ballX;
+						ball.y = bd.ballY;
 					}
 					vel.x *= -1;
 					vel.y *= -1;
@@ -1488,14 +1488,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					if (dists[vertBlockBottom].dist == min) {
 						Dist bd = dists[vertBlockBottom];
 						blockRemove(bd.blockRow, bd.blockCol);
-						ballx = bd.ballX + 1;
-						bally = bd.ballY;
+						ball.x = bd.ballX + 1;
+						ball.y = bd.ballY;
 					}
 					if (dists[vertBlockTop].dist == min) {
 						Dist bd = dists[vertBlockTop];
 						blockRemove(bd.blockRow, bd.blockCol);
-						ballx = bd.ballX + 1;
-						bally = bd.ballY;
+						ball.x = bd.ballX + 1;
+						ball.y = bd.ballY;
 					}
 					vel.x *= -1;
 					System.out.println("(((((((((((((((((((((((((( newBall: " + newBall.x + "," + newBall.y);
@@ -1505,22 +1505,22 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					if (dists[horzBlockLeft].dist == min) {
 						Dist bd = dists[horzBlockLeft];
 						blockRemove(bd.blockRow, bd.blockCol);
-						ballx = bd.ballX;
-						bally = bd.ballY;
+						ball.x = bd.ballX;
+						ball.y = bd.ballY;
 					}
 					if (dists[horzBlockRight].dist == min) {
 						Dist bd = dists[horzBlockRight];
 						blockRemove(bd.blockRow, bd.blockCol);
-						ballx = bd.ballX;
-						bally = bd.ballY;
+						ball.x = bd.ballX;
+						ball.y = bd.ballY;
 					}
 					vel.y *= -1;
 					newBall.y = 2 * ball.y - newBall.y;
 					System.out.println(ball.x + "," + ball.y + " " + newBall.x + "," + newBall.y);
 				} else if (dists[horzWall].dist == min) { // Possible to have padTop small enough to hit top and
 															// block
-					ballx = dists[horzWall].ballX;
-					bally = dists[horzWall].ballY;
+					ball.x = dists[horzWall].ballX;
+					ball.y = dists[horzWall].ballY;
 					vel.y *= -1;
 					newBall.y = 2 * ball.y - newBall.y;
 				} else { // no hits
@@ -1532,8 +1532,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			// ball.x = newBall.x;
 			// ball.y = newBall.y;
 		} while (foundHit);
-		ball.x = (int) ballx;
-		ball.y = (int) bally;
+		// ball.x = (int) ballx;
+		// ball.y = (int) bally;
 
 		return retLose;
 	}
