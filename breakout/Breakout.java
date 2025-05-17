@@ -413,25 +413,30 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		blockCnt = blockRows * blockCols;
 		Color color = Color.pink;
+		int maxHits = 1;
 		for (int r = 0; r < blockRows; r++) {
 			switch (r) {
 				case 0:
 					color = Color.RED;
+					maxHits = 3;
 					break;
 				case 1:
 					color = Color.YELLOW;
+					maxHits = 2;
 					break;
 				case 2:
 					color = Color.ORANGE;
+					maxHits = 1;
 					break;
 				case 3:
 					color = Color.BLUE;
+					maxHits = 1;
 					break;
 			}
 			for (int c = 0; c < blockCols; c++) {
 				blocks[r][c] = new Block(
 						new Point(padCol + (padCol + blockWidth) * c, padTop + padRow + (padRow + blockHeight) * r),
-						color, blockRows - r + 1);
+						color, maxHits);
 				// g.fillRect(padCol * (c + 1) + blockWidth * c, padTop + padRow * (r + 1) +
 				// blockHeight * r,
 				// blockWidth, blockHeight);
@@ -1713,8 +1718,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				g.setColor(blocks[r][0].color);
 				if (blocks[r][c].alive) {
 					g.fillRect(blocks[r][c].point.x, blocks[r][c].point.y, blockWidth, blockHeight);
-					g.setColor(Color.black);
-					g.drawString("" + blocks[r][c].hits, blocks[r][c].point.x + 5, blocks[r][c].point.y + 10);
+					if (blocks[r][c].hits > 1) {
+						g.setColor(Color.black);
+						g.drawString("" + blocks[r][c].hits, blocks[r][c].point.x + 5, blocks[r][c].point.y + 12);
+					}
 				}
 			}
 		}
