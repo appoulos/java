@@ -59,8 +59,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	private static int frameRate = 60; // roughly frame rate per second
 
-	private final int velStartX = 1; // start velocity roughly frame rate per second
-	private final int velStartY = 3; // start velocity roughly frame rate per second
+	private final int velStartX = 9; // start velocity roughly frame rate per second
+	private final int velStartY = 9; // start velocity roughly frame rate per second
 
 	private Point vel = new Point(); // velocity of ball
 	// private Point velSign = new Point(); // velocity of ball
@@ -1051,9 +1051,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						dists[vertWall].dist = d;
 						dists[vertWall].ballX = 0;
 						dists[vertWall].ballY = ball.y + dy;
-						// System.out.println("a. ball.x: " + ball.x + ", ball.y: " + ball.y + ",
-						// newBall.x: " + newBall.x
-						// + ", newBall.y: " + newBall.y);
+						// System.out.println("a. ball.x: " + ball.x + "," + ball.y + " newBall: " +
+						// newBall.x
+						// + "," + newBall.y + " corrected: 0," + (ball.y + dy));
 						// System.out.println(
 						// "ballX: " + maxWidth + ", ball.y: " + ball.y + ", dx: " + dx + ", dy: "
 						// + dy);
@@ -1065,11 +1065,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					// LL hit horiz block check
 					float hitY = blocks[r][0].point.y;
 					float hitX = ((hitY - (ball.y + lowerEdge)) / m + (ball.x + leftEdge));
-					int bc = blockColPos(hitX); // New???
+					int bc = blockColPos(hitX);
 					float d = -1;
 					boolean hit = false;
 					if (bc > -1 && hitX >= blocks[r][bc].point.x && hitX < blocks[r][bc].point.x + blockWidth
 							&& blocks[r][bc].alive) {
+						System.out.println("d. ball.x: " + ball.x + "," + ball.y + " newBall: " + newBall.x
+								+ "," + newBall.y + " hitXY: " + hitX + "," + hitY + " rows: " + rowBeg + "-" + rowEnd
+								+ " r: " + r);
 						float dx = hitX - (ball.x + leftEdge);
 						float dy = hitY - (ball.y + lowerEdge);
 						d = dx * dx + dy * dy;
@@ -1217,10 +1220,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					// System.out.println("b. ball.x: " + ball.x + ", ball.y: " + ball.y + ",
 					// newBall.x: " + newBall.x
 					// + ", newBall.y: " + newBall.y);
-					newBall.x = 2 * ball.x + newBall.x;
-					// System.out.println("c. ball.x: " + ball.x + ", ball.y: " + ball.y + ",
-					// newBall.x: " + newBall.x
-					// + ", newBall.y: " + newBall.y);
+					// System.out.println("b. ball.x: " + ball.x + "," + ball.y + " newBall: " +
+					// newBall.x
+					// + "," + newBall.y);
+					newBall.x = 2 * ball.x - newBall.x;
+					// System.out.println("c. ball.x: " + ball.x + "," + ball.y + " newBall: " +
+					// newBall.x
+					// + "," + newBall.y);
 				} else if ((dists[vertBlockBottom].dist == min || dists[vertBlockTop].dist == min)
 						&& (dists[horzBlockLeft].dist == min || dists[horzBlockRight].dist == min)) {
 					System.out.println("hit two: reversing");
