@@ -632,7 +632,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						}
 					}
 					// NOTE: velDownRight ballUpperRightEdge hit vertical block check
-					hitY2 -= ballSize;
+					hitY2 -= otherEdge;
 					if (hitY2 - 0 > padTop) {
 						// UR hit vert block check
 						int br2 = blockRowPos(hitY2);
@@ -794,7 +794,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				for (int r = rowBeg; r > rowEnd; r--) {
 					// UR hit horiz block check
 					float hitY = blocks[r][0].point.y + blockHeight;
-					float hitX = ((hitY - (ball.y + 0)) / m + (ball.x + ballSize));
+					float hitX = ((hitY - (ball.y + upperEdge)) / m + (ball.x + rightEdge));
 					int bc = blockColPos(hitX);
 					if (bc > -1 && hitX >= blocks[r][bc].point.x && hitX < blocks[r][bc].point.x + blockWidth
 							&& blocks[r][bc].alive) {
@@ -812,7 +812,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						}
 					}
 					// UL hit horiz block check
-					hitX -= ballSize;
+					hitX -= otherEdge;
 					if (hitX - 0 > padCol) {
 						int bc2 = blockColPos(hitX - 0);
 						if (bc2 > -1 && hitX >= blocks[r][bc2].point.x && hitX < blocks[r][bc2].point.x + blockWidth
@@ -834,15 +834,15 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						}
 					}
 				}
-				int colBeg = blockColPos(ball.x + ballSize) + 1;
-				int colEnd = blockColPos(newBall.x + ballSize) + 1;
+				int colBeg = blockColPos(ball.x + rightEdge) + 1;
+				int colEnd = blockColPos(newBall.x + rightEdge) + 1;
 				for (int c = colBeg; c < colEnd; c++) {
 					// System.out.println(colBeg + " " + colEnd + " " + ball.x + " " + newBall.x + "
 					// "
 					// + (colBeg * (blockWidth + padCol) + padCol));
 					// UR hit vert block check
 					float hitX2 = blocks[0][c].point.x;
-					float hitY2 = ((hitX2 - (ball.x + ballSize)) * m + ball.y + 0);
+					float hitY2 = ((hitX2 - (ball.x + rightEdge)) * m + ball.y + 0);
 					int br = blockRowPos(hitY2); // Neg???
 					if (br > -1 && hitY2 >= blocks[br][c].point.y && hitY2 < blocks[br][c].point.y + blockHeight
 							&& blocks[br][c].alive) {
@@ -860,11 +860,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							dists[vertBlockTop].dist = d;
 							dists[vertBlockTop].blockRow = br;
 							dists[vertBlockTop].blockCol = c;
-							dists[vertBlockTop].ballX = hitX2 - ballSize;
-							dists[vertBlockTop].ballY = hitY2 - 0;
+							dists[vertBlockTop].ballX = hitX2 - otherEdge;
+							dists[vertBlockTop].ballY = hitY2;
 						}
 					}
-					hitY2 += ballSize;
+					hitY2 += otherEdge;
 					// System.out.println("hitY2: " + hitY2);
 					if (hitY2 - 0 < padTop + blockRows * (blockHeight + padRow)) {
 						// LR hit vert block check
@@ -880,8 +880,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							// printDist();
 							// System.out.println("2. problem d: " + d + " cnt: " + cnt);
 							// System.out
-							// .println("dx: " + (hitX2 - (ball.x + ballSize)) + " dy: "
-							// + (hitY2 - (ball.y + ballSize)));
+							// .println("dx: " + (hitX2 - (ball.x + rightEdge)) + " dy: "
+							// + (hitY2 - (ball.y + lowerEdge)));
 							// System.out.println("br2: " + br2 + " c: " + c);
 							// paused = true;
 							// }
@@ -890,8 +890,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 								dists[vertBlockBottom].dist = d;
 								dists[vertBlockBottom].blockRow = br2;
 								dists[vertBlockBottom].blockCol = c;
-								dists[vertBlockBottom].ballX = hitX2 - ballSize;
-								dists[vertBlockBottom].ballY = hitY2 - 0;
+								dists[vertBlockBottom].ballX = hitX2 - otherEdge;
+								dists[vertBlockBottom].ballY = hitY2;
 							}
 						}
 					}
@@ -1046,12 +1046,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						// + dy);
 					}
 				}
-				int rowBeg = blockRowPos(ball.y + ballSize) + 1;
-				int rowEnd = blockRowPos(newBall.y + ballSize) + 1;
+				int rowBeg = blockRowPos(ball.y + lowerEdge) + 1;
+				int rowEnd = blockRowPos(newBall.y + lowerEdge) + 1;
 				for (int r = rowBeg; r < rowEnd; r++) {
 					// LL hit horiz block check
 					float hitY = blocks[r][0].point.y;
-					float hitX = ((hitY - (ball.y + ballSize)) / m + (ball.x + 0));
+					float hitX = ((hitY - (ball.y + lowerEdge)) / m + (ball.x + leftEdge));
 					int bc = blockColPos(hitX); // New???
 					if (bc > -1 && hitX >= blocks[r][bc].point.x && hitX < blocks[r][bc].point.x + blockWidth
 							&& blocks[r][bc].alive) {
@@ -1065,11 +1065,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							dists[horzBlockLeft].blockRow = r;
 							dists[horzBlockLeft].blockCol = bc;
 							dists[horzBlockLeft].ballX = hitX;
-							dists[horzBlockLeft].ballY = hitY - ballSize;
+							dists[horzBlockLeft].ballY = hitY - otherEdge;
 						}
 					}
 					// LR hit horiz block check
-					hitX += ballSize;
+					hitX += otherEdge;
 					if (hitX - 0 < padCol + blockCols * (blockWidth + padCol)) {
 						int bc2 = blockColPos(hitX - 0);
 						if (bc2 > -1 && hitX >= blocks[r][bc2].point.x && hitX < blocks[r][bc2].point.x + blockWidth
@@ -1085,8 +1085,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 								dists[horzBlockRight].dist = d;
 								dists[horzBlockRight].blockRow = r;
 								dists[horzBlockRight].blockCol = bc2;
-								dists[horzBlockRight].ballX = hitX - ballSize;
-								dists[horzBlockRight].ballY = hitY - ballSize;
+								dists[horzBlockRight].ballX = hitX - otherEdge;
+								dists[horzBlockRight].ballY = hitY - otherEdge;
 							}
 						}
 					}
@@ -1108,10 +1108,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					// + (blocks[0][colBeg].point.x + blockWidth));
 					// LL hit vert block check
 					float hitX2 = blocks[0][c].point.x + blockWidth;
-					float hitY2 = ((hitX2 - (ball.x + 0)) * m + ball.y + ballSize);
+					float hitY2 = ((hitX2 - (ball.x + rightEdge)) * m + ball.y + lowerEdge);
 					System.out.println("hit_2: (" + hitX2 + "," + hitY2 + ")");
-					if (hitY2 > newBall.y + ballSize) {
-						System.out.println("hitY2 > newBall.y + size: " + hitY2 + " > " + newBall.y + ballSize);
+					if (hitY2 > newBall.y + lowerEdge) {
+						System.out.println("hitY2 > newBall.y + lowerEdge: " + hitY2 + " > " + newBall.y + lowerEdge);
 						break;
 					}
 					int br = blockRowPos(hitY2);
@@ -1135,11 +1135,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							dists[vertBlockBottom].dist = d;
 							dists[vertBlockBottom].blockRow = br;
 							dists[vertBlockBottom].blockCol = c;
-							dists[vertBlockBottom].ballX = hitX2 - 0;
-							dists[vertBlockBottom].ballY = hitY2 - ballSize;
+							dists[vertBlockBottom].ballX = hitX2;
+							dists[vertBlockBottom].ballY = hitY2 - otherEdge;
 						}
 					}
-					hitY2 -= ballSize;
+					hitY2 -= otherEdge;
 					// System.out.println("hitY2: " + hitY2);
 					if (hitY2 - 0 > padTop) {
 						// UL hit vert block check
@@ -1327,7 +1327,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						}
 					}
 					// UR hit horiz block check
-					hitX += ballSize;
+					hitX += otherEdge;
 					if (hitX - 0 > padCol) {
 						int bc2 = blockColPos(hitX - 0);
 						if (bc2 > -1 && hitX >= blocks[r][bc2].point.x && hitX < blocks[r][bc2].point.x + blockWidth
@@ -1349,7 +1349,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 								dists[horzBlockLeft].dist = d;
 								dists[horzBlockLeft].blockRow = r;
 								dists[horzBlockLeft].blockCol = bc2;
-								dists[horzBlockLeft].ballX = hitX - ballSize;
+								dists[horzBlockLeft].ballX = hitX - otherEdge;
 								dists[horzBlockLeft].ballY = hitY - 0;
 							}
 						}
@@ -1413,7 +1413,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							// paused = true;
 						}
 					}
-					hitY2 += ballSize;
+					hitY2 += otherEdge;
 					// System.out.println("hitY2: " + hitY2);
 					if (hitY2 - 0 < padTop + blockRows * (blockHeight + padRow)) {
 						// LL hit vert block check
@@ -1609,8 +1609,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		newBall = new Point2D.Float(ball.x + vel.x, ball.y + vel.y);
 
 		// Check for player paddle hit ball
-		if (ball.y + ballSize < player.y && newBall.y + ballSize >= player.y) {
-			int hitX = (int) (ball.x + (float) vel.x / vel.y * (player.y - (ball.y + ballSize)));
+		if (ball.y + lowerEdge < player.y && newBall.y + lowerEdge >= player.y) {
+			int hitX = (int) (ball.x + (float) vel.x / vel.y * (player.y - (ball.y + lowerEdge)));
 			if (hitX >= player.x - (ballSize - 1) && hitX < player.x + playerW) {
 				int hit = (hitX - (player.x - (ballSize - 1))) * playerSegments / (playerW + (ballSize - 1));
 				vel.x = bounces[hit].x;
