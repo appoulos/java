@@ -28,8 +28,8 @@ class Block {
 
 class Dist {
 	float dist = Float.POSITIVE_INFINITY;
-	int blockRow;
-	int blockCol;
+	int blockRow = -1;
+	int blockCol = -1;
 	float ballX;
 	float ballY;
 	float newBallX;
@@ -511,17 +511,17 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		float min;
 		boolean foundHit;
-		int cnt = 0;
+		// int cnt = 0;
 		ret: do { // bounces
 			min = Float.POSITIVE_INFINITY;
 			for (int i = 0; i < dists.length; i++) {
 				dists[i].dist = Float.POSITIVE_INFINITY;
 			}
-			cnt++;
-			if (cnt > 2) {
-				System.out.println("################################ cnt: " + cnt);
-				// break;
-			}
+			// cnt++;
+			// if (cnt > 2) {
+			// System.out.println("################################ cnt: " + cnt);
+			// break;
+			// }
 			foundHit = false;
 			if (vel.x > 0 && vel.y > 0) {
 				// ********************************* Down and Right Ball movement *************
@@ -978,7 +978,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					}
 					vel.y *= -1;
 					newBall.y = 2 * ball.y - newBall.y;
-					System.out.println(ball.x + "," + ball.y + " " + newBall.x + "," + newBall.y);
+					// System.out.println(ball.x + "," + ball.y + " " + newBall.x + "," +
+					// newBall.y);
 				} else if (dists[horzWall].dist == min) { // Possible to have padTop small enough to hit top and
 															// block
 					ball.x = dists[horzWall].ballX;
@@ -1111,31 +1112,33 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					// ball.x + "," + ball.y
 					// + " newBall: " + newBall.x + "," + newBall.y + " blockRightEdge: "
 					// + (blocks[0][colBeg].point.x + blockWidth));
+
 					// LL hit vert block check
 					float hitX2 = blocks[0][c].point.x + blockWidth;
 					float hitY2 = ((hitX2 - (ball.x + rightEdge)) * m + ball.y + lowerEdge);
-					System.out.println("hit_2: (" + hitX2 + "," + hitY2 + ")");
-					if (hitY2 > newBall.y + lowerEdge) {
-						System.out.println("hitY2 > newBall.y + lowerEdge: " + hitY2 + " > " + newBall.y + lowerEdge);
+					// System.out.println("hit_2: (" + hitX2 + "," + hitY2 + ")");
+					if (hitY2 > newBall.y + lowerEdge) { // TODO: implement on all?
+						// System.out.println("hitY2 > newBall.y + lowerEdge: " + hitY2 + " > " +
+						// newBall.y + lowerEdge);
 						break;
 					}
 					int br = blockRowPos(hitY2);
-					System.out.println("br: " + br + " c: " + c);
+					// System.out.println("br: " + br + " c: " + c);
 					if (br > -1) {
-						System.out.println(
-								"vert zone: " + blocks[br][c].point.y + " -> " + (blocks[br][c].point.y +
-										blockHeight));
+						// System.out.println(
+						// "vert zone: " + blocks[br][c].point.y + " -> " + (blocks[br][c].point.y +
+						// blockHeight));
 					}
 					if (br > -1 && hitY2 >= blocks[br][c].point.y && hitY2 < blocks[br][c].point.y + blockHeight
 							&& blocks[br][c].alive) {
-						System.out.println("aaa");
+						// System.out.println("aaa");
 						foundHit = true;
 						float dx = hitX2 - (ball.x + leftEdge);
 						float dy = hitY2 - (ball.y + lowerEdge);
 						float d = dx * dx + dy * dy;
-						System.out.println("d: " + d + " min: " + min);
+						// System.out.println("d: " + d + " min: " + min);
 						if (d <= min) {
-							System.out.println("bbb");
+							// System.out.println("bbb");
 							min = d;
 							dists[vertBlockBottom].dist = d;
 							dists[vertBlockBottom].blockRow = br;
@@ -1309,13 +1312,15 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					float hitY = blocks[r][0].point.y + blockHeight;
 					float hitX = ((hitY - (ball.y + 0)) / m + (ball.x + 0));
 					int bc = blockColPos(hitX);
-					System.out.println(
-							"$$$$$$$$$$$$$$ Beg,End: " + rowBeg + "," + rowEnd + " bc: " + bc + " hitXY: " + hitX + ","
-									+ hitY);
-					System.out.println("ball: " + ball.x + "," + ball.y + " newball: " + newBall.x + "," + newBall.y);
+					// System.out.println(
+					// "$$$$$$$$$$$$$$ Beg,End: " + rowBeg + "," + rowEnd + " bc: " + bc + " hitXY:
+					// " + hitX + ","
+					// + hitY);
+					// System.out.println("ball: " + ball.x + "," + ball.y + " newball: " +
+					// newBall.x + "," + newBall.y);
 					if (bc > -1 && hitX >= blocks[r][bc].point.x && hitX < blocks[r][bc].point.x + blockWidth
 							&& blocks[r][bc].alive) {
-						System.out.println("aaa");
+						// System.out.println("aaa");
 						foundHit = true;
 						float dx = hitX - (ball.x + leftEdge);
 						float dy = hitY - (ball.y + upperEdge);
@@ -1338,7 +1343,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							// if (bc2 > -1 && bc != bc2 && blocks[r][bc2].alive) { // efficient for blocks
 							// all the way to wall
 							foundHit = true;
-							System.out.println("bbb");
+							// System.out.println("bbb");
 							float dx = hitX - (ball.x + rightEdge);
 							float dy = hitY - (ball.y + upperEdge);
 							float d = dx * dx + dy * dy;
@@ -1386,11 +1391,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					if (hitY2 < newBall.y) {
 						break;
 					}
-					System.out.println("zcolBeg: " + colBeg + " colEnd: " + colEnd + " ball.x:" + ball.x + " newBall.x:"
-							+ newBall.x + " colBeg.x:"
-							+ (colBeg * (blockWidth + padCol) + padCol));
+					// System.out.println("zcolBeg: " + colBeg + " colEnd: " + colEnd + " ball.x:" +
+					// ball.x + " newBall.x:"
+					// + newBall.x + " colBeg.x:"
+					// + (colBeg * (blockWidth + padCol) + padCol));
 					// if (hitY2 >= newBall.y) {
-					System.out.println("m: " + m + " hitX2: " + hitX2 + " hitY2: " + hitY2);
+					// System.out.println("m: " + m + " hitX2: " + hitX2 + " hitY2: " + hitY2);
 					int br = blockRowPos(hitY2);
 					if (br > -1 && hitY2 >= newBall.y && hitY2 >= blocks[br][c].point.y
 							&& hitY2 < blocks[br][c].point.y + blockHeight
@@ -1412,7 +1418,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							dists[vertBlockTop].blockCol = c;
 							dists[vertBlockTop].ballX = hitX2 - 0;
 							dists[vertBlockTop].ballY = hitY2 - 0;
-							System.out.println("d: " + d + " br: " + br + " c: " + c);
+							// System.out.println("d: " + d + " br: " + br + " c: " + c);
 							// paused = true;
 						}
 					}
@@ -1444,7 +1450,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					break ret;
 				}
 
-				System.out.println("*****************");
+				// System.out.println("*****************");
 				System.out.println("Ball dir UL");
 				printDist();
 
@@ -1523,7 +1529,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					}
 					vel.y *= -1;
 					newBall.y = 2 * ball.y - newBall.y;
-					System.out.println(ball.x + "," + ball.y + " " + newBall.x + "," + newBall.y);
+					// System.out.println(ball.x + "," + ball.y + " " + newBall.x + "," +
+					// newBall.y);
 				} else if (dists[horzWall].dist == min) { // Possible to have padTop small enough to hit top and
 															// block
 					ball.x = dists[horzWall].ballX;
@@ -1792,7 +1799,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			synchronized (countMutex) {
 				count--;
-				System.out.println("count: " + count);
+				// System.out.println("count: " + count);
 			}
 		});
 		thread.start();
@@ -1825,9 +1832,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		for (int i = 0; i < dists.length; i++) {
 			if (dists[i].dist < Float.POSITIVE_INFINITY) {
 				System.out
-						.println("dist wall  " + distNames[i] + ": " + String.format("%.2f", dists[i].dist) + " ballX: "
+						.print("dist wall  " + distNames[i] + ": " + String.format("%.2f", dists[i].dist) + " ballX: "
 								+ dists[i].ballX + " ballY: "
-								+ dists[i].ballY + " Row: " + dists[i].blockRow + " Col: " + dists[i].blockCol + "\n");
+								+ dists[i].ballY);
+				if (dists[i].blockRow != -1) {
+					System.out.print(" Row: " + dists[i].blockRow + " Col: " + dists[i].blockCol);
+				}
+				System.out.println();
 			}
 
 		}
