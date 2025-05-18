@@ -765,7 +765,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					Dist bd = dists[horzBlockRight];
 					blockRemove(bd.blockRow, bd.blockCol);
 					vel.y *= -1;
-					newBall.y = 2 * ball.y - newBall.y;
+					newBall.y = 2 * ball.y - signY * newBall.y;
 				} else {
 				}
 				ball.x = dists[vertWall].ballX;
