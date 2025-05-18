@@ -145,6 +145,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	static Synthesizer synth = null;
 	static ShortMessage paddleMsg = new ShortMessage();
 	static ShortMessage wallMsg = new ShortMessage();
+	static ShortMessage loseMsg = new ShortMessage();
 	static ShortMessage brickMsg = new ShortMessage();
 	static ShortMessage paddleOffMsg = new ShortMessage();
 	static ShortMessage wallOffMsg = new ShortMessage();
@@ -207,6 +208,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			final int noteVelocity = 83;
 			paddleMsg.setMessage(ShortMessage.NOTE_ON, 0, 50, noteVelocity);
 			wallMsg.setMessage(ShortMessage.NOTE_ON, 0, 40, noteVelocity);
+			loseMsg.setMessage(ShortMessage.NOTE_ON, 0, 37, noteVelocity);
 			brickMsg.setMessage(ShortMessage.NOTE_ON, 0, 100, noteVelocity);
 			paddleOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 50, noteVelocity);
 			wallOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 40, noteVelocity);
@@ -1698,8 +1700,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			ball.x = newBall.x;
 			ball.y = newBall.y;
 		} else {
+			playSound(loseMsg, (int) (currDist / frameDist * frameTimeuSec));
 			if (wallHit) {
-				playSound(wallMsg, (int) (currDist / frameDist * frameTimeuSec));
 			}
 		}
 		return retLose;
