@@ -56,15 +56,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private boolean paused; // the update timer
 
 	private final int dialogDelay = 2000;
+	private final int cheatLevels = 1; // Number of levels to have no game over
 
 	private static int frameRate = 60; // roughly frame rate per second
 
-	private final float velStartX = 10f; // start velocity roughly frame rate per second
-	private final float velStartY = 30f; // start velocity roughly frame rate per second
+	private final float velStartX = 1f; // start velocity roughly frame rate per second
+	private final float velStartY = 3f; // start velocity roughly frame rate per second
 
 	private Point2D.Float vel = new Point2D.Float(); // velocity of ball
 	// private Point velSign = new Point(); // velocity of ball
-	private Point2D.Float newBall = new Point2D.Float(); // ball.x + velocity.x, ball.y + velocity.y);
+	private Point2D.Float newBall = new Point2D.Float(); // ball.x + vel.x, ball.y + vel.y);
 
 	private final int ballSize = 7; // ODD ball size
 	private final int otherEdge = ballSize - 1; // ball size
@@ -175,7 +176,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	}
 
 	private void lose() {
-		if (level > 1) {
+		if (level > cheatLevels) {
 			synchronized (countMutex) {
 				if (count == 0) {
 					count++;
@@ -223,7 +224,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		dialogLabel = new JLabel("");
 		dialogLabel.setHorizontalAlignment(JLabel.CENTER);
 		dialog.add(dialogLabel);
-		dialog.setBounds(125, 125, 100, 70);
+		dialog.setBounds(125, 125, 200, 70);
 		dialog.setVisible(false);
 
 		frame.setTitle("Obstacle Game");
@@ -422,8 +423,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
 		ball = new Rectangle2D.Float(ballStartX, ballStartY, ballSize, ballSize);
-		vel.x = velStartX;
-		vel.y = velStartY;
+		vel.x = velStartX * (1 + level * 0.2f);
+		vel.y = velStartY * (1 + level * 0.2f);
+
 		setSoundParameters();
 		// int framesTillNextCalc = (player.y - 1 - size - ball.y) / vel.y;
 		// nextCalc.x = ball.x + vel.x * framesTillNextCalc;
@@ -1857,8 +1859,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			// System.out.println("HighScore: " + highScore);
 		}
 
-		// System.out.println("Level: " + level);
-		createDialog("You Won!", 1000);
+		System.out.println("Level: " + level);
+		createDialog("You Won! Level: " + level, 1000);
 
 		resetLevel();
 	}
@@ -1871,7 +1873,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		}
 
 		System.out.println("Level: " + level);
-		createDialog("You Lost", dialogDelay);
+		createDialog("You Lost. Level: " + level, dialogDelay);
 
 		resetLevel();
 	}
