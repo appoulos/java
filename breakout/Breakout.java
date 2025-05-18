@@ -1563,7 +1563,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 								dists[vertBlockBottom].blockRow = br2;
 								dists[vertBlockBottom].blockCol = c;
 								dists[vertBlockBottom].ballX = hitX2 - 0;
-								dists[vertBlockBottom].ballY = hitY2 - 0;
+								dists[vertBlockBottom].ballY = hitY2 - ballSize;
 							}
 						}
 					}
