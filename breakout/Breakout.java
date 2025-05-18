@@ -279,11 +279,19 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	}
 
-	// Method that is called by the timer 30 times per second (roughly)
+	// Method that is called by the timer framerate times per second (roughly)
 	// Most games go through states - updating objects, then drawing them
 	public void actionPerformed(ActionEvent e) {
+		// long st = System.currentTimeMillis();
 		update();
+		// long st2 = System.currentTimeMillis();
 		repaint();
+		// long st3 = System.currentTimeMillis();
+		// long t1 = st2 - st;
+		// long t2 = st3 - st2;
+		// if (t1 != 0 || t2 != 0) {
+		// System.out.println("update: " + t1 + ", paint: " + t2);
+		// }
 	}
 
 	// Called every time a key is pressed
