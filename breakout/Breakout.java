@@ -761,6 +761,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			if (dists[vertWall].dist == min) {
 				wallHit = true;
 				if (dists[horzBlockRight].dist == min) { // LR
+					blockHit = true;
 					Dist bd = dists[horzBlockRight];
 					blockRemove(bd.blockRow, bd.blockCol);
 					vel.y *= -1;
@@ -1048,6 +1049,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				if (dists[vertWall].dist == min) {
 					wallHit = true;
 					if (dists[horzBlockRight].dist == min) { // LR
+						blockHit = true;
 						Dist bd = dists[horzBlockRight];
 						blockRemove(bd.blockRow, bd.blockCol);
 						vel.y *= -1;
