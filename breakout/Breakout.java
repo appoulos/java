@@ -59,8 +59,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	private static int frameRate = 60; // roughly frame rate per second
 
-	private final float velStartX = 1f; // start velocity roughly frame rate per second
-	private final float velStartY = 3f; // start velocity roughly frame rate per second
+	private final float velStartX = 10f; // start velocity roughly frame rate per second
+	private final float velStartY = 30f; // start velocity roughly frame rate per second
 
 	private Point2D.Float vel = new Point2D.Float(); // velocity of ball
 	// private Point velSign = new Point(); // velocity of ball
@@ -150,18 +150,22 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// static ShortMessage brickOffMsg = new ShortMessage();
 	static boolean soundPossible = false;
 	static boolean mute = true;
+	static float frameTimeuSec = 0f;
+	static float frameDist = 0f;
+	static float currDist = 0f;
 
 	void playSound(ShortMessage msg, int time) {
 		if (!mute) {
 			long t = synth.getMicrosecondPosition();
 			rcvr.send(msg, -1); // time in microseconds
-			rcvr.send(paddleOffMsg, t + 100000); // time in microseconds
-			rcvr.send(wallOffMsg, t + 100000); // time in microseconds
+			rcvr.send(paddleOffMsg, t + time); // time in microseconds
+			rcvr.send(wallOffMsg, t + time); // time in microseconds
 		}
 	}
 
 	private void blockRemove(int r, int c) {
 		if (blocks[r][c].alive) {
+			playSound(brickMsg, (int) (currDist / frameDist * frameTimeuSec));
 			blocks[r][c].hits--;
 			if (blocks[r][c].hits <= 0) {
 				blocks[r][c].alive = false;
@@ -185,6 +189,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	String printBall() {
 		return "ball: (" + ball.x + ", " + ball.y + ") newBall: (" + newBall.x + ", " + newBall.y + ")";
+	}
+
+	void setSoundParameters() {
+		frameDist = (float) Math.sqrt(vel.x * vel.x + vel.y * vel.y);
+		frameTimeuSec = 1_000_000 / frameRate;
 	}
 
 	// Sets up the basic GUI for the game
@@ -305,8 +314,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		} else if (keyCode == KeyEvent.VK_P) {
 			paused = !paused;
 		} else if (keyCode == KeyEvent.VK_MINUS) {
-			if (frameRate > 2) {
+			if (frameRate >= 2) {
 				frameRate /= 2;
+				setSoundParameters();
 			}
 			if (timer != null) {
 				timer.stop();
@@ -314,9 +324,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per second
 			timer.start();
 		} else if (keyCode == KeyEvent.VK_EQUALS || keyCode == KeyEvent.VK_PLUS) {
-			frameRate *= 2;
-			if (frameRate <= 0) {
-				frameRate = Integer.MAX_VALUE;
+			if (frameRate <= Integer.MAX_VALUE / 2) {
+				frameRate *= 2;
+				setSoundParameters();
 			}
 			if (timer != null) {
 				timer.stop();
@@ -414,6 +424,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		ball = new Rectangle2D.Float(ballStartX, ballStartY, ballSize, ballSize);
 		vel.x = velStartX;
 		vel.y = velStartY;
+		setSoundParameters();
 		// int framesTillNextCalc = (player.y - 1 - size - ball.y) / vel.y;
 		// nextCalc.x = ball.x + vel.x * framesTillNextCalc;
 		// nextCalc.y = ball.y + vel.y * framesTillNextCalc;
@@ -526,6 +537,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		float min;
 		boolean foundHit;
+		float ballx = ball.y, bally = ball.x;
 		// int cnt = 0;
 		ret: do { // bounces
 			min = Float.POSITIVE_INFINITY;
@@ -1623,10 +1635,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			// ball.x = newBall.x;
 			// ball.y = newBall.y;
 			System.out.println("zzz ball: " + ball.x + "," + ball.y);
+
+			// currDist used for sound timing
+			currDist += (float) Math.sqrt(Math.pow(ball.x - ballx, 2) + Math.pow(ball.y - ball.y, 2));
+
 		} while (foundHit);
 		// ball.x = (int) ballx;
 		// ball.y = (int) bally;
 
+		ball.x = newBall.x;
+		ball.y = newBall.y;
 		return retLose;
 	}
 
@@ -1665,6 +1683,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// 3 - it checks if the player has reached the goal, and if so congratualtes
 	// them and restarts the game
 	public void update() {
+		currDist = 0;
+
 		if (paused)
 			return;
 		if (left) {
@@ -1707,6 +1727,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				int hit = (hitX - (player.x - (ballSize - 1))) * playerSegments / (playerW + (ballSize - 1));
 				vel.x = bounces[hit].x;
 				vel.y = bounces[hit].y;
+				setSoundParameters();
 				// System.out.println("vel:" + velocity + ", hit:" + hit);
 				// velocity.y *= -1;
 				newBall.y = 2 * player.y - newBall.y - 2 * ballSize;
@@ -1722,11 +1743,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// newBall.y = 2 * player.y - newBall.y;
 		// }
 
-		if (nextHit()) { // level lost
+		if (nextHit()) { // return true when level lost
 			return;
 		}
-		ball.x = newBall.x;
-		ball.y = newBall.y;
+		// ball.x = newBall.x;
+		// ball.y = newBall.y;
 		if (blockCnt <= 0) {
 			synchronized (countMutex) {
 				if (count == 0) {
@@ -1799,6 +1820,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		g.setColor(Color.green);
 		g2.fill(ball); // ball.x, ball.y, ball.width, ball.height);
 
+		g.setColor(Color.white);
+		g.drawString("fps: " + (frameRate), 5, gameHeight);
 		if (paused) {
 			g.setColor(Color.white);
 			int startY = padTop + blockRows * (blockHeight + padRow) + 10;
