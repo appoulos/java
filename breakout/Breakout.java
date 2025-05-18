@@ -59,10 +59,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	private static int frameRate = 60; // roughly frame rate per second
 
-	private final int velStartX = 9; // start velocity roughly frame rate per second
-	private final int velStartY = 9; // start velocity roughly frame rate per second
+	private final float velStartX = 1f; // start velocity roughly frame rate per second
+	private final float velStartY = 3f; // start velocity roughly frame rate per second
 
-	private Point vel = new Point(); // velocity of ball
+	private Point2D.Float vel = new Point2D.Float(); // velocity of ball
 	// private Point velSign = new Point(); // velocity of ball
 	private Point2D.Float newBall = new Point2D.Float(); // ball.x + velocity.x, ball.y + velocity.y);
 
@@ -104,7 +104,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int playerSegments = 6;
 	// private final int playerSegment = playerW / 2 / playerSegments;
 
-	private Point[] bounces = new Point[playerSegments];
+	// private Point[] bounces = new Point[playerSegments];
+	private Point2D.Float[] bounces = new Point2D.Float[playerSegments];
 	private final int playerStartX = 10;
 	private final int playerStartY = gameHeight - padBottom - playerH;
 
@@ -371,12 +372,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		}
 
 		// for (int i=0;i<bounces.length;i++){
-		bounces[0] = new Point(-3, -1);
-		bounces[1] = new Point(-2, -2);
-		bounces[2] = new Point(-1, -3);
-		bounces[3] = new Point(1, -3);
-		bounces[4] = new Point(2, -2);
-		bounces[5] = new Point(3, -1);
+		bounces[0] = new Point2D.Float(-3, -1);
+		bounces[1] = new Point2D.Float(-2, -2);
+		bounces[2] = new Point2D.Float(-1, -3);
+		bounces[3] = new Point2D.Float(1, -3);
+		bounces[4] = new Point2D.Float(2, -2);
+		bounces[5] = new Point2D.Float(3, -1);
 
 		// bounces[0] = new Point(-6, -2);
 		// bounces[1] = new Point(-4, -4);
@@ -385,12 +386,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// bounces[4] = new Point(4, -4);
 		// bounces[5] = new Point(6, -2);
 		//
-		// bounces[0] = new Point(-12, -4);
-		// bounces[1] = new Point(-8, -8);
-		// bounces[2] = new Point(-4, -12);
-		// bounces[3] = new Point(4, -12);
-		// bounces[4] = new Point(8, -8);
-		// bounces[5] = new Point(12, -4);
+		// bounces[0] = new Point2D.Float(-12, -4);
+		// bounces[1] = new Point2D.Float(-8, -8);
+		// bounces[2] = new Point2D.Float(-4, -12);
+		// bounces[3] = new Point2D.Float(4, -12);
+		// bounces[4] = new Point2D.Float(8, -8);
+		// bounces[5] = new Point2D.Float(12, -4);
 
 		level = 1;
 
