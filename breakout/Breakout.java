@@ -1,4 +1,9 @@
 import java.awt.*;
+// TODO:
+// large paddle to begin with
+// go at paddle at start
+// 144 fps has to be slower on level 1
+// remove dialog (windows fullscreen has glitch)
 
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
@@ -15,8 +20,8 @@ import java.awt.geom.Rectangle2D;
 class Block {
 	Point point;
 	boolean alive;
-	int hits;
 	Color color;
+	int hits;
 
 	Block(Point p, Color c, int h) {
 		alive = true;
@@ -94,7 +99,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
 
 	private final int ballMiddle = ballSize / 2; // ballSize must be odd
-	private final int playerW = 48 - ballMiddle; // pick number divisible by playerSegments - ballMiddle
+	private final int playerW = 96 - ballMiddle; // pick number divisible by playerSegments - ballMiddle
 	private final int playerH = 10;
 
 	// the width of the game area
@@ -283,15 +288,18 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// Most games go through states - updating objects, then drawing them
 	public void actionPerformed(ActionEvent e) {
 		// long st = System.currentTimeMillis();
+		long st = System.nanoTime();
 		update();
 		// long st2 = System.currentTimeMillis();
+		long st2 = System.nanoTime();
 		repaint();
 		// long st3 = System.currentTimeMillis();
-		// long t1 = st2 - st;
-		// long t2 = st3 - st2;
-		// if (t1 != 0 || t2 != 0) {
-		// System.out.println("update: " + t1 + ", paint: " + t2);
-		// }
+		long st3 = System.nanoTime();
+		long t1 = st2 - st;
+		long t2 = st3 - st2;
+		if (t1 != 0 || t2 != 0) {
+			System.out.println("update: " + t1 + ", paint: " + t2);
+		}
 	}
 
 	// Called every time a key is pressed
@@ -556,7 +564,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		return (int) y;
 	}
 
-	public boolean nextHit() {
+	public boolean nextHit() { // assumes ball and newBall are set
 		boolean retLose = false; // return true if game over
 		boolean foundHit; // found collision in next ball step
 
@@ -564,7 +572,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			// NOTE: Setup variables
 
-			float m = (float) vel.y / vel.x; // ball velocity slope
+			float m = vel.y / vel.x; // ball velocity slope
 			float min; // next hit minimum distance
 			boolean blockHit = false;
 			boolean wallHit = false;
