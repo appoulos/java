@@ -7,6 +7,7 @@ import java.awt.*;
 // +/- only on level 1
 // more paddle angles
 // advance the sound
+// add lives
 
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
