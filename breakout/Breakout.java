@@ -694,7 +694,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			// NOTE: hit horizontal block check
 
 			int r = rowBeg;
-			while (r != -1 && r != rowEnd && r < blockRows) {
+			while (r < blockRows && r != -1 && r != rowEnd) {
 
 				float hitY = blocks[r][0].point.y + blockEdgeY;
 				float hitX = ((hitY - (ball.y + edgeY)) / m + (ball.x + edgeX));
