@@ -5,7 +5,7 @@ import javax.swing.*;
 import java.awt.Dimension;
 import java.awt.event.*;
 import javax.sound.midi.*;
-
+// hi there
 class MidiPlayNote {
 	static Receiver rcvr;
 	static Synthesizer synth = null;
