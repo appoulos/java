@@ -107,7 +107,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	private final int ballMiddle = ballSize / 2; // ballSize must be odd
 	private final int playerSegments = 20; // must be even
-	private final int playerW = 6 * (playerSegments - ballMiddle); // pick number divisible by playerSegments -
+	private final int playerW = 5 * (playerSegments - ballMiddle); // pick number divisible by playerSegments -
 																	// ballMiddle
 	private final int playerH = 10;
 
@@ -419,9 +419,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		System.out.println("theta: " + Math.toDegrees(theta));
 		System.out.println("dPhi: " + Math.toDegrees(dPhi));
 		for (int i = 0; i < bounces.length / 2; i++) {
+			System.out.println("angle: " + Math.toDegrees(i * dPhi + theta));
 			float dx = (float) (velocity * Math.cos(i * dPhi + theta));
 			float dy = (float) (velocity * Math.sin(i * dPhi + theta));
-			System.out.println("angle: " + Math.toDegrees(i * dPhi + theta));
 			bounces[i] = new Point2D.Float(-dx, -dy);
 			bounces[bounces.length - i - 1] = new Point2D.Float(dx, -dy);
 		}
@@ -738,8 +738,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							bd.dist = d;
 							bd.blockRow = r;
 							bd.blockCol = bc2;
-							bd.ballX = hitX - (revEdgeX == 0 ? signX : ballSize);
-							bd.ballY = hitY - (edgeY == 0 ? signY : ballSize);
+							bd.ballX = hitX - (revEdgeX == 0 ? 0 : ballSize);
+							bd.ballY = hitY - (edgeY == 0 ? 0 : ballSize);
 						}
 					}
 				}
@@ -749,7 +749,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			// NOTE: hit vertical block check
 
 			int c = colBeg;
-			while (c != -1 && c != colEnd && c < blockCols) {
+			while (c < blockCols && c != -1 && c != colEnd) {
 				float hitX = blocks[0][c].point.x + blockEdgeX;
 				float hitY = ((hitX - (ball.x + edgeX)) * m + (ball.y + edgeY));
 				int br = blockRowPos(hitY);
@@ -760,6 +760,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					float dx = hitX - (ball.x + edgeX);
 					float dy = hitY - (ball.y + edgeY);
 					d = dx * dx + dy * dy;
+					if (d > velocity * velocity) {
+						System.out.println("######################## error d too big: " + d);
+					}
 					if (d <= min) {
 						foundHit = true;
 						hit = true;
@@ -768,10 +771,20 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						bd.dist = d;
 						bd.blockRow = br;
 						bd.blockCol = c;
-						bd.ballX = hitX - (edgeX == leftEdge ? signX : ballSize);
-						bd.ballY = hitY - (edgeY == upperEdge ? signY : ballSize);
+						bd.ballX = hitX - (edgeX == leftEdge ? 0 : ballSize);
+						bd.ballY = hitY - (edgeY == upperEdge ? 0 : ballSize);
 					}
 				}
+				/*
+				 ******** Dir: (-1,-1)
+				 * dist horzBlockLeft : 0.01 ballX: 128.81567 ballY: 96.0 Row: 3 Col: 3
+				 * hit horzBlockLeft
+				 * hit segment: 17/20 vel: (2.591727,-1.5109437)
+				 ******** 
+				 * Dir: (1,-1)
+				 * dist vertBlockTop : 84777.80 ballX: 331.0 ballY: 95.42517 Row: 3 Col: 8
+				 * hit vertBlockTop
+				 */
 
 				hitY -= signY * otherEdge;
 				if (hitY - 0 > padTop) {
@@ -791,8 +804,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							bd.dist = d;
 							bd.blockRow = br2;
 							bd.blockCol = c;
-							bd.ballX = hitX - (edgeX == leftEdge ? signX : ballSize);
-							bd.ballY = hitY - (revEdgeY == upperEdge ? signY : ballSize);
+							bd.ballX = hitX - (edgeX == leftEdge ? 0 : ballSize);
+							bd.ballY = hitY - (revEdgeY == upperEdge ? 0 : ballSize);
 						}
 					}
 				}
