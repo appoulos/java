@@ -1,11 +1,9 @@
 import java.awt.*;
-// TODO:
+// NOTE:
 // large paddle to begin with
 // serve hits paddle at start
 // 144 fps has to be slower on level 1
-// remove dialog (windows fullscreen has glitch)
 // +/- only on level 1
-// more paddle angles
 // advance the sound
 // add lives
 
@@ -75,7 +73,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private static int frameRate = 60; // roughly frame rate per second
 
 	private float ballVelocity = 1f; // start velocity roughly frame rate per second
-	private final float startBallVelocity = 3f; // start velocity roughly frame rate per second
+	private static float startBallVelocity = 2f; // start velocity roughly frame rate per second
 	// private final float velStartX = 1f; // start velocity roughly frame rate per
 	// second
 	// private final float velStartY = 3f; // start velocity roughly frame rate per
@@ -128,6 +126,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private Point2D.Float[] bounces = new Point2D.Float[playerSegments];
 	private final int playerStartX = 10;
 	private final int playerStartY = gameHeight - padBottom - playerH;
+	private float playerVelocity = 10.0f;
 
 	private final int maxWidth = gameWidth - 1 - ballSize;
 	private final int maxHeight = gameHeight - 1 - ballSize;
@@ -192,19 +191,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				blocks[r][c].alive = false;
 				blockCnt--;
 			}
-		}
-	}
-
-	private void lose() {
-		if (level > cheatLevels) {
-			onLose();
-			// synchronized (countMutex) {
-			// if (count == 0) {
-			// count++;
-			// // resetLevel();
-			// // return;
-			// }
-			// }
 		}
 	}
 
@@ -284,6 +270,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
 		System.out.println("refresh rate: " + device.getDisplayMode().getRefreshRate());
 		frameRate = device.getDisplayMode().getRefreshRate();
+		startBallVelocity *= 60 / frameRate;
 
 		game.setUpGame();
 		// game.enterFullScreen();
@@ -1027,10 +1014,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		if (paused)
 			return;
 		if (left) {
-			player.x -= 10;
+			player.x -= playerVelocity;
 		}
 		if (right) {
-			player.x += 10;
+			player.x += playerVelocity;
 		}
 
 		if (player.x < 0) {
@@ -1261,32 +1248,32 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	//
 	// @param: message: String -> The message that will appear on the dialog
 	// @param: delay: int -> How long (in milliseconds) that Dialog is visible
-	private void createDialog(String message, int delay) {
-		dialogLabel.setText(message);
-		dialog.setVisible(true);
-		frame.requestFocus();
-
-		Thread thread = new Thread(() -> {
-			try {
-				// Show pop up for [delay] milliseconds
-				Thread.sleep(delay);
-			} catch (Exception e) {
-				System.out.println("Thread failed :(");
-				dialog.setVisible(false);
-				frame.requestFocus();
-			}
-			// End of 3 seconds
-			// Close the pop up
-			dialog.setVisible(false);
-			frame.requestFocus();
-
-			synchronized (countMutex) {
-				count--;
-				// System.out.println("count: " + count);
-			}
-		});
-		thread.start();
-	}
+	// private void createDialog(String message, int delay) {
+	// dialogLabel.setText(message);
+	// dialog.setVisible(true);
+	// frame.requestFocus();
+	//
+	// Thread thread = new Thread(() -> {
+	// try {
+	// // Show pop up for [delay] milliseconds
+	// Thread.sleep(delay);
+	// } catch (Exception e) {
+	// System.out.println("Thread failed :(");
+	// dialog.setVisible(false);
+	// frame.requestFocus();
+	// }
+	// // End of 3 seconds
+	// // Close the pop up
+	// dialog.setVisible(false);
+	// frame.requestFocus();
+	//
+	// synchronized (countMutex) {
+	// count--;
+	// // System.out.println("count: " + count);
+	// }
+	// });
+	// thread.start();
+	// }
 
 	public static void delay(int m) {
 		try {
