@@ -58,6 +58,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// private Point nextCalc = new Point();
 
 	private int level = 1;
+	private final int startLives = 3;
+	private int lives;
 	private int highScore = 1;
 
 	private boolean left, right; // booleans that track which keys are currently pressed
@@ -65,10 +67,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private boolean paused; // the update timer
 
 	private final int dialogDelay = 2000;
-	private final int cheatLevels = 1; // Number of levels to have no game over
+	private final int cheatLevels = 0; // Number of levels to have no game over
 
 	private static int frameRate = 60; // roughly frame rate per second
 
+	private final float velocity = 3f; // start velocity roughly frame rate per second
 	private final float velStartX = 1f; // start velocity roughly frame rate per second
 	private final float velStartY = 3f; // start velocity roughly frame rate per second
 
@@ -103,7 +106,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
 
 	private final int ballMiddle = ballSize / 2; // ballSize must be odd
-	private final int playerW = 96 - ballMiddle; // pick number divisible by playerSegments - ballMiddle
+	private final int playerSegments = 20; // must be even
+	private final int playerW = 6 * (playerSegments - ballMiddle); // pick number divisible by playerSegments -
+																	// ballMiddle
 	private final int playerH = 10;
 
 	// the width of the game area
@@ -111,7 +116,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// the height of the game area
 	private final int gameHeight = padTop + blockRows * (blockHeight + padRow) + padMiddle + playerH + padBottom;
 
-	private final int playerSegments = 6;
 	// private final int playerSegment = playerW / 2 / playerSegments;
 
 	// private Point[] bounces = new Point[playerSegments];
@@ -191,8 +195,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				if (count == 0) {
 					count++;
 					onLose();
-					resetLevel();
-					return;
+					// resetLevel();
+					// return;
 				}
 			}
 		}
@@ -203,7 +207,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	}
 
 	void setSoundParameters() {
-		frameDist = (float) Math.sqrt(vel.x * vel.x + vel.y * vel.y);
+		frameDist = vel.x * vel.x + vel.y * vel.y;
 		frameTimeuSec = 1_000_000 / frameRate;
 	}
 
@@ -302,7 +306,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// long t1 = st2 - st;
 		// long t2 = st3 - st2;
 		// if (t1 != 0 || t2 != 0) {
-		// 	System.out.println("update: " + t1 + ", paint: " + t2);
+		// System.out.println("update: " + t1 + ", paint: " + t2);
 		// }
 	}
 
@@ -399,18 +403,38 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			System.out.println("ball size must be odd");
 			System.exit(1);
 		}
+		if (playerSegments % 2 != 0 + ignoreDeadCode) {
+			System.out.println("playerSegments must be even");
+			System.exit(1);
+		}
 		if (playerW % (playerSegments - ballMiddle) != 0 + ignoreDeadCode) {
 			System.out.println("playerW must be divisible by (playerSegments-ballMiddle)");
 			System.exit(1);
 		}
 
-		// for (int i=0;i<bounces.length;i++){
-		bounces[0] = new Point2D.Float(-3, -1);
-		bounces[1] = new Point2D.Float(-2, -2);
-		bounces[2] = new Point2D.Float(-1, -3);
-		bounces[3] = new Point2D.Float(1, -3);
-		bounces[4] = new Point2D.Float(2, -2);
-		bounces[5] = new Point2D.Float(3, -1);
+		double phi = Math.atan2(3.0, 1.0);
+		double theta = Math.atan2(1.0, 3.0);
+		double dPhi = (phi - theta) / ((bounces.length - 1) / 2);
+		System.out.println("phi: " + Math.toDegrees(phi));
+		System.out.println("theta: " + Math.toDegrees(theta));
+		System.out.println("dPhi: " + Math.toDegrees(dPhi));
+		for (int i = 0; i < bounces.length / 2; i++) {
+			float dx = (float) (velocity * Math.cos(i * dPhi + theta));
+			float dy = (float) (velocity * Math.sin(i * dPhi + theta));
+			System.out.println("angle: " + Math.toDegrees(i * dPhi + theta));
+			bounces[i] = new Point2D.Float(-dx, -dy);
+			bounces[bounces.length - i - 1] = new Point2D.Float(dx, -dy);
+		}
+
+		// for (int i = 0; i < bounces.length; i++) {
+		// System.out.println(bounces[i]);
+		// }
+		// bounces[0] = new Point2D.Float(-3, -1);
+		// bounces[1] = new Point2D.Float(-2, -2);
+		// bounces[2] = new Point2D.Float(-1, -3);
+		// bounces[3] = new Point2D.Float(1, -3);
+		// bounces[4] = new Point2D.Float(2, -2);
+		// bounces[5] = new Point2D.Float(3, -1);
 
 		// bounces[0] = new Point(-6, -2);
 		// bounces[1] = new Point(-4, -4);
@@ -437,11 +461,20 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		left = right = false;
 
+		lives = startLives;
+
 		resetLevel();
 	}
 
 	private void resetLevel() {
+		for (int i = 0; i < bounces.length; i++) {
+			System.out.println(bounces[i]);
+		}
 		paused = true;
+
+		// if (level == 1) {
+		// lives = startLives;
+		// }
 
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
 		ball = new Rectangle2D.Float(ballStartX, ballStartY, ballSize, ballSize);
@@ -485,7 +518,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				// blockWidth, blockHeight);
 			}
 		}
-		System.out.println("Level: " + level);
+		System.out.println("Level: " + level + ", lives: " + lives);
 	}
 
 	public void enterFullScreen() {
@@ -771,7 +804,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			}
 
 			System.out.println();
+			System.out.println("******** Dir: (" + signX + "," + signY + ")");
 			printDist();
+
 			// printBall();
 
 			if (dists[vertWall].dist == min) {
@@ -880,6 +915,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					break ret;
 				}
 			}
+			if (foundHit) {
+				currDist += min;
+			}
 			if (wallHit) {
 				playSound(wallMsg, (int) (currDist / frameDist * frameTimeuSec));
 			}
@@ -919,7 +957,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						blocks[r][c].alive = false;
 						blockCnt--;
 						if (blockCnt <= 0) {
-							// onWin();
+							onWin();
 							return true;
 						}
 						found = true;
@@ -987,6 +1025,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				vel.y = bounces[hit].y;
 				vel.x *= (1 + (level - 1) * 0.2f);
 				vel.y *= (1 + (level - 1) * 0.2f);
+				System.out
+						.println("hit segment: " + hit + "/" + playerSegments + " vel: (" + vel.x + "," + vel.y + ")");
 				setSoundParameters();
 				// System.out.println("vel:" + velocity + ", hit:" + hit);
 				// velocity.y *= -1;
@@ -1014,10 +1054,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					count++;
 					onWin();
 					resetLevel();
-					return;
 				}
 			}
-			return;
 		}
 	}
 
@@ -1053,6 +1091,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		g.setFont(new Font("Algerian", Font.BOLD, 14));
 		g.setColor(Color.white);
 		g.drawString("Level: " + level + "/" + highScore, 5, 15);
+		g.drawString("Lives: " + lives, gameWidth - 70, 15);
 
 		g.setColor(Color.blue);
 		g.fillRect(player.x, player.y, player.width, player.height);
@@ -1112,6 +1151,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// player.setRect(new Rectangle(50, 50, size, size));
 
 		level++;
+		lives++;
 		if (level > highScore) {
 			highScore = level;
 			// System.out.println("HighScore: " + highScore);
@@ -1125,13 +1165,27 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	public void onLose() {
 		// player.setRect(new Rectangle(playerStartX, playerStartY, playerW, playerH));
-
-		if (level > 1) {
-			level--;
+		if (level > cheatLevels) {
+			synchronized (countMutex) {
+				if (count == 0) {
+					count++;
+					onLose();
+					// resetLevel();
+					// return;
+				}
+			}
 		}
 
-		System.out.println("Level: " + level);
-		createDialog("You Lost. Level: " + level, dialogDelay);
+		lives--;
+		if (lives <= 0) {
+			if (level > 1) {
+				level--;
+				lives = startLives;
+			}
+
+			System.out.println("Level: " + level + ", lives: " + lives);
+			createDialog("You Lost. Level: " + level, dialogDelay);
+		}
 
 		resetLevel();
 	}
