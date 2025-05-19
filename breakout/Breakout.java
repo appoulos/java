@@ -1,9 +1,12 @@
 import java.awt.*;
 // TODO:
 // large paddle to begin with
-// go at paddle at start
+// serve hits paddle at start
 // 144 fps has to be slower on level 1
 // remove dialog (windows fullscreen has glitch)
+// +/- only on level 1
+// more paddle angles
+// advance the sound
 
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
@@ -288,18 +291,18 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// Most games go through states - updating objects, then drawing them
 	public void actionPerformed(ActionEvent e) {
 		// long st = System.currentTimeMillis();
-		long st = System.nanoTime();
+		// long st = System.nanoTime();
 		update();
 		// long st2 = System.currentTimeMillis();
-		long st2 = System.nanoTime();
+		// long st2 = System.nanoTime();
 		repaint();
 		// long st3 = System.currentTimeMillis();
-		long st3 = System.nanoTime();
-		long t1 = st2 - st;
-		long t2 = st3 - st2;
-		if (t1 != 0 || t2 != 0) {
-			System.out.println("update: " + t1 + ", paint: " + t2);
-		}
+		// long st3 = System.nanoTime();
+		// long t1 = st2 - st;
+		// long t2 = st3 - st2;
+		// if (t1 != 0 || t2 != 0) {
+		// 	System.out.println("update: " + t1 + ", paint: " + t2);
+		// }
 	}
 
 	// Called every time a key is pressed
