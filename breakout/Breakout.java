@@ -83,7 +83,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// private Point velSign = new Point(); // velocity of ball
 	private Point2D.Float newBall = new Point2D.Float(); // ball.x + vel.x, ball.y + vel.y);
 
-	private final int ballSize = 7; // ODD ball size
+	private final int ballSize = 21; // ODD ball size
 	private final int otherEdge = ballSize - 1; // ball size
 	private final int leftEdge = 0; // ball size
 	private final int rightEdge = ballSize - 1; // ball size
@@ -91,12 +91,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int lowerEdge = ballSize - 1; // ball size
 
 	private final int blockRows = 4;
-	private final int blockCols = 10;
-	private final int blockWidth = 40;
-	private final int blockHeight = 15;
+	private final int blockCols = 20;
+	private final int blockWidth = 50;
+	private final int blockHeight = 50;
 	private final int padCol = 2; // padding between columns
 	private final int padRow = 2; // padding between rows
-	private final int padTop = 30; // padding above blocks
+	private final int padTop = 50; // padding above blocks
 	private final int padMiddle = 150; // padding between blocks and paddle
 	private final int padBottom = 20; // padding below paddle
 	private Block[][] blocks = new Block[blockRows][blockCols];
@@ -361,32 +361,31 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			vel.x /= 2;
 			vel.y /= 2;
 			System.out.println("ballVelocity: " + ballVelocity);
-			// if (frameRate >= 2) {
-			// frameRate /= 2;
-			// setSoundParameters();
-			// }
-			// if (timer != null) {
-			// timer.stop();
-			// }
-			// timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per
-			// second
-			// timer.start();
 		} else if (keyCode == KeyEvent.VK_0) {
 			ballVelocity *= 2;
 			vel.x *= 2;
 			vel.y *= 2;
 			System.out.println("ballVelocity: " + ballVelocity);
-
-			// if (frameRate <= Integer.MAX_VALUE / 2) {
-			// frameRate *= 2;
-			// setSoundParameters();
-			// }
-			// if (timer != null) {
-			// timer.stop();
-			// }
-			// timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per
-			// second
-			// timer.start();
+		} else if (keyCode == KeyEvent.VK_7) {
+			if (frameRate >= 2) {
+				frameRate /= 2;
+				setSoundParameters();
+			}
+			if (timer != null) {
+				timer.stop();
+			}
+			timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per second
+			timer.start();
+		} else if (keyCode == KeyEvent.VK_8) {
+			if (frameRate <= Integer.MAX_VALUE / 2) {
+				frameRate *= 2;
+				setSoundParameters();
+			}
+			if (timer != null) {
+				timer.stop();
+			}
+			timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per second
+			timer.start();
 		}
 	}
 
@@ -635,7 +634,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			// NOTE: Setup variables
 
-			float m = vel.y / vel.x; // ball velocity slope
+			float m = Math.abs(vel.y / vel.x); // ball velocity slope
 			float min; // next hit minimum distance
 			boolean blockHit = false;
 			boolean wallHit = false;
@@ -691,7 +690,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			if (newBall.y < 0 || newBall.y > maxHeight) {
 				float dy = boundaryY - ball.y;
-				float dx = dy / m;
+				float dx = dy / m * signX;
 				float d = dx * dx + dy * dy;
 				if (d <= min) {
 					foundHit = true;
@@ -706,7 +705,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			if (newBall.x < 0 || newBall.x > maxWidth) {
 				float dx = boundaryX - ball.x;
-				float dy = dx * m;
+				float dy = dx * m * signY;
 				float d = dx * dx + dy * dy;
 				if (d <= min) {
 					foundHit = true;
@@ -721,13 +720,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			int r = rowBeg;
 			while (r != rowEnd && r < blockRows && r != -1) {
+				System.out.println("&&&&&&&&&&&&&&&&&&&&&&& checking r: " + r);
 
 				float hitY = blocks[r][0].point.y + blockEdgeY;
-				if ((signY > 0 && (hitY < (ball.y + edgeY) || hitY > (newBall.y + edgeY)))
-						|| (signY < 0 && (hitY > (ball.y + edgeY) || hitY < (newBall.y + edgeY)))) {
-					break;
-				}
-				float hitX = ((hitY - (ball.y + edgeY)) / m + (ball.x + edgeX));
+				// if ((signY > 0 && (hitY < (ball.y + edgeY) || hitY > (newBall.y + edgeY)))
+				// || (signY < 0 && (hitY > (ball.y + edgeY) || hitY < (newBall.y + edgeY)))) {
+				// break;
+				// }
+				float hitX = (hitY - (ball.y + edgeY)) / m * signX + (ball.x + edgeX);
 				int bc = blockColPos(hitX);
 				float d = -1;
 				boolean hit = false;
@@ -792,11 +792,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			int c = colBeg;
 			while (c != colEnd && c < blockCols && c != -1) {
+				System.out.println("&&&&&&&&&&&&&&&&&&&&&&& checking c: " + c);
 				float hitX = blocks[0][c].point.x + blockEdgeX;
-				if (!(hitX >= (ball.x + edgeX) && hitX <= (newBall.x + edgeX))) {
-					break;
-				}
-				float hitY = ((hitX - (ball.x + edgeX)) * m + (ball.y + edgeY));
+				// if (!(hitX >= (ball.x + edgeX) && hitX <= (newBall.x + edgeX))) {
+				// debug("1. vert block check", hitX, -1, -1, c, -1, -1, edgeX, edgeY);
+				// paused = true;
+				// break;
+				// }
+				float hitY = (hitX - (ball.x + edgeX)) * m * signY + (ball.y + edgeY);
 				int br = blockRowPos(hitY);
 				float d = -1;
 				boolean hit = false;
