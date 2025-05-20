@@ -71,10 +71,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// private final int dialogDelay = 2000;
 	private final int cheatLevels = 1; // Number of levels to have no game over
 
+	private static int origFrameRate = 60; // roughly frame rate per second
 	private static int frameRate = 60; // roughly frame rate per second
 
 	private float ballVelocity = 1f; // start velocity roughly frame rate per second
-	private static float startBallVelocity = 2f; // start velocity roughly frame rate per second
+	private static float startBallVelocity = 4f; // start velocity roughly frame rate per second
 	// private final float velStartX = 1f; // start velocity roughly frame rate per
 	// second
 	// private final float velStartY = 3f; // start velocity roughly frame rate per
@@ -108,7 +109,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// padCol) + 1;
 
 	private final int ballStartX = 90;
-	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
+	private final int ballStartY = 10; // padTop + blockRows * (blockHeight + padRow) + 10;
 
 	private final int ballMiddle = ballSize / 2; // ballSize must be odd
 	private final int playerSegments = 30; // must be even
@@ -200,7 +201,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	}
 
 	void setSoundParameters() {
-		frameDist = vel.x * vel.x + vel.y * vel.y;
+		frameDist = ballVelocity * ballVelocity; // vel.x * vel.x + vel.y * vel.y;
 		frameTimeuSec = 1_000_000 / frameRate;
 	}
 
@@ -270,7 +271,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
 		System.out.println("refresh rate: " + device.getDisplayMode().getRefreshRate());
-		frameRate = device.getDisplayMode().getRefreshRate();
+		origFrameRate = device.getDisplayMode().getRefreshRate();
+		frameRate = origFrameRate;
 		startBallVelocity *= 60 / frameRate;
 		playerVelocity *= (int) 60 / frameRate;
 
@@ -445,8 +447,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		System.out.println("dPhi: " + Math.toDegrees(dPhi));
 		for (int i = 0; i < bounces.length / 2; i++) {
 			System.out.println("angle: " + Math.toDegrees(i * dPhi + theta));
-			float dx = (float) (startBallVelocity * Math.cos(i * dPhi + theta));
-			float dy = (float) (startBallVelocity * Math.sin(i * dPhi + theta));
+			float dx = (float) (Math.cos(i * dPhi + theta));
+			float dy = (float) (Math.sin(i * dPhi + theta));
 			bounces[i] = new Point2D.Float(-dx, -dy);
 			bounces[bounces.length - i - 1] = new Point2D.Float(dx, -dy);
 		}
@@ -467,7 +469,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		resetLevel();
 	}
 
-	private void resetLevel() {
+	private void resetBall() {
+		paused = true;
 		for (int i = 0; i < bounces.length; i++) {
 			System.out.println(bounces[i]);
 		}
@@ -477,8 +480,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		vel.x *= ballVelocity;
 		vel.y *= -ballVelocity;
 		System.out.println("vel: " + vel.x + "," + vel.y + " ballVelocity: " + ballVelocity);
-
-		paused = true;
+		frameRate = origFrameRate;
 
 		// if (level == 1) {
 		// lives = startLives;
@@ -495,6 +497,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// nextCalc.x = ball.x + vel.x * framesTillNextCalc;
 		// nextCalc.y = ball.y + vel.y * framesTillNextCalc;
 		// System.out.println(nextCalc + ", " + framesTillNextCalc);
+	}
+
+	private void resetLevel() {
+		resetBall();
 
 		blockCnt = blockRows * blockCols;
 		Color color = Color.pink;
@@ -666,7 +672,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				boundaryX = 0;
 				edgeX = leftEdge;
 				revEdgeX = rightEdge;
-				blockEdgeX = blockWidth; // TEST:
+				blockEdgeX = blockWidth;
 				colBeg = blockColNeg(ball.x + edgeX);
 				colEnd = blockColNeg(newBall.x + edgeX);
 			}
@@ -685,7 +691,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				revEdgeY = lowerEdge;
 				rowBeg = blockRowNeg(ball.y + edgeY);
 				rowEnd = blockRowNeg(newBall.y + edgeY);
-				blockEdgeY = blockHeight; // TEST:
+				blockEdgeY = blockHeight;
 			}
 
 			// NOTE: horizontal wall hit
@@ -725,42 +731,43 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				// System.out.println("&&&&&&&&&&&&&&&&&&&&&&& checking r: " + r);
 
 				float hitY = blocks[r][0].point.y + blockEdgeY;
-				// if ((signY > 0 && (hitY < (ball.y + edgeY) || hitY > (newBall.y + edgeY)))
-				// || (signY < 0 && (hitY > (ball.y + edgeY) || hitY < (newBall.y + edgeY)))) {
-				// break;
-				// }
 				float hitX = (hitY - (ball.y + edgeY)) / m + (ball.x + edgeX);
 				// debug("1. horiz block check", hitX, hitY, r, -1, -1, -1, edgeX, edgeY);
 				int bc = blockColPos(hitX);
 				float d = -1;
 				boolean hit = false;
-				if (bc > -1 && hitX >= blocks[r][bc].point.x && hitX < blocks[r][bc].point.x + blockWidth
-						&& blocks[r][bc].alive) {
-					float dx = hitX - (ball.x + edgeX);
-					float dy = hitY - (ball.y + edgeY);
-					d = dx * dx + dy * dy;
-					if (d > vel.x * vel.x + vel.y * vel.y) {
-						System.out.println("######################## error d too big: " + d);
-						debug("1. horiz block check", hitX, hitY, r, bc, dx, dy, edgeX, edgeY);
-						paused = true;
-						// return false;
-					}
-					if (d <= min) {
-						foundHit = true;
-						hit = true;
-						min = d;
+				if (signX > 0 && hitX >= ball.x + edgeX && hitX <= newBall.x + edgeX ||
+						signX < 0 && hitX <= ball.x + edgeX && hitX >= newBall.x + edgeX) {
+					if (bc > -1 && hitX >= blocks[r][bc].point.x
+							&& hitX < blocks[r][bc].point.x + blockWidth
+							&& blocks[r][bc].alive) {
+						float dx = hitX - (ball.x + edgeX);
+						float dy = hitY - (ball.y + edgeY);
+						d = dx * dx + dy * dy;
+						if (d > vel.x * vel.x + vel.y * vel.y) {
+							System.out.println("######################## error d too big: " + d);
+							debug("1. horiz block check", hitX, hitY, r, bc, dx, dy, edgeX, edgeY);
+							paused = true;
+							// return false;
+						}
+						if (d <= min) {
+							foundHit = true;
+							hit = true;
+							min = d;
 
-						bd = signX > 0 ? dists[horzBlockRight] : dists[horzBlockLeft];
-						bd.dist = d;
-						bd.blockRow = r;
-						bd.blockCol = bc;
-						bd.ballX = hitX - (edgeX == leftEdge ? 0 : otherEdge);
-						bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge);
+							bd = signX > 0 ? dists[horzBlockRight] : dists[horzBlockLeft];
+							bd.dist = d;
+							bd.blockRow = r;
+							bd.blockCol = bc;
+							bd.ballX = hitX - (edgeX == leftEdge ? 0 : otherEdge);
+							bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge);
+						}
 					}
 				}
 
 				hitX -= signX * otherEdge;
-				if (hitX - 0 > padCol) {
+				if (hitX > padCol && (signX > 0 && hitX >= ball.x + revEdgeX && hitX <= newBall.x + revEdgeX ||
+						signX < 0 && hitX <= ball.x + revEdgeX && hitX >= newBall.x + revEdgeX)) {
 					int bc2 = blockColPos(hitX - 0);
 					if (!(hit && bc2 == bc) && bc2 > -1 && hitX >= blocks[r][bc2].point.x
 							&& hitX < blocks[r][bc2].point.x + blockWidth
@@ -798,50 +805,46 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				// System.out.println("&&&&&&&&&&&&&&&&&&&&&&& checking c: " + c);
 				float hitX = blocks[0][c].point.x + blockEdgeX;
 				// if (!(hitX >= (ball.x + edgeX) && hitX <= (newBall.x + edgeX))) {
+				// if (hitX >= ball.x + edgeX || hitX <= newBall.x + edgeX) {
 				// debug("1. vert block check", hitX, -1, -1, c, -1, -1, edgeX, edgeY);
 				// paused = true;
 				// break;
 				// }
 				float hitY = (hitX - (ball.x + edgeX)) * m + (ball.y + edgeY);
-				int br = blockRowPos(hitY);
 				float d = -1;
 				boolean hit = false;
-				if (br > -1 && hitY > blocks[br][c].point.y && hitY < blocks[br][c].point.y + blockHeight
-						&& blocks[br][c].alive) {
-					float dx = hitX - (ball.x + edgeX);
-					float dy = hitY - (ball.y + edgeY);
-					d = dx * dx + dy * dy;
-					if (d > vel.x * vel.x + vel.y * vel.y) {
-						System.out.println("######################## error d too big: " + d);
-						debug("1. vert block check", hitX, hitY, br, c, dx, dy, edgeX, edgeY);
-						paused = true;
-						// return false;
-					}
-					if (d <= min) {
-						foundHit = true;
-						hit = true;
-						min = d;
-						bd = signY > 0 ? dists[vertBlockBottom] : dists[vertBlockTop];
-						bd.dist = d;
-						bd.blockRow = br;
-						bd.blockCol = c;
-						bd.ballX = hitX - (edgeX == leftEdge ? 0 : otherEdge);
-						bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge);
+				int br = blockRowPos(hitY);
+				if (signY > 0 && hitY >= ball.y + edgeY && hitY <= newBall.y + edgeY ||
+						signY < 0 && hitY <= ball.y + edgeY && hitY >= newBall.y + edgeY) {
+					if (br > -1 && hitY > blocks[br][c].point.y
+							&& hitY < blocks[br][c].point.y + blockHeight
+							&& blocks[br][c].alive) {
+						float dx = hitX - (ball.x + edgeX);
+						float dy = hitY - (ball.y + edgeY);
+						d = dx * dx + dy * dy;
+						if (d > vel.x * vel.x + vel.y * vel.y) {
+							System.out.println("######################## error d too big: " + d);
+							debug("1. vert block check", hitX, hitY, br, c, dx, dy, edgeX, edgeY);
+							paused = true;
+							// return false;
+						}
+						if (d <= min) {
+							foundHit = true;
+							hit = true;
+							min = d;
+							bd = signY > 0 ? dists[vertBlockBottom] : dists[vertBlockTop];
+							bd.dist = d;
+							bd.blockRow = br;
+							bd.blockCol = c;
+							bd.ballX = hitX - (edgeX == leftEdge ? 0 : otherEdge);
+							bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge);
+						}
 					}
 				}
-				/*
-				 ******** Dir: (-1,-1)
-				 * dist horzBlockLeft : 0.01 ballX: 128.81567 ballY: 96.0 Row: 3 Col: 3
-				 * hit horzBlockLeft
-				 * hit segment: 17/20 vel: (2.591727,-1.5109437)
-				 ******** 
-				 * Dir: (1,-1)
-				 * dist vertBlockTop : 84777.80 ballX: 331.0 ballY: 95.42517 Row: 3 Col: 8
-				 * hit vertBlockTop
-				 */
 
 				hitY -= signY * otherEdge;
-				if (hitY - 0 > padTop) {
+				if (hitY - 0 > padTop && (signY > 0 && hitY >= ball.y + revEdgeY && hitY <= newBall.y + revEdgeY ||
+						signY < 0 && hitY <= ball.y + revEdgeY && hitY >= newBall.y + revEdgeY)) {
 					int br2 = blockRowPos(hitY);
 					if (!(hit && br2 == br) && br2 > -1 && hitY >= blocks[br2][c].point.y
 							&& hitY < blocks[br2][c].point.y + blockHeight
@@ -1019,34 +1022,35 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		return retLose;
 	}
 
-	public boolean hitBlock() {
-		// return Rectangle.(ball.x, ball.y, ball2.x, ball2.y, block.x, block.x +
-		// block.width, block.y, block.y);
-		// int hitCnt = 0;
-		boolean found = false;
-		for (int r = 0; r < blockRows; r++) {
-			for (int c = 0; c < blockCols; c++) {
-				if (blocks[r][c].alive) {
-					if (ball.intersects(blocks[r][c].point.x, blocks[r][c].point.y, blockWidth, blockHeight)) {
-						// hitCnt++;
-						blocks[r][c].alive = false;
-						blockCnt--;
-						if (blockCnt <= 0) {
-							onWin();
-							return true;
-						}
-						found = true;
-					}
-				}
-			}
-		}
-		if (found) {
-			// ball.y += velocity.y;
-			// velocity.y *= -1;
-			vel.y = Math.abs(vel.y);
-		}
-		return found;
-	}
+	// public boolean hitBlock() {
+	// // return Rectangle.(ball.x, ball.y, ball2.x, ball2.y, block.x, block.x +
+	// // block.width, block.y, block.y);
+	// // int hitCnt = 0;
+	// boolean found = false;
+	// for (int r = 0; r < blockRows; r++) {
+	// for (int c = 0; c < blockCols; c++) {
+	// if (blocks[r][c].alive) {
+	// if (ball.intersects(blocks[r][c].point.x, blocks[r][c].point.y, blockWidth,
+	// blockHeight)) {
+	// // hitCnt++;
+	// blocks[r][c].alive = false;
+	// blockCnt--;
+	// if (blockCnt <= 0) {
+	// onWin();
+	// return true;
+	// }
+	// found = true;
+	// }
+	// }
+	// }
+	// }
+	// if (found) {
+	// // ball.y += velocity.y;
+	// // velocity.y *= -1;
+	// vel.y = Math.abs(vel.y);
+	// }
+	// return found;
+	// }
 
 	// The update method does 5 things
 	// 1 - it has the player move based on what key is currently being pressed
@@ -1096,7 +1100,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// Check for player paddle hit ball
 		if (ball.y + lowerEdge < player.y && newBall.y + lowerEdge >= player.y) {
 			int hitX = (int) (ball.x + (float) vel.x / vel.y * (player.y - (ball.y + lowerEdge)));
-			if (hitX >= player.x - (ballSize - 1) && hitX < player.x + playerW) {
+			if (hitX >= player.x - (ballSize - 1) && hitX <= player.x + playerW) {
 				int hit = (hitX - (player.x - (ballSize - 1))) * playerSegments / (playerW + (ballSize - 1));
 				vel.x = bounces[hit].x * ballVelocity;
 				vel.y = bounces[hit].y * ballVelocity;
@@ -1104,10 +1108,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				// vel.y *= (1 + (level - 1) * 0.2f);
 				System.out
 						.println("hit segment: " + hit + "/" + playerSegments + " vel: (" + vel.x + "," + vel.y + ")");
-				setSoundParameters();
+				// setSoundParameters();
 				// System.out.println("vel:" + velocity + ", hit:" + hit);
 				// velocity.y *= -1;
-				newBall.y = 2 * player.y - newBall.y - 2 * ballSize;
+				// newBall.y = 2 * player.y - newBall.y - 2 * ballSize;
+				newBall.x = hitX;
+				newBall.y = player.y - (newBall.y + lowerEdge - player.y) - lowerEdge;
 				playSound(paddleMsg, -1);
 				// newBall.y = player.y - size;
 			}
@@ -1199,7 +1205,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		g2.fill(ball); // ball.x, ball.y, ball.width, ball.height);
 
 		g.setColor(Color.white);
-		g.drawString("fps: " + frameRate + " vel: " + ballVelocity + " paddle: " + playerVelocity, 5, gameHeight);
+		g.drawString(
+				"fps: " + frameRate + " vel: " + ballVelocity + " paddle: " + playerVelocity + " blocks: " + blockCnt,
+				5, gameHeight);
 		if (pauseTimerActive) {
 			long currTime = System.currentTimeMillis();
 			if (pauseTimerActive && currTime - pauseTimer > 2000) {
@@ -1266,23 +1274,28 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// }
 		// }
 		// }
-
-		if (level > cheatLevels) {
+		if (lives > 0) {
 			lives--;
+			resetBall();
+			return;
 		}
-		if (lives <= 0) {
 
-			if (level > 1) {
-				level--;
-				// lives = startLives;
-			} else {
-			}
-			lives = startLives;
+		// if (level > cheatLevels) {
+		// lives--;
+		// }
+		// if (lives <= 0) {
 
-			System.out.println("Level: " + level + ", lives: " + lives);
-			// createDialog("You Lost. Level: " + level, dialogDelay);
-			startMessage("Lost level!");
+		if (level > 1) {
+			level--;
+			// lives = startLives;
+		} else {
 		}
+		lives = startLives;
+
+		System.out.println("Level: " + level + ", lives: " + lives);
+		// createDialog("You Lost. Level: " + level, dialogDelay);
+		startMessage("Lost level!");
+		// }
 
 		resetLevel();
 	}
