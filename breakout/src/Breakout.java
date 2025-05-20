@@ -84,7 +84,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// private Point velSign = new Point(); // velocity of ball
 	private Point2D.Float newBall = new Point2D.Float(); // ball.x + vel.x, ball.y + vel.y);
 
-	private final int ballSize = 21; // ODD ball size
+	private final int ballSize = 7; // ODD ball size
 	private final int otherEdge = ballSize - 1; // ball size
 	private final int leftEdge = 0; // ball size
 	private final int rightEdge = ballSize - 1; // ball size
@@ -93,10 +93,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	private final int blockRows = 4;
 	private final int blockCols = 10;
-	private final int blockWidth = 50;
-	private final int blockHeight = 50;
-	private final int padCol = 0; // padding between columns
-	private final int padRow = 0; // padding between rows
+	private final int blockWidth = 40;
+	private final int blockHeight = 20;
+	private final int padCol = 3; // padding between columns
+	private final int padRow = 3; // padding between rows
 	private final int padTop = 50; // padding above blocks
 	private final int padMiddle = 150; // padding between blocks and paddle
 	private final int padBottom = 20; // padding below paddle
@@ -631,7 +631,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			if (cnt > 5) {
 				System.out.println("######################## error cnt: " + cnt);
 				paused = true;
-				return false;
+				// return false;
 			}
 
 			// NOTE: Setup variables
@@ -722,7 +722,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			int r = rowBeg;
 			while (r != rowEnd && r < blockRows && r != -1) {
-				System.out.println("&&&&&&&&&&&&&&&&&&&&&&& checking r: " + r);
+				// System.out.println("&&&&&&&&&&&&&&&&&&&&&&& checking r: " + r);
 
 				float hitY = blocks[r][0].point.y + blockEdgeY;
 				// if ((signY > 0 && (hitY < (ball.y + edgeY) || hitY > (newBall.y + edgeY)))
@@ -795,7 +795,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			int c = colBeg;
 			while (c != colEnd && c < blockCols && c != -1) {
-				System.out.println("&&&&&&&&&&&&&&&&&&&&&&& checking c: " + c);
+				// System.out.println("&&&&&&&&&&&&&&&&&&&&&&& checking c: " + c);
 				float hitX = blocks[0][c].point.x + blockEdgeX;
 				// if (!(hitX >= (ball.x + edgeX) && hitX <= (newBall.x + edgeX))) {
 				// debug("1. vert block check", hitX, -1, -1, c, -1, -1, edgeX, edgeY);
@@ -854,7 +854,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 								System.out.println("######################## error d too big: " + d);
 								debug("2. vert block check", hitX, hitY, br2, c, dx, dy, edgeX, edgeY);
 								paused = true;
-								return false;
+								// return false;
 							}
 						}
 						if (d <= min) {
@@ -1199,7 +1199,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		g2.fill(ball); // ball.x, ball.y, ball.width, ball.height);
 
 		g.setColor(Color.white);
-		g.drawString("fps: " + frameRate + " speed: " + playerVelocity, 5, gameHeight);
+		g.drawString("fps: " + frameRate + " vel: " + ballVelocity + " paddle: " + playerVelocity, 5, gameHeight);
 		if (pauseTimerActive) {
 			long currTime = System.currentTimeMillis();
 			if (pauseTimerActive && currTime - pauseTimer > 2000) {
@@ -1217,7 +1217,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			startY += height;
 			g.drawString("R: Reset Level", 20, startY);
 			startY += height;
-			g.drawString("Q: Quit, +: Speed up, -: Slow down", 20, startY);
+			g.drawString("Q: Quit", 20, startY);
+			startY += height;
+			g.drawString("7/8: fps, 9/0: vel, -/+: paddle", 20, startY);
 
 			if (soundPossible) {
 				startY += height;
