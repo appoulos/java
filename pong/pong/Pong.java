@@ -85,11 +85,11 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	private Point2D.Float newBall = new Point2D.Float(); // ball.x + vel.x, ball.y + vel.y);
 
 	private final int ballSize = 7; // ODD ball size
-	private final int otherEdge = ballSize - 1; // ball size
-	private final int leftEdge = 0; // ball size
+	// private final int otherEdge = ballSize - 1; // ball size
+	// private final int leftEdge = 0; // ball size
 	private final int rightEdge = ballSize - 1; // ball size
-	private final int upperEdge = 0; // ball size
-	private final int lowerEdge = ballSize - 1; // ball size
+	// private final int upperEdge = 0; // ball size
+	// private final int lowerEdge = ballSize - 1; // ball size
 
 	private final int blockRows = 4;
 	private final int blockCols = 10;
@@ -186,16 +186,16 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		}
 	}
 
-	private void blockRemove(int r, int c) {
-		if (blocks[r][c].alive) {
-			// playSound(brickMsg, (int) (currDist / frameDist * frameTimeuSec));
-			blocks[r][c].hits--;
-			if (blocks[r][c].hits <= 0) {
-				blocks[r][c].alive = false;
-				blockCnt--;
-			}
-		}
-	}
+	// private void blockRemove(int r, int c) {
+	// if (blocks[r][c].alive) {
+	// // playSound(brickMsg, (int) (currDist / frameDist * frameTimeuSec));
+	// blocks[r][c].hits--;
+	// if (blocks[r][c].hits <= 0) {
+	// blocks[r][c].alive = false;
+	// blockCnt--;
+	// }
+	// }
+	// }
 
 	String printBall() {
 		return "\nball: (" + ball.x + ", " + ball.y + ") newBall: (" + newBall.x + ", " + newBall.y + ")";
@@ -641,45 +641,45 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			foundHit = false;
 			float signX, signY;
 			int boundaryX, boundaryY;
-			int blockEdgeX, blockEdgeY;
-			int edgeX, edgeY;
-			int rowBeg, rowEnd;
-			int colBeg, colEnd;
-			int revEdgeX, revEdgeY;
-			Dist bd;
+			// int blockEdgeX, blockEdgeY;
+			// int edgeX, edgeY;
+			// int rowBeg, rowEnd;
+			// int colBeg, colEnd;
+			// int revEdgeX, revEdgeY;
+			// Dist bd;
 			if (vel.x > 0) {
 				signX = 1;
 				boundaryX = maxWidth;
-				edgeX = rightEdge;
-				revEdgeX = leftEdge;
-				blockEdgeX = 0;
-				colBeg = blockColPos(ball.x + edgeX) + 1;
-				colEnd = blockColPos(newBall.x + edgeX) + 1;
+				// edgeX = rightEdge;
+				// revEdgeX = leftEdge;
+				// blockEdgeX = 0;
+				// colBeg = blockColPos(ball.x + edgeX) + 1;
+				// colEnd = blockColPos(newBall.x + edgeX) + 1;
 			} else {
 				signX = -1;
 				boundaryX = 0;
-				edgeX = leftEdge;
-				revEdgeX = rightEdge;
-				blockEdgeX = blockWidth; // TEST:
-				colBeg = blockColNeg(ball.x + edgeX);
-				colEnd = blockColNeg(newBall.x + edgeX);
+				// edgeX = leftEdge;
+				// revEdgeX = rightEdge;
+				// blockEdgeX = blockWidth; // TEST:
+				// colBeg = blockColNeg(ball.x + edgeX);
+				// colEnd = blockColNeg(newBall.x + edgeX);
 			}
 			if (vel.y > 0) {
 				signY = 1;
 				boundaryY = maxHeight;
-				edgeY = lowerEdge;
-				revEdgeY = upperEdge;
-				rowBeg = blockRowPos(ball.y + edgeY) + 1;
-				rowEnd = blockRowPos(newBall.y + edgeY) + 1;
-				blockEdgeY = 0;
+				// edgeY = lowerEdge;
+				// revEdgeY = upperEdge;
+				// rowBeg = blockRowPos(ball.y + edgeY) + 1;
+				// rowEnd = blockRowPos(newBall.y + edgeY) + 1;
+				// blockEdgeY = 0;
 			} else {
 				signY = -1;
 				boundaryY = 0;
-				edgeY = upperEdge;
-				revEdgeY = lowerEdge;
-				rowBeg = blockRowNeg(ball.y + edgeY);
-				rowEnd = blockRowNeg(newBall.y + edgeY);
-				blockEdgeY = blockHeight; // TEST:
+				// edgeY = upperEdge;
+				// revEdgeY = lowerEdge;
+				// rowBeg = blockRowNeg(ball.y + edgeY);
+				// rowEnd = blockRowNeg(newBall.y + edgeY);
+				// blockEdgeY = blockHeight; // TEST:
 			}
 
 			// NOTE: horizontal wall hit
