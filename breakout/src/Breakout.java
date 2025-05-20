@@ -636,7 +636,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			// NOTE: Setup variables
 
-			float m = Math.abs(vel.y / vel.x); // ball velocity slope
+			float m = vel.y / vel.x;// Math.abs(vel.y / vel.x); // ball velocity slope
 			float min; // next hit minimum distance
 			boolean blockHit = false;
 			boolean wallHit = false;
@@ -692,7 +692,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			if (newBall.y < 0 || newBall.y > maxHeight) {
 				float dy = boundaryY - ball.y;
-				float dx = dy / m * signX * signY;
+				float dx = dy / m; // * signX * signY;
 				float d = dx * dx + dy * dy;
 				if (d <= min) {
 					foundHit = true;
@@ -707,7 +707,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			if (newBall.x < 0 || newBall.x > maxWidth) {
 				float dx = boundaryX - ball.x;
-				float dy = dx * m * signY * signX;
+				float dy = dx * m; // * signY * signX;
 				float d = dx * dx + dy * dy;
 				if (d <= min) {
 					foundHit = true;
@@ -729,7 +729,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				// || (signY < 0 && (hitY > (ball.y + edgeY) || hitY < (newBall.y + edgeY)))) {
 				// break;
 				// }
-				float hitX = (hitY - (ball.y + edgeY)) / m * signY * signX + (ball.x + edgeX);
+				float hitX = (hitY - (ball.y + edgeY)) / m + (ball.x + edgeX);
 				// debug("1. horiz block check", hitX, hitY, r, -1, -1, -1, edgeX, edgeY);
 				int bc = blockColPos(hitX);
 				float d = -1;
@@ -802,7 +802,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				// paused = true;
 				// break;
 				// }
-				float hitY = (hitX - (ball.x + edgeX)) * m * signX * signY + (ball.y + edgeY);
+				float hitY = (hitX - (ball.x + edgeX)) * m + (ball.y + edgeY);
 				int br = blockRowPos(hitY);
 				float d = -1;
 				boolean hit = false;
