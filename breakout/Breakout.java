@@ -110,7 +110,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
 
 	private final int ballMiddle = ballSize / 2; // ballSize must be odd
-	private final int playerSegments = 20; // must be even
+	private final int playerSegments = 30; // must be even
 	private final int playerW = 5 * (playerSegments - ballMiddle); // pick number divisible by playerSegments -
 																	// ballMiddle
 	private final int playerH = 10;
@@ -126,16 +126,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private Point2D.Float[] bounces = new Point2D.Float[playerSegments];
 	private final int playerStartX = 10;
 	private final int playerStartY = gameHeight - padBottom - playerH;
-	private float playerVelocity = 10.0f;
+	private static float playerVelocity = 10.0f;
 
 	private final int maxWidth = gameWidth - 1 - ballSize;
 	private final int maxHeight = gameHeight - 1 - ballSize;
 	// max player.x position
 	private final int mouseWidth = gameWidth - playerW;
 
-	private static JLabel dialogLabel;
+	// private static JLabel dialogLabel;
 	private static JFrame frame;
-	private static JDialog dialog;
+	// private static JDialog dialog;
 	private static int screenWidth;
 	private boolean keyboard = true;
 
@@ -227,12 +227,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		}
 		frame = new JFrame();
 
-		dialog = new JDialog(frame, "Status");
-		dialogLabel = new JLabel("");
-		dialogLabel.setHorizontalAlignment(JLabel.CENTER);
-		dialog.add(dialogLabel);
-		dialog.setBounds(125, 125, 200, 70);
-		dialog.setVisible(false);
+		// dialog = new JDialog(frame, "Status");
+		// dialogLabel = new JLabel("");
+		// dialogLabel.setHorizontalAlignment(JLabel.CENTER);
+		// dialog.add(dialogLabel);
+		// dialog.setBounds(125, 125, 200, 70);
+		// dialog.setVisible(false);
 
 		frame.setTitle("Breakout Game");
 		frame.setLayout(new BorderLayout());
@@ -253,7 +253,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		game.addKeyListener(game);
 		frame.addKeyListener(game);
-		dialog.addKeyListener(game);
+		// dialog.addKeyListener(game);
 		// frame.addMouseMotionListener(game);
 		// frame.removeMouseMotionListener(game);
 
@@ -271,6 +271,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		System.out.println("refresh rate: " + device.getDisplayMode().getRefreshRate());
 		frameRate = device.getDisplayMode().getRefreshRate();
 		startBallVelocity *= 60 / frameRate;
+		playerVelocity *= (int) 60 / frameRate;
 
 		game.setUpGame();
 		// game.enterFullScreen();
@@ -322,7 +323,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		} else if (keyCode == KeyEvent.VK_K) {
 			if (keyboard) {
 				enterFullScreen();
-				frame.addMouseMotionListener(this);
+				if (!paused) {
+					frame.addMouseMotionListener(this);
+				}
 			} else {
 				exitFullScreen();
 				frame.removeMouseMotionListener(this);
@@ -333,15 +336,27 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				mute = !mute;
 		} else if (keyCode == KeyEvent.VK_P || keyCode == KeyEvent.VK_SPACE) {
 			if (paused && pauseTimerActive) {
+				return;
 				// long currTime = System.currentTimeMillis();
 				// if (pauseTimerActive && currTime - pauseTimer > 2000) {
 				// paused = false;
 				// pauseTimerActive = false;
 				// }
-			} else {
-				paused = !paused;
 			}
+			if (!keyboard) {
+				if (paused) {
+					frame.addMouseMotionListener(this);
+				} else {
+					frame.removeMouseMotionListener(this);
+				}
+			}
+			paused = !paused;
 		} else if (keyCode == KeyEvent.VK_MINUS) {
+			if (playerVelocity > 1)
+				playerVelocity -= 1;
+		} else if (keyCode == KeyEvent.VK_EQUALS || keyCode == KeyEvent.VK_PLUS) {
+			playerVelocity += 1;
+		} else if (keyCode == KeyEvent.VK_9) {
 			ballVelocity /= 2;
 			vel.x /= 2;
 			vel.y /= 2;
@@ -356,7 +371,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			// timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per
 			// second
 			// timer.start();
-		} else if (keyCode == KeyEvent.VK_EQUALS || keyCode == KeyEvent.VK_PLUS) {
+		} else if (keyCode == KeyEvent.VK_0) {
 			ballVelocity *= 2;
 			vel.x *= 2;
 			vel.y *= 2;
@@ -594,6 +609,17 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		return (int) y;
 	}
 
+	void debug(String msg, float hitX, float hitY, int r, int c, float dx, float dy, int edgeX, int edgeY) {
+		System.out.println("*****************");
+		System.out.println(msg);
+		System.out.println("vel    : " + vel.x + "," + vel.y);
+		System.out.println("ball   : " + ball.x + "," + ball.y);
+		System.out.println("newBall: " + newBall.x + "," + newBall.y);
+		System.out.println("hitX,Y: " + hitX + "," + hitY + " r,c: " + r + "," + c + " dx,dy: " + dx + "," + dy
+				+ " edgeX,Y: " + edgeX + "," + edgeY);
+		System.out.println("*****************");
+	}
+
 	public boolean nextHit() { // assumes ball and newBall are set
 		boolean retLose = false; // return true if game over
 		boolean foundHit; // found collision in next ball step
@@ -694,9 +720,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			// NOTE: hit horizontal block check
 
 			int r = rowBeg;
-			while (r < blockRows && r != -1 && r != rowEnd) {
+			while (r != rowEnd && r < blockRows && r != -1) {
 
 				float hitY = blocks[r][0].point.y + blockEdgeY;
+				if ((signY > 0 && (hitY < (ball.y + edgeY) || hitY > (newBall.y + edgeY)))
+						|| (signY < 0 && (hitY > (ball.y + edgeY) || hitY < (newBall.y + edgeY)))) {
+					break;
+				}
 				float hitX = ((hitY - (ball.y + edgeY)) / m + (ball.x + edgeX));
 				int bc = blockColPos(hitX);
 				float d = -1;
@@ -708,6 +738,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					d = dx * dx + dy * dy;
 					if (d > vel.x * vel.x + vel.y * vel.y) {
 						System.out.println("######################## error d too big: " + d);
+						debug("1. horiz block check", hitX, hitY, r, bc, dx, dy, edgeX, edgeY);
 						paused = true;
 						return false;
 					}
@@ -737,6 +768,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							d = dx * dx + dy * dy;
 							if (d > vel.x * vel.x + vel.y * vel.y) {
 								System.out.println("######################## error d too big: " + d);
+								debug("2. horiz block check", hitX, hitY, r, bc2, dx, dy, edgeX, edgeY);
 								paused = true;
 								return false;
 							}
@@ -759,8 +791,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			// NOTE: hit vertical block check
 
 			int c = colBeg;
-			while (c < blockCols && c != -1 && c != colEnd) {
+			while (c != colEnd && c < blockCols && c != -1) {
 				float hitX = blocks[0][c].point.x + blockEdgeX;
+				if (!(hitX >= (ball.x + edgeX) && hitX <= (newBall.x + edgeX))) {
+					break;
+				}
 				float hitY = ((hitX - (ball.x + edgeX)) * m + (ball.y + edgeY));
 				int br = blockRowPos(hitY);
 				float d = -1;
@@ -772,6 +807,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					d = dx * dx + dy * dy;
 					if (d > vel.x * vel.x + vel.y * vel.y) {
 						System.out.println("######################## error d too big: " + d);
+						debug("1. vert block check", hitX, hitY, br, c, dx, dy, edgeX, edgeY);
 						paused = true;
 						return false;
 					}
@@ -810,6 +846,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							d = dx * dx + dy * dy;
 							if (d > vel.x * vel.x + vel.y * vel.y) {
 								System.out.println("######################## error d too big: " + d);
+								debug("2. vert block check", hitX, hitY, br2, c, dx, dy, edgeX, edgeY);
 								paused = true;
 								return false;
 							}
@@ -1150,7 +1187,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		g2.fill(ball); // ball.x, ball.y, ball.width, ball.height);
 
 		g.setColor(Color.white);
-		g.drawString("fps: " + frameRate + " vel: " + ballVelocity, 5, gameHeight);
+		g.drawString("fps: " + frameRate + " speed: " + playerVelocity, 5, gameHeight);
 		if (pauseTimerActive) {
 			long currTime = System.currentTimeMillis();
 			if (pauseTimerActive && currTime - pauseTimer > 2000) {
