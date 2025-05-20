@@ -290,18 +290,18 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// Most games go through states - updating objects, then drawing them
 	public void actionPerformed(ActionEvent e) {
 		// long st = System.currentTimeMillis();
-		// long st = System.nanoTime();
+		long st = System.nanoTime();
 		update();
 		// long st2 = System.currentTimeMillis();
-		// long st2 = System.nanoTime();
+		long st2 = System.nanoTime();
 		repaint();
 		// long st3 = System.currentTimeMillis();
-		// long st3 = System.nanoTime();
-		// long t1 = st2 - st;
-		// long t2 = st3 - st2;
-		// if (t1 != 0 || t2 != 0) {
-		// System.out.println("update: " + t1 + ", paint: " + t2);
-		// }
+		long st3 = System.nanoTime();
+		long t1 = st2 - st;
+		long t2 = st3 - st2;
+		if (t1 != 0 || t2 != 0) {
+			System.out.println("update: " + t1 + ", paint: " + t2);
+		}
 	}
 
 	// Called every time a key is pressed
@@ -1084,7 +1084,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// if ((int) Math.random() == 0)
 		// return;
 
-		newBall = new Point2D.Float(ball.x + vel.x, ball.y + vel.y);
+		// newBall = new Point2D.Float(ball.x + vel.x, ball.y + vel.y);
+		newBall.x = ball.x + vel.x;
+		newBall.y = ball.y + vel.y;
 
 		// Check for player paddle hit ball
 		if (ball.y + lowerEdge < player.y && newBall.y + lowerEdge >= player.y) {
