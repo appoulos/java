@@ -2,10 +2,8 @@ import java.awt.*;
 // NOTE:
 // large paddle to begin with
 // serve hits paddle at start
-// 144 fps has to be slower on level 1
 // +/- only on level 1
 // advance the sound
-// add lives
 
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
@@ -15,9 +13,6 @@ import javax.swing.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-
-// import java.awt.Graphics2D;
-// import java.awt.geom.Rectangle2D;
 
 class Block {
 	Point point;
@@ -45,54 +40,42 @@ class Dist {
 
 public class Breakout extends JPanel implements ActionListener, KeyListener, MouseMotionListener {
 
-	private static double scale;
-	private int count = 0;
-	private final Object countMutex = new Object();
-
-	private Rectangle player = new Rectangle(); // a rectangle that represents the player
-	// private Rectangle ball = new Rectangle(); // a rectangle that represents the
 	// ball
 	public Rectangle2D.Float ball = new Rectangle2D.Float();
-	public Rectangle2D.Float prevball = new Rectangle2D.Float(); // a rectangle that represents the ball
+	public Rectangle2D.Float prevball = new Rectangle2D.Float(); // show ball previous hit for debugging
+	private Point2D.Float newBall = new Point2D.Float(); // (ball.x + vel.x, ball.y + vel.y)
+	private final int ballStartX = 40;
+	private int ballStartY = 0; // padTop + blockRows * (blockHeight + padRow) + 10;
+	private final int ballSize = 17; // must be ODD ball size
+	private final int ballMiddle = ballSize / 2; // ballSize must be odd
+	private final int otherEdge = ballSize - 1;
+	private final int leftEdge = 0;
+	private final int rightEdge = ballSize - 1;
+	private final int upperEdge = 0;
+	private final int lowerEdge = ballSize - 1;
+	// ball velocity
+	private Point2D.Float vel = new Point2D.Float(); // velocity of ball
+	private float ballVelocity = 1f; // used to set vel x and y
+	private static float startBallVelocity = 4f; // 60 fps level 1 speed. Actual machine fps will adjust
 
+	// scoring
 	private int level = 1;
-	private final int startLives = 3;
+	private final int cheatLevels = 1; // Number of levels to have no game over
 	private int lives;
+	private final int startLives = 3;
 	private int highScore = 1;
 
-	private boolean left, right; // booleans that track which keys are currently pressed
-	private Timer timer; // the update timer
-	private boolean paused; // the update timer
-	private boolean pauseTimerActive = false; // the update timer
+	// Pause logic
+	private boolean paused; // pause game
+	private boolean pauseTimerActive = false; // pause forced after win/lose
 	private long pauseTimer = 0;
 	private String message = "";
 
-	// private final int dialogDelay = 2000;
-	private final int cheatLevels = 1; // Number of levels to have no game over
-
-	private static int origFrameRate = 60; // roughly frame rate per second
-	private static int frameRate = 60; // roughly frame rate per second
-
-	private float ballVelocity = 1f; // start velocity roughly frame rate per second
-	private static float startBallVelocity = 4f; // start velocity roughly frame rate per second
-	// private final float velStartX = 1f; // start velocity roughly frame rate per
-	// second
-	// private final float velStartY = 3f; // start velocity roughly frame rate per
-	// second
-	private Point2D.Float vel = new Point2D.Float(); // velocity of ball
-
-	// private Point velSign = new Point(); // velocity of ball
-	private Point2D.Float newBall = new Point2D.Float(); // ball.x + vel.x, ball.y + vel.y);
-
-	private final int ballSize = 17; // ODD ball size
-	private final int otherEdge = ballSize - 1; // ball size
-	private final int leftEdge = 0; // ball size
-	private final int rightEdge = ballSize - 1; // ball size
-	private final int upperEdge = 0; // ball size
-	private final int lowerEdge = ballSize - 1; // ball size
-
-	private final int blockRows = 4;
-	private static final int blockCols = 10;
+	// blocks
+	private final int blockRows = 1;
+	private static final int blockCols = 9;
+	private Block[][] blocks = new Block[blockRows][blockCols];
+	private int blockCnt = blockRows * blockCols;
 	private static final int blockWidth = 40;
 	private final int blockHeight = 20;
 	private static final int padCol = 3; // padding between columns
@@ -100,56 +83,45 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int padTop = 50; // padding above blocks
 	private final int padMiddle = 150; // padding between blocks and paddle
 	private final int padBottom = 20; // padding below paddle
-	private Block[][] blocks = new Block[blockRows][blockCols];
-	private int blockCnt = blockRows * blockCols;
-	// private final boolean blockColNeighbors = size > padCol + 2; // (blockWidth +
-	// padCol) + 1;
-	// private final boolean blockRowNeighbors = size > padRow + 2; // (blockWidth +
-	// padCol) + 1;
 
-	private final int ballStartX = 90;
-	private final int ballStartY = 10; // padTop + blockRows * (blockHeight + padRow) + 10;
-
-	private final int ballMiddle = ballSize / 2; // ballSize must be odd
+	// player (1/2)
+	private Rectangle player = new Rectangle(); // the player paddle
+	private boolean left, right; // booleans that track which keys are currently pressed
 	private final int playerSegments = 30; // must be even
-	private final int playerW = 5 * (playerSegments - ballMiddle); // pick number divisible by playerSegments -
-																	// ballMiddle
+	private final int playerW = 5 * (playerSegments - ballMiddle); // divisible by playerSegments - ballMiddle
 	private final int playerH = 10;
+	private Point2D.Float[] bounces = new Point2D.Float[playerSegments];
+	private static float playerVelocity = 10.0f;
 
+	// gui
+	private static double scale; // scale frame to fill screen
+	private static int origFrameRate = 60; // roughly frame rate per second
+	private static int frameRate = 60; // roughly frame rate per second
+	private Timer timer; // the update timer
+	private static JFrame frame;
+	private static int screenWidth;
+	private static int screenHeight;
+	private boolean keyboard = true;
 	// the width of the game area
 	private static final int gameWidth = padCol + blockCols * (blockWidth + padCol);
 	// the height of the game area
 	private final int gameHeight = padTop + blockRows * (blockHeight + padRow) + padMiddle + playerH + padBottom;
-
-	// private final int playerSegment = playerW / 2 / playerSegments;
-
-	// private Point[] bounces = new Point[playerSegments];
-	private Point2D.Float[] bounces = new Point2D.Float[playerSegments];
-	private final int playerStartX = 10;
-	private final int playerStartY = gameHeight - padBottom - playerH;
-	private static float playerVelocity = 10.0f;
-
 	private final int maxWidth = gameWidth - 1 - ballSize;
 	private final int maxHeight = gameHeight - 1 - ballSize;
 	// max player.x position
 	private final int mouseWidth = gameWidth - playerW;
 
-	// private static JLabel dialogLabel;
-	private static JFrame frame;
-	// private static JDialog dialog;
-	private static int screenWidth;
-	private static int screenHeight;
-	private boolean keyboard = true;
+	// player (2/2)
+	private final int playerStartY = gameHeight - padBottom - playerH;
+	private int playerStartX = 0; // (int) ((playerStartY - ballStartY) / 3.0f + ballStartX);
 
+	// Distance calcs
 	final int horzWall = 0;
 	final int vertWall = 1;
 	final int horzBlockLeft = 2;
 	final int horzBlockRight = 3;
 	final int vertBlockBottom = 4;
 	final int vertBlockTop = 5;
-
-	// Distance calcs
-	// static Distances dist = new Distances();
 	final static String[] distNames = {
 			"horzWall       ",
 			"vertWall       ",
@@ -160,7 +132,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	};
 	static Dist[] dists = new Dist[distNames.length];
 
-	// MIDI
+	// sound
 	static Receiver rcvr;
 	static Synthesizer synth = null;
 	static ShortMessage paddleMsg = new ShortMessage();
@@ -169,13 +141,18 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	static ShortMessage brickMsg = new ShortMessage();
 	static ShortMessage paddleOffMsg = new ShortMessage();
 	static ShortMessage wallOffMsg = new ShortMessage();
-	// static ShortMessage brickOffMsg = new ShortMessage();
 	static boolean soundPossible = false;
 	static boolean mute = true;
 	static float frameTimeuSec = 0f;
 	static float frameDist = 0f;
 	static float currDist = 0f;
 
+	void setSoundParameters() {
+		frameDist = ballVelocity * ballVelocity; // no sqrt to match nextHit min calculations
+		frameTimeuSec = 1_000_000 / frameRate;
+	}
+
+	// NOTE: currently playing sounds immediately as update/paint is done right away
 	void playSound(ShortMessage msg, int time) {
 		if (!mute) {
 			long t = synth.getMicrosecondPosition(); // time in microseconds
@@ -204,11 +181,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	String printBall() {
 		return "\nball: (" + ball.x + ", " + ball.y + ") newBall: (" + newBall.x + ", " + newBall.y + ")";
-	}
-
-	void setSoundParameters() {
-		frameDist = ballVelocity * ballVelocity; // vel.x * vel.x + vel.y * vel.y;
-		frameTimeuSec = 1_000_000 / frameRate;
 	}
 
 	// Sets up the basic GUI for the game
@@ -529,6 +501,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	}
 
 	private void resetLevel() {
+		ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
+		playerStartX = (int) ((playerStartY - ballStartY) / 3.0f + ballStartX - playerW / 2);
+
 		resetBall();
 
 		blockCnt = blockRows * blockCols;
@@ -1174,13 +1149,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// ball.x = newBall.x;
 		// ball.y = newBall.y;
 		if (blockCnt <= 0) {
-			synchronized (countMutex) {
-				if (count == 0) {
-					count++;
-					onWin();
-					resetLevel();
-				}
-			}
+			onWin();
+			// synchronized (countMutex) {
+			// if (count == 0) {
+			// count++;
+			// onWin();
+			// resetLevel();
+			// }
+			// }
 		}
 	}
 
@@ -1248,8 +1224,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		g.setColor(Color.white);
 		g.drawString(
-				"fps: " + frameRate + " vel: " + ballVelocity + " paddle: " + playerVelocity + " blocks: " + blockCnt,
+				" blocks: " + blockCnt,
 				5, gameHeight);
+		// g.drawString(
+		// "fps: " + frameRate + " vel: " + ballVelocity + " paddle: " + playerVelocity
+		// + " blocks: " + blockCnt,
+		// 5, gameHeight);
 		if (pauseTimerActive) {
 			long currTime = System.currentTimeMillis();
 			if (pauseTimerActive && currTime - pauseTimer > 2000) {
@@ -1316,30 +1296,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// }
 		// }
 		// }
-		if (lives > 0) {
-			lives--;
-			resetBall();
+		if (lives <= 0) {
+			resetLevel();
 			return;
 		}
-
-		// if (level > cheatLevels) {
-		// lives--;
-		// }
-		// if (lives <= 0) {
-
-		if (level > 1) {
-			level--;
-			// lives = startLives;
-		} else {
-		}
-		lives = startLives;
-
-		System.out.println("Level: " + level + ", lives: " + lives);
-		// createDialog("You Lost. Level: " + level, dialogDelay);
-		startMessage("Lost level!");
-		// }
-
-		resetLevel();
+		lives--;
+		resetBall();
 	}
 
 	private void startMessage(String m) {
