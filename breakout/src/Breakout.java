@@ -13,7 +13,6 @@ import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
 import javax.swing.*;
 import java.awt.event.*;
-import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -179,10 +178,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	void playSound(ShortMessage msg, int time) {
 		if (!mute) {
-			long t = synth.getMicrosecondPosition();
-			rcvr.send(msg, -1); // time in microseconds
-			rcvr.send(paddleOffMsg, t + time); // time in microseconds
-			rcvr.send(wallOffMsg, t + time); // time in microseconds
+			long t = synth.getMicrosecondPosition(); // time in microseconds
+			if (time == -1) {
+				rcvr.send(msg, -1);
+				rcvr.send(paddleOffMsg, t + 5_000);
+				rcvr.send(wallOffMsg, t + 5_000);
+			} else {
+				rcvr.send(msg, t + time);
+				rcvr.send(paddleOffMsg, t + time + 5_000);
+				rcvr.send(wallOffMsg, t + time + 5_000);
+			}
 		}
 	}
 
@@ -388,32 +393,34 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			ballVelocity /= 2;
 			vel.x /= 2;
 			vel.y /= 2;
+			setSoundParameters();
 			System.out.println("ballVelocity: " + ballVelocity);
 		} else if (keyCode == KeyEvent.VK_0) {
 			ballVelocity *= 2;
 			vel.x *= 2;
 			vel.y *= 2;
+			setSoundParameters();
 			System.out.println("ballVelocity: " + ballVelocity);
 		} else if (keyCode == KeyEvent.VK_7) {
 			if (frameRate >= 2) {
 				frameRate /= 2;
 				setSoundParameters();
+				if (timer != null) {
+					timer.stop();
+				}
+				timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per second
+				timer.start();
 			}
-			if (timer != null) {
-				timer.stop();
-			}
-			timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per second
-			timer.start();
 		} else if (keyCode == KeyEvent.VK_8) {
 			if (frameRate <= Integer.MAX_VALUE / 2) {
 				frameRate *= 2;
 				setSoundParameters();
+				if (timer != null) {
+					timer.stop();
+				}
+				timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per second
+				timer.start();
 			}
-			if (timer != null) {
-				timer.stop();
-			}
-			timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per second
-			timer.start();
 		}
 	}
 
@@ -550,9 +557,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				blocks[r][c] = new Block(
 						new Point(padCol + (padCol + blockWidth) * c, padTop + (padRow + blockHeight) * r),
 						color, maxHits);
-				// g.fillRect(padCol * (c + 1) + blockWidth * c, padTop + padRow * (r + 1) +
-				// blockHeight * r,
-				// blockWidth, blockHeight);
+			}
+			for (int c = 0; c < blockCols; c++) {
+				blocks[r][c].alive = false;
 			}
 		}
 		System.out.println("Level: " + level + ", lives: " + lives);
@@ -1015,12 +1022,15 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			}
 			if (foundHit) {
 				currDist += min;
-			}
-			if (wallHit) {
-				playSound(wallMsg, (int) (currDist / frameDist * frameTimeuSec));
-			}
-			if (blockHit) {
-				playSound(brickMsg, (int) (currDist / frameDist * frameTimeuSec));
+				if (wallHit) {
+					playSound(wallMsg, -1); //
+					// playSound(brickMsg, -1); // (int) (frameTimeuSec * currDist / frameDist));
+					// System.out.println("frame time: " + frameTimeuSec);
+					// System.out.println("pcnt: " + (currDist / frameDist));
+				}
+				if (blockHit) {
+					playSound(brickMsg, -1); // (int) (currDist / frameDist * frameTimeuSec));
+				}
 			}
 
 			// printBall();
@@ -1121,9 +1131,17 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		// Check for player paddle hit ball
 		if (ball.y + lowerEdge < player.y && newBall.y + lowerEdge >= player.y) {
-			int hitX = (int) (ball.x + (float) vel.x / vel.y * (player.y - (ball.y + lowerEdge)));
-			if (hitX >= player.x - (ballSize - 1) && hitX <= player.x + playerW) {
-				int hit = (hitX - (player.x - (ballSize - 1))) * playerSegments / (playerW + (ballSize - 1));
+			int hitX = (int) (ball.x + (float) vel.x / vel.y * (player.y - (ball.y + lowerEdge)) + ballMiddle);
+			if (hitX >= player.x - (ballMiddle) && hitX <= player.x + playerW - 1 + ballMiddle) {
+				// int hit = (hitX - (player.x - (ballSize - 1))) * playerSegments / (playerW +
+				// (ballSize - 1));
+				int hit = (hitX - player.x) * playerSegments / playerW;
+				if (hit < 0) {
+					hit = 0;
+				}
+				if (hit >= playerSegments) {
+					hit = playerSegments - 1;
+				}
 				vel.x = bounces[hit].x * ballVelocity;
 				vel.y = bounces[hit].y * ballVelocity;
 				// vel.x *= (1 + (level - 1) * 0.2f);
@@ -1134,7 +1152,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				// System.out.println("vel:" + velocity + ", hit:" + hit);
 				// velocity.y *= -1;
 				// newBall.y = 2 * player.y - newBall.y - 2 * ballSize;
-				newBall.x = hitX;
+				ball.x = hitX - ballMiddle;
+				ball.y = player.y - ballSize;
+				// newBall.x = hitX - ballMiddle;
 				newBall.y = player.y - (newBall.y + lowerEdge - player.y) - lowerEdge;
 				playSound(paddleMsg, -1);
 				// newBall.y = player.y - size;
