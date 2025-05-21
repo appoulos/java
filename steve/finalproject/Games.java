@@ -59,6 +59,33 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 	}
 
 	public static void main(String[] args) {
+		new Games();
+	}
+
+	// Constructor for the game panel
+	public Games() {
+		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
+		screenHeight = graphicsEnvironment.getMaximumWindowBounds().height;
+
+		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		origFrameRate = device.getDisplayMode().getRefreshRate();
+		System.out.println("refresh rate: " + origFrameRate);
+		frameRate = origFrameRate;
+
+		int ignoreDeadCode = 0;
+
+		if ((double) gameWidth / gameHeight >= (double) screenWidth / screenHeight + ignoreDeadCode) {
+			scale = (double) screenWidth / gameWidth;
+		} else {
+			scale = (double) screenHeight / gameHeight;
+		}
+
+		Dimension d = new Dimension((int) (scale * gameWidth), (int) (scale * gameHeight));
+
+		setPreferredSize(d);
+		setMinimumSize(d);
+		setMaximumSize(d);
 
 		try {
 			synth = MidiSystem.getSynthesizer();
@@ -86,7 +113,7 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		frame.setLayout(new BorderLayout());
 		// frame.setLayout(new BoxLayout(frame, BoxLayout.Y_AXIS));
 
-		Games game = new Games();
+		// Games game = new Games();
 
 		// frame.add(game, BorderLayout.CENTER);
 		// add box to keep game in center while resizing window
@@ -95,44 +122,18 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		Box box = new Box(BoxLayout.Y_AXIS);
 
 		box.add(Box.createVerticalGlue());
-		box.add(game);
+		box.add(this);
 		frame.add(box);
 
-		game.addKeyListener(game);
-		frame.addKeyListener(game);
+		this.addKeyListener(this);
+		frame.addKeyListener(this);
 
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		frame.pack();
 
-		game.setUpGame();
-	}
-
-	// Constructor for the game panel
-	public Games() {
-		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
-		screenHeight = graphicsEnvironment.getMaximumWindowBounds().height;
-
-		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-		origFrameRate = device.getDisplayMode().getRefreshRate();
-		System.out.println("refresh rate: " + origFrameRate);
-		frameRate = origFrameRate;
-
-		int ignoreDeadCode = 0;
-
-		if ((double) gameWidth / gameHeight >= (double) screenWidth / screenHeight + ignoreDeadCode) {
-			scale = (double) screenWidth / gameWidth;
-		} else {
-			scale = (double) screenHeight / gameHeight;
-		}
-
-		Dimension d = new Dimension((int) (scale * gameWidth), (int) (scale * gameHeight));
-
-		setPreferredSize(d);
-		setMinimumSize(d);
-		setMaximumSize(d);
+		this.setUpGame();
 	}
 
 	// Method that is called by the timer framerate times per second (roughly)
@@ -162,6 +163,14 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		} else if (keyCode == KeyEvent.VK_DOWN || keyCode == KeyEvent.VK_S) {
 			if (selection < selections.length - 1)
 				selection++;
+		} else if (keyCode == KeyEvent.VK_P) {
+			Pong game = new Pong();
+			game.setVisible(true);
+			frame.dispose();
+		} else if (keyCode == KeyEvent.VK_B) {
+			Breakout game = new Breakout();
+			game.setVisible(true);
+			frame.dispose();
 		} else if (keyCode == KeyEvent.VK_Q) {
 			System.exit(0);
 		} else if (keyCode == KeyEvent.VK_M) {
