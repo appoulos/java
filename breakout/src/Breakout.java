@@ -13,6 +13,7 @@ import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
 import javax.swing.*;
 import java.awt.event.*;
+import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
@@ -45,16 +46,15 @@ class Dist {
 
 public class Breakout extends JPanel implements ActionListener, KeyListener, MouseMotionListener {
 
+	private static double scale;
 	private int count = 0;
 	private final Object countMutex = new Object();
 
 	private Rectangle player = new Rectangle(); // a rectangle that represents the player
 	// private Rectangle ball = new Rectangle(); // a rectangle that represents the
 	// ball
-	public Rectangle2D.Float ball = new Rectangle2D.Float(); // a rectangle that
-	public Rectangle2D.Float prevball = new Rectangle2D.Float(); // a rectangle that
-	// represents the ball
-	// private Point nextCalc = new Point();
+	public Rectangle2D.Float ball = new Rectangle2D.Float();
+	public Rectangle2D.Float prevball = new Rectangle2D.Float(); // a rectangle that represents the ball
 
 	private int level = 1;
 	private final int startLives = 3;
@@ -85,7 +85,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// private Point velSign = new Point(); // velocity of ball
 	private Point2D.Float newBall = new Point2D.Float(); // ball.x + vel.x, ball.y + vel.y);
 
-	private final int ballSize = 7; // ODD ball size
+	private final int ballSize = 17; // ODD ball size
 	private final int otherEdge = ballSize - 1; // ball size
 	private final int leftEdge = 0; // ball size
 	private final int rightEdge = ballSize - 1; // ball size
@@ -93,10 +93,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int lowerEdge = ballSize - 1; // ball size
 
 	private final int blockRows = 4;
-	private final int blockCols = 10;
-	private final int blockWidth = 40;
+	private static final int blockCols = 10;
+	private static final int blockWidth = 40;
 	private final int blockHeight = 20;
-	private final int padCol = 3; // padding between columns
+	private static final int padCol = 3; // padding between columns
 	private final int padRow = 3; // padding between rows
 	private final int padTop = 50; // padding above blocks
 	private final int padMiddle = 150; // padding between blocks and paddle
@@ -118,7 +118,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int playerH = 10;
 
 	// the width of the game area
-	private final int gameWidth = padCol + blockCols * (blockWidth + padCol);
+	private static final int gameWidth = padCol + blockCols * (blockWidth + padCol);
 	// the height of the game area
 	private final int gameHeight = padTop + blockRows * (blockHeight + padRow) + padMiddle + playerH + padBottom;
 
@@ -139,6 +139,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private static JFrame frame;
 	// private static JDialog dialog;
 	private static int screenWidth;
+	private static int screenHeight;
 	private boolean keyboard = true;
 
 	final int horzWall = 0;
@@ -227,6 +228,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			System.out.println("Warning: cound not initialize the MIDI system for audio. Sound disabled");
 			// System.exit(1);
 		}
+
 		frame = new JFrame();
 
 		// dialog = new JDialog(frame, "Status");
@@ -264,17 +266,19 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		frame.setVisible(true);
 		frame.pack();
 
-		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		// GraphicsEnvironment graphicsEnvironment =
+		// GraphicsEnvironment.getLocalGraphicsEnvironment();
+		// // GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		// // System.out.println(graphicsEnvironment.getMaximumWindowBounds());
+		// screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
+		// screenHeight = graphicsEnvironment.getMaximumWindowBounds().height;
+		//
 		// GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-		// System.out.println(graphicsEnvironment.getMaximumWindowBounds());
-		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
-
-		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-		System.out.println("refresh rate: " + device.getDisplayMode().getRefreshRate());
-		origFrameRate = device.getDisplayMode().getRefreshRate();
-		frameRate = origFrameRate;
-		startBallVelocity *= 60 / frameRate;
-		playerVelocity *= (int) 60 / frameRate;
+		// origFrameRate = device.getDisplayMode().getRefreshRate();
+		// System.out.println("refresh rate: " + origFrameRate);
+		// frameRate = origFrameRate;
+		// startBallVelocity *= 60 / frameRate;
+		// playerVelocity *= (int) 60 / frameRate;
 
 		game.setUpGame();
 		// game.enterFullScreen();
@@ -282,11 +286,32 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	// Constructor for the game panel
 	public Breakout() {
-		Dimension d = new Dimension(gameWidth, gameHeight);
+		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		// GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		// System.out.println(graphicsEnvironment.getMaximumWindowBounds());
+		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
+		screenHeight = graphicsEnvironment.getMaximumWindowBounds().height;
+
+		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		origFrameRate = device.getDisplayMode().getRefreshRate();
+		System.out.println("refresh rate: " + origFrameRate);
+		frameRate = origFrameRate;
+		startBallVelocity *= 60 / frameRate;
+		playerVelocity *= (int) 60 / frameRate;
+
+		int ignoreDeadCode = 0;
+
+		if ((double) gameWidth / gameHeight >= (double) screenWidth / screenHeight + ignoreDeadCode) {
+			scale = (double) screenWidth / gameWidth;
+		} else {
+			scale = (double) screenHeight / gameHeight;
+		}
+
+		Dimension d = new Dimension((int) (scale * gameWidth), (int) (scale * gameHeight));
+
 		setPreferredSize(d);
 		setMinimumSize(d);
 		setMaximumSize(d);
-
 	}
 
 	// Method that is called by the timer framerate times per second (roughly)
@@ -414,10 +439,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// Sets the initial state of the game
 	// Could be modified to allow for multiple levels
 	public void setUpGame() {
+		int ignoreDeadCode = 0;
+
 		for (int i = 0; i < dists.length; i++) {
 			dists[i] = new Dist();
 		}
-		int ignoreDeadCode = 0;
 		if (ballSize > blockWidth + 1 + ignoreDeadCode) {
 			System.out.println("ball size cannot exeed blockWidth + 1");
 			System.exit(1);
@@ -493,10 +519,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// vel.y = velStartY * (1 + (level - 1) * 0.2f);
 
 		setSoundParameters();
-		// int framesTillNextCalc = (player.y - 1 - size - ball.y) / vel.y;
-		// nextCalc.x = ball.x + vel.x * framesTillNextCalc;
-		// nextCalc.y = ball.y + vel.y * framesTillNextCalc;
-		// System.out.println(nextCalc + ", " + framesTillNextCalc);
 	}
 
 	private void resetLevel() {
@@ -509,11 +531,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			switch (r) {
 				case 0:
 					color = Color.RED;
-					maxHits = 3;
+					maxHits = 1;
 					break;
 				case 1:
 					color = Color.YELLOW;
-					maxHits = 2;
+					maxHits = 1;
 					break;
 				case 2:
 					color = Color.ORANGE;
@@ -689,9 +711,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				boundaryY = 0;
 				edgeY = upperEdge;
 				revEdgeY = lowerEdge;
+				blockEdgeY = blockHeight;
 				rowBeg = blockRowNeg(ball.y + edgeY);
 				rowEnd = blockRowNeg(newBall.y + edgeY);
-				blockEdgeY = blockHeight;
 			}
 
 			// NOTE: horizontal wall hit
@@ -760,7 +782,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							bd.blockRow = r;
 							bd.blockCol = bc;
 							bd.ballX = hitX - (edgeX == leftEdge ? 0 : otherEdge);
-							bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge);
+							bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge) - signY;
 						}
 					}
 				}
@@ -791,7 +813,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							bd.blockRow = r;
 							bd.blockCol = bc2;
 							bd.ballX = hitX - (revEdgeX == leftEdge ? 0 : otherEdge);
-							bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge);
+							bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge) - signY;
 						}
 					}
 				}
@@ -1149,10 +1171,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// 4 - it draws all the blocks
 	public void paint(Graphics g) {
 
-		g.setColor(Color.darkGray);
-		g.fillRect(0, 0, gameWidth, gameHeight);
-
 		Graphics2D g2 = (Graphics2D) g;
+		g2.scale(scale, scale);
+		g2.setColor(Color.darkGray);
+		g2.fillRect(0, 0, (int) scale * gameWidth, (int) scale * gameHeight);
 		// g2.setColor(Color.red);
 		// g2.fillRect(200f, 200f, 40f, 40f);
 		// Rectangle2D rect = new Rectangle2D.Double(100, 100, 200, 100);
