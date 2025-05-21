@@ -60,13 +60,14 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	// scoring
 	private int level = 1;
-	private final int cheatLevels = 1; // Number of levels to have no game over
+	private final int cheatLevels = 0; // Number of levels to have no game over
 	private int lives;
 	private final int startLives = 3;
 	private int highScore = 1;
 
 	// Pause logic
 	private boolean paused; // pause game
+	private boolean help; // help menu on pause
 	private boolean pauseTimerActive = false; // pause forced after win/lose
 	private long pauseTimer = 0;
 	private String message = "";
@@ -356,6 +357,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				}
 			}
 			paused = !paused;
+		} else if (keyCode == KeyEvent.VK_H) {
+			help = !help;
+			if (help) {
+				paused = true;
+			}
 		} else if (keyCode == KeyEvent.VK_MINUS) {
 			if (playerVelocity > 1)
 				playerVelocity -= 1;
@@ -487,10 +493,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		System.out.println("vel: " + vel.x + "," + vel.y + " ballVelocity: " + ballVelocity);
 		frameRate = origFrameRate;
 
-		// if (level == 1) {
-		// lives = startLives;
-		// }
-
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
 		ball = new Rectangle2D.Float(ballStartX, ballStartY, ballSize, ballSize);
 		prevball = new Rectangle2D.Float(ballStartX, ballStartY, ballSize, ballSize);
@@ -533,6 +535,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						new Point(padCol + (padCol + blockWidth) * c, padTop + (padRow + blockHeight) * r),
 						color, maxHits);
 			}
+			// no blocks for debugging wall/paddle bounces
 			// for (int c = 0; c < blockCols; c++) {
 			// blocks[r][c].alive = false;
 			// }
@@ -1192,7 +1195,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		g.setFont(new Font("Algerian", Font.BOLD, 14));
 		g.setColor(Color.white);
 		g.drawString("Level: " + level + "/" + highScore, 5, 15);
-		g.drawString("Lives: " + lives, gameWidth - 70, 15);
+		// g.drawString("Lives: " + lives, gameWidth - 70, 15);
 
 		g.setColor(Color.blue);
 		g.fillRect(player.x, player.y, player.width, player.height);
@@ -1221,15 +1224,16 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		g2.fill(prevball); // ball.x, ball.y, ball.width, ball.height);
 		g.setColor(Color.green);
 		g2.fill(ball); // ball.x, ball.y, ball.width, ball.height);
+		for (int i = 0; i < lives; i++) {
+			g.fillRect(gameWidth - (i + 1) * (ballSize / 2 + 5), 5, (int) ball.width / 2, (int) ball.height / 2);
+		}
 
 		g.setColor(Color.white);
-		g.drawString(
-				" blocks: " + blockCnt,
-				5, gameHeight);
 		// g.drawString(
-		// "fps: " + frameRate + " vel: " + ballVelocity + " paddle: " + playerVelocity
-		// + " blocks: " + blockCnt,
+		// " blocks: " + blockCnt,
 		// 5, gameHeight);
+		g.drawString("fps: " + frameRate + " vel: " + ballVelocity + " paddle: " + playerVelocity
+				+ " blocks: " + blockCnt, 5, gameHeight - 2);
 		if (pauseTimerActive) {
 			long currTime = System.currentTimeMillis();
 			if (pauseTimerActive && currTime - pauseTimer > 2000) {
@@ -1240,26 +1244,31 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			}
 
 		} else if (paused) {
-			g.setColor(Color.white);
-			int startY = padTop + blockRows * (blockHeight + padRow) + 10;
-			int height = 20;
-			g.drawString("Left/Right Arrows or A/D: move paddle left/right", 20, startY);
-			startY += height;
-			g.drawString("R: Reset Level", 20, startY);
-			startY += height;
-			g.drawString("Q: Quit", 20, startY);
-			startY += height;
-			g.drawString("7/8: fps, 9/0: vel, -/+: paddle", 20, startY);
-
-			if (soundPossible) {
+			if (!help) {
+				g.drawString("Press space to start (h for help)", 20,
+						gameHeight - (padMiddle + padBottom) / 2);
+			} else {
+				g.setColor(Color.white);
+				int startY = padTop + blockRows * (blockHeight + padRow) + 10;
+				int height = 20;
+				g.drawString("Left/Right Arrows or A/D: move paddle", 20, startY);
 				startY += height;
-				g.drawString("M: Mute", 20, startY);
-			}
+				g.drawString("R: Reset Level", 20, startY);
+				startY += height;
+				g.drawString("Q: Quit", 20, startY);
+				startY += height;
+				g.drawString("7/8: fps, 9/0: vel, -/+: paddle", 20, startY);
 
-			startY += height;
-			g.drawString("K: toggle Mouse/Keyboard", 20, startY);
-			startY += height;
-			g.drawString("P or Space: toggle pause", 20, startY);
+				if (soundPossible) {
+					startY += height;
+					g.drawString("M: Mute", 20, startY);
+				}
+
+				startY += height;
+				g.drawString("K: toggle Mouse/Keyboard", 20, startY);
+				startY += height;
+				g.drawString("P or Space: toggle pause", 20, startY);
+			}
 		}
 	}
 
@@ -1284,6 +1293,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		resetLevel();
 	}
 
+	private void gameOver() {
+		level = 1;
+		startMessage("Game Over");
+		lives = startLives;
+		resetLevel();
+	}
+
 	public void onLose() {
 		// player.setRect(new Rectangle(playerStartX, playerStartY, playerW, playerH));
 		// if (level > cheatLevels) {
@@ -1296,11 +1312,13 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// }
 		// }
 		// }
-		if (lives <= 0) {
-			resetLevel();
+		lives--;
+		if (lives < 0) {
+			gameOver();
+			// resetLevel();
 			return;
 		}
-		lives--;
+		startMessage("Lives: " + lives);
 		resetBall();
 	}
 
