@@ -558,9 +558,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						new Point(padCol + (padCol + blockWidth) * c, padTop + (padRow + blockHeight) * r),
 						color, maxHits);
 			}
-			for (int c = 0; c < blockCols; c++) {
-				blocks[r][c].alive = false;
-			}
+			// for (int c = 0; c < blockCols; c++) {
+			// blocks[r][c].alive = false;
+			// }
 		}
 		System.out.println("Level: " + level + ", lives: " + lives);
 	}
@@ -1024,7 +1024,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				currDist += min;
 				if (wallHit) {
 					playSound(wallMsg, -1); //
-					// playSound(brickMsg, -1); // (int) (frameTimeuSec * currDist / frameDist));
+					// playSound(brickMsg, (int) (frameTimeuSec * currDist / frameDist));
 					// System.out.println("frame time: " + frameTimeuSec);
 					// System.out.println("pcnt: " + (currDist / frameDist));
 				}
