@@ -848,9 +848,16 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 		// Check for player paddle hit ball
 		if (ball.x + rightEdge < player.x && newBall.x + rightEdge >= player.x) {
-			int hitY = (int) (ball.y + (float) vel.y / vel.x * (player.x - (ball.x + rightEdge)));
-			if (hitY >= player.y - (ballSize - 1) && hitY < player.y + playerH) {
-				int hit = (hitY - (player.y - (ballSize - 1))) * playerSegments / (playerH + (ballSize - 1));
+			int hitY = (int) (ball.y + (float) vel.y / vel.x * (player.x + leftEdge - (ball.x + rightEdge))
+					+ ballMiddle);
+			if (hitY >= player.y - ballMiddle && hitY <= player.y + playerH - 1 + ballMiddle) {
+				int hit = (hitY - player.y) * playerSegments / playerH;
+				if (hit < 0) {
+					hit = 0;
+				}
+				if (hit >= playerSegments) {
+					hit = playerSegments - 1;
+				}
 				vel.x = bounces[hit].x * ballVelocity;
 				vel.y = bounces[hit].y * ballVelocity;
 				// vel.x *= (1 + (level - 1) * 0.2f);
@@ -867,9 +874,16 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		}
 
 		if (ball.x + leftEdge > player2.x + rightEdge && newBall.x + leftEdge <= player2.x + rightEdge) {
-			int hitY = (int) (ball.y + (float) vel.y / vel.x * (player2.x + rightEdge - (ball.x + leftEdge)));
-			if (hitY >= player2.y - (ballSize - 1) && hitY < player2.y + player2H) {
-				int hit = (hitY - (player2.y - (ballSize - 1))) * playerSegments / (player2H + (ballSize - 1));
+			int hitY = (int) (ball.y + (float) vel.y / vel.x * (player2.x + rightEdge - (ball.x + leftEdge))
+					+ ballMiddle);
+			if (hitY >= player2.y - ballMiddle && hitY <= player2.y + player2H - 1 + ballMiddle) {
+				int hit = (hitY - player2.y) * playerSegments / player2H;
+				if (hit < 0) {
+					hit = 0;
+				}
+				if (hit >= playerSegments) {
+					hit = playerSegments - 1;
+				}
 				vel.x = -bounces[hit].x * ballVelocity;
 				vel.y = bounces[hit].y * ballVelocity;
 				// vel.x *= (1 + (level - 1) * 0.2f);
