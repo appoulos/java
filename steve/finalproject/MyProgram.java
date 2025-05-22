@@ -25,19 +25,15 @@ public class MyProgram extends JPanel {
 
 		frame.setTitle("Games");
 		frame.setLayout(new BorderLayout());
-		// frame.setLayout(new BoxLayout(frame, BoxLayout.Y_AXIS));
 
-		// Games game = new Games();
-
-		// frame.add(game, BorderLayout.CENTER);
-		// add box to keep game in center while resizing window
-		// from:
+		// add box to keep game in center while resizing window. from:
 		// https://stackoverflow.com/questions/7223530/how-can-i-properly-center-a-jpanel-fixed-size-inside-a-jframe
 		Box box = new Box(BoxLayout.Y_AXIS);
 		box.add(Box.createVerticalGlue());
 
-		JTextArea textarea = new JTextArea(24, 40);
 		Font font = new Font("Sans", Font.PLAIN, 20);
+
+		JTextArea textarea = new JTextArea(24, 40);
 		textarea.setFont(font);
 		textarea.setEditable(false);
 		textarea.setText("Running...");
@@ -54,17 +50,11 @@ public class MyProgram extends JPanel {
 
 		frame.add(box);
 		frame.setResizable(false);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		frame.pack();
 
 		System.out.println("Running...");
-		// f = new JFrame();
-		// f.setSize(400, 400);
-		// f.setLayout(null);
-		// f.setVisible(true);
-		// makeFrame(100, 100, 100, 100, "Hi");
-		// makeFrame(300, 300, 100, 100, "Hi");
 		int[] arr = new int[100];
 		// System.out.println(printArr(arr));
 		// randomizeArr(arr);

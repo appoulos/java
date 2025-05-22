@@ -228,7 +228,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		setMinimumSize(d);
 		setMaximumSize(d);
 
-		font = new Font("Algerian", Font.BOLD, 14);
+		font = new Font("Arial", Font.BOLD, 14);
 
 		try {
 			synth = MidiSystem.getSynthesizer();

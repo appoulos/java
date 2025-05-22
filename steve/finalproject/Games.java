@@ -21,6 +21,7 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 	// the height of the game area
 	private final int gameHeight = 400; // padTop + blockRows * (blockHeight + padRow) + padMiddle + playerH +
 										// padBottom;
+	private static Font font; // scale frame to fill screen
 
 	// sound
 	static Receiver rcvr;
@@ -86,6 +87,8 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		setPreferredSize(d);
 		setMinimumSize(d);
 		setMaximumSize(d);
+
+		font = new Font("Arial", Font.BOLD, 14);
 
 		try {
 			synth = MidiSystem.getSynthesizer();
@@ -153,6 +156,27 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		// }
 	}
 
+	void startGame() {
+		switch (selection) {
+			case 0:
+				Pong pong = new Pong();
+				pong.setVisible(true);
+				break;
+			case 1:
+				Breakout breakout = new Breakout();
+				breakout.setVisible(true);
+				break;
+			case 2:
+				MyProgram myprogram = new MyProgram();
+				myprogram.setVisible(true);
+				break;
+			case 3:
+				System.exit(0);
+				break;
+		}
+		frame.dispose();
+	}
+
 	// Called every time a key is pressed
 	// Stores the down state for use in the update method
 	public void keyPressed(KeyEvent e) {
@@ -163,16 +187,20 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		} else if (keyCode == KeyEvent.VK_DOWN || keyCode == KeyEvent.VK_S) {
 			if (selection < selections.length - 1)
 				selection++;
+		} else if (keyCode == KeyEvent.VK_ENTER) {
+			startGame();
 		} else if (keyCode == KeyEvent.VK_P) {
-			Pong game = new Pong();
-			game.setVisible(true);
-			frame.dispose();
+			selection = 0;
+			startGame();
 		} else if (keyCode == KeyEvent.VK_B) {
-			Breakout game = new Breakout();
-			game.setVisible(true);
-			frame.dispose();
+			selection = 1;
+			startGame();
+		} else if (keyCode == KeyEvent.VK_M) {
+			selection = 2;
+			startGame();
 		} else if (keyCode == KeyEvent.VK_Q) {
-			System.exit(0);
+			selection = 3;
+			startGame();
 		} else if (keyCode == KeyEvent.VK_M) {
 			if (soundPossible)
 				mute = !mute;
@@ -231,7 +259,7 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		g2.setColor(Color.darkGray);
 		g2.fillRect(0, 0, (int) scale * gameWidth, (int) scale * gameHeight);
 
-		g.setFont(new Font("Algerian", Font.BOLD, 14));
+		g.setFont(font);
 		g.setColor(Color.white);
 		int startY = 40;
 		int height = 20;
