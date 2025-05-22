@@ -14,12 +14,15 @@ import javax.sound.midi.Synthesizer;
 import javax.swing.*;
 import java.awt.event.*;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.Ellipse2D;
 
 // import java.awt.Graphics2D;
-// import java.awt.geom.Rectangle2D;
+// import java.awt.geom.Ellipse2D;
 
 public class Pong extends JPanel implements ActionListener, KeyListener, MouseMotionListener {
+	private static int screenWidth;
+	private static int origFrameRate = 60; // roughly frame rate per second
+	private static double scale; // scale frame to fill screen
 
 	private int count = 0;
 	private final Object countMutex = new Object();
@@ -28,8 +31,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	private Rectangle player2 = new Rectangle(); // a rectangle that represents the player
 	// private Rectangle ball = new Rectangle(); // a rectangle that represents the
 	// ball
-	public Rectangle2D.Float ball = new Rectangle2D.Float(); // a rectangle that
-	public Rectangle2D.Float prevball = new Rectangle2D.Float(); // a rectangle that
+	public Ellipse2D.Float ball = new Ellipse2D.Float(); // a rectangle that
+	public Ellipse2D.Float prevball = new Ellipse2D.Float(); // a rectangle that
 	// represents the ball
 	// private Point nextCalc = new Point();
 
@@ -94,9 +97,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	private final int playerH = 5 * (playerSegments - ballMiddle); // pick number divisible by playerSegments -
 																	// ballMiddle
 	private final int playerW = 10;
-	private final int player2H = 5 * (playerSegments - ballMiddle); // pick number divisible by playerSegments -
-																	// ballMiddle
-	private final int player2W = 10;
 
 	// the width of the game area
 	private final int gameWidth = padCol + blockCols * (blockWidth + padCol);
@@ -114,7 +114,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	private static float playerVelocity = 10.0f;
 
 	private final int player2StartX = 0 + padEdge;
-	private final int player2StartY = gameHeight - padBottom - player2H;
+	private final int player2StartY = gameHeight - padBottom - playerH;
 	private static float player2Velocity = 10.0f;
 
 	private final int maxWidth = gameWidth - 1 - ballSize;
@@ -199,10 +199,31 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 	// Constructor for the game panel
 	public Pong() {
-		Dimension d = new Dimension(gameWidth, gameHeight);
+		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
+		screenHeight = graphicsEnvironment.getMaximumWindowBounds().height;
+
+		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		origFrameRate = device.getDisplayMode().getRefreshRate();
+		System.out.println("refresh rate: " + origFrameRate);
+		frameRate = origFrameRate;
+		startBallVelocity *= 60 / frameRate;
+		playerVelocity *= (int) 60 / frameRate;
+
+		int ignoreDeadCode = 0;
+
+		if ((double) gameWidth / gameHeight >= (double) screenWidth / screenHeight + ignoreDeadCode) {
+			scale = (double) screenWidth / gameWidth;
+		} else {
+			scale = (double) screenHeight / gameHeight;
+		}
+
+		Dimension d = new Dimension((int) (scale * gameWidth), (int) (scale * gameHeight));
+
 		setPreferredSize(d);
 		setMinimumSize(d);
 		setMaximumSize(d);
+
 		try {
 			synth = MidiSystem.getSynthesizer();
 			synth.open();
@@ -260,17 +281,18 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		frame.setVisible(true);
 		frame.pack();
 
-		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		// GraphicsEnvironment graphicsEnvironment =
+		// GraphicsEnvironment.getLocalGraphicsEnvironment();
 		// GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
 		// System.out.println(graphicsEnvironment.getMaximumWindowBounds());
-		screenHeight = graphicsEnvironment.getMaximumWindowBounds().height;
+		// screenHeight = graphicsEnvironment.getMaximumWindowBounds().height;
 
-		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-		System.out.println("refresh rate: " + device.getDisplayMode().getRefreshRate());
-		frameRate = device.getDisplayMode().getRefreshRate();
+		// System.out.println("refresh rate: " +
+		// device.getDisplayMode().getRefreshRate());
+		// frameRate = device.getDisplayMode().getRefreshRate();
 		startBallVelocity *= 60 / frameRate;
-		playerVelocity *= (int) 60 / frameRate;
-		player2Velocity *= (int) 60 / frameRate;
+		// playerVelocity *= (int) 60 / frameRate;
+		// player2Velocity *= (int) 60 / frameRate;
 
 		this.setUpGame();
 		// game.enterFullScreen();
@@ -483,9 +505,9 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		// }
 
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
-		player2 = new Rectangle(player2StartX, player2StartY, player2W, player2H);
-		ball = new Rectangle2D.Float(ballStartX, ballStartY, ballSize, ballSize);
-		prevball = new Rectangle2D.Float(ballStartX, ballStartY, ballSize, ballSize);
+		player2 = new Rectangle(player2StartX, player2StartY, playerW, playerH);
+		ball = new Ellipse2D.Float(ballStartX, ballStartY, ballSize, ballSize);
+		prevball = new Ellipse2D.Float(ballStartX, ballStartY, ballSize, ballSize);
 		// vel.x = velStartX * (1 + (level - 1) * 0.2f);
 		// vel.y = velStartY * (1 + (level - 1) * 0.2f);
 
@@ -606,7 +628,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 			float m = vel.y / vel.x;// Math.abs(vel.y / vel.x); // ball velocity slope
 			float min; // next hit minimum distance
-			boolean blockHit = false;
 			boolean wallHit = false;
 			min = Float.POSITIVE_INFINITY;
 			for (int i = 0; i < dists.length; i++) {
@@ -720,14 +741,9 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			if (foundHit) {
 				currDist += min;
 			}
-			if (wallHit) {
-				playSound(wallMsg, (int) (currDist / frameDist * frameTimeuSec));
-			}
-			if (blockHit) {
-				playSound(brickMsg, (int) (currDist / frameDist * frameTimeuSec));
-			}
 
 			if (dists[vertWall].dist == min) {
+				playSound(loseMsg, (int) (currDist / frameDist * frameTimeuSec));
 				if (boundaryX == 0) {
 					onLose(2);
 					System.out.println("Player 2 lost round");
@@ -737,6 +753,9 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 					System.out.println("Player 1 lost round");
 					return false;
 				}
+			}
+			if (wallHit) {
+				playSound(wallMsg, (int) (currDist / frameDist * frameTimeuSec));
 			}
 			// printBall();
 
@@ -867,35 +886,43 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 				setSoundParameters();
 				// System.out.println("vel:" + velocity + ", hit:" + hit);
 				// velocity.y *= -1;
-				newBall.x = 2 * player.x - newBall.x - 2 * ballSize;
+				// newBall.x = 2 * player.x - newBall.x - 2 * ballSize;
 				playSound(paddleMsg, -1);
 				// newBall.y = player.y - size;
+				ball.y = hitY - ballMiddle;
+				ball.x = player.x - ballSize;
+				newBall.x = player.x - (newBall.x + leftEdge - player.x) - ballSize;
 			}
 		}
 
-		if (ball.x + leftEdge > player2.x + rightEdge && newBall.x + leftEdge <= player2.x + rightEdge) {
+		if (ball.x + leftEdge > player2.x + playerW - 1 && newBall.x + leftEdge <= player2.x + playerW - 1) {
 			int hitY = (int) (ball.y + (float) vel.y / vel.x * (player2.x + rightEdge - (ball.x + leftEdge))
 					+ ballMiddle);
-			if (hitY >= player2.y - ballMiddle && hitY <= player2.y + player2H - 1 + ballMiddle) {
-				int hit = (hitY - player2.y) * playerSegments / player2H;
+			if (hitY >= player2.y - ballMiddle && hitY <= player2.y + playerH - 1 + ballMiddle) {
+				int hit = (hitY - player2.y) * playerSegments / playerH;
 				if (hit < 0) {
 					hit = 0;
 				}
 				if (hit >= playerSegments) {
 					hit = playerSegments - 1;
 				}
-				vel.x = -bounces[hit].x * ballVelocity;
-				vel.y = bounces[hit].y * ballVelocity;
-				// vel.x *= (1 + (level - 1) * 0.2f);
-				// vel.y *= (1 + (level - 1) * 0.2f);
+
+				float dx = -bounces[hit].x;
+				float dy = bounces[hit].y;
+
+				vel.x = dx * ballVelocity;
+				vel.y = dy * ballVelocity;
+
+				ball.y = hitY - ballMiddle;
+				ball.x = player2.x + playerW;
+
+				float dist = (float) Math.sqrt(Math.pow(newBall.x - ball.x, 2) + Math.pow(newBall.y - ball.y, 2));
+				newBall.x = ball.x + dx * dist;
+				newBall.y = ball.y + dy * dist;
+
+				playSound(paddleMsg, -1);
 				System.out
 						.println("hit segment: " + hit + "/" + playerSegments + " vel: (" + vel.x + "," + vel.y + ")");
-				setSoundParameters();
-				// System.out.println("vel:" + velocity + ", hit:" + hit);
-				// velocity.y *= -1;
-				newBall.x = player2.x + player2W + (player2.x - newBall.x); // - 2 * ballSize;
-				playSound(paddleMsg, -1);
-				// newBall.y = player2.y - size;
 			}
 		}
 		// if (velocity.y > 0
@@ -929,15 +956,19 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	// 4 - it draws all the blocks
 	public void paint(Graphics g) {
 
-		g.setColor(Color.darkGray);
-		g.fillRect(0, 0, gameWidth, gameHeight);
-
 		Graphics2D g2 = (Graphics2D) g;
+		g2.scale(scale, scale);
+		g2.setColor(Color.darkGray);
+		g2.fillRect(0, 0, (int) scale * gameWidth, (int) scale * gameHeight);
 
 		g.setFont(new Font("Algerian", Font.BOLD, 14));
 		g.setColor(Color.white);
 		// g.drawString("Level: " + level + "/" + highScore, 5, 15);
-		g.drawString("Score: " + score2 + " | " + score1, gameWidth / 2 - 50, 15);
+		g.drawString(score2 + "      " + score1, gameWidth / 2 - 20, 15);
+
+		// Draw center line
+		for (int i = 0; i < (int) gameHeight; i += 15)
+			g.drawLine((int) gameWidth / 2, i, (int) gameWidth / 2, i + 10);
 
 		g.setColor(Color.blue);
 		g.fillRect(player.x, player.y, player.width, player.height);
