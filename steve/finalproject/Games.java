@@ -194,7 +194,7 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		} else if (keyCode == KeyEvent.VK_B) {
 			selection = 1;
 			startGame();
-		} else if (keyCode == KeyEvent.VK_M) {
+		} else if (keyCode == KeyEvent.VK_A) {
 			selection = 2;
 			startGame();
 		} else if (keyCode == KeyEvent.VK_Q) {

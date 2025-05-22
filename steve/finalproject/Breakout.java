@@ -273,8 +273,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		} else if (keyCode == KeyEvent.VK_D) {
 			right = true;
 		} else if (keyCode == KeyEvent.VK_Q) {
-			// System.exit(0);
-			// frame.setVisible(false);
 			frame.dispose();
 			Games game = new Games();
 			game.setVisible(true);
