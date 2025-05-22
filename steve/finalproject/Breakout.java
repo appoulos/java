@@ -71,6 +71,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private static float playerVelocity = 10.0f;
 
 	// gui
+	private static Font font; // scale frame to fill screen
 	private static double scale; // scale frame to fill screen
 	private static int origFrameRate = 60; // roughly frame rate per second
 	private static int frameRate = 60; // roughly frame rate per second
@@ -190,6 +191,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		setPreferredSize(d);
 		setMinimumSize(d);
 		setMaximumSize(d);
+
+		font = new Font("Algerian", Font.BOLD, 14);
 
 		try {
 			synth = MidiSystem.getSynthesizer();
@@ -1035,7 +1038,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		g2.setColor(Color.darkGray);
 		g2.fillRect(0, 0, (int) scale * gameWidth, (int) scale * gameHeight);
 
-		g.setFont(new Font("Algerian", Font.BOLD, 14));
+		g.setFont(font);
 		g.setColor(Color.white);
 		g.drawString("Level: " + level + "/" + highScore, 5, 15);
 		// g.drawString("Lives: " + lives, gameWidth - 70, 15);

@@ -23,6 +23,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	private static int screenWidth;
 	private static int origFrameRate = 60; // roughly frame rate per second
 	private static double scale; // scale frame to fill screen
+	private static Font font; // scale frame to fill screen
 
 	private int count = 0;
 	private final Object countMutex = new Object();
@@ -226,6 +227,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		setPreferredSize(d);
 		setMinimumSize(d);
 		setMaximumSize(d);
+
+		font = new Font("Algerian", Font.BOLD, 14);
 
 		try {
 			synth = MidiSystem.getSynthesizer();
@@ -997,7 +1000,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		g2.setColor(Color.darkGray);
 		g2.fillRect(0, 0, (int) scale * gameWidth, (int) scale * gameHeight);
 
-		g.setFont(new Font("Algerian", Font.BOLD, 14));
+		g.setFont(font);
 		g.setColor(Color.white);
 		// g.drawString("Level: " + level + "/" + highScore, 5, 15);
 		g.drawString("" + score1, gameWidth / 2 + 13, 15);
