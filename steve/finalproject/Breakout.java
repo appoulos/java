@@ -22,7 +22,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private Point2D.Float newBall = new Point2D.Float(); // (ball.x + vel.x, ball.y + vel.y)
 	private final int ballStartX = 40;
 	private int ballStartY = 0; // padTop + blockRows * (blockHeight + padRow) + 10;
-	private final int ballSize = 7; // must be ODD ball size
+	private final int ballSize = 3; // must be ODD ball size
 	private final int ballMiddle = ballSize / 2; // ballSize must be odd
 	private final int otherEdge = ballSize - 1;
 	private final int leftEdge = 0;
@@ -236,7 +236,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		frame.addKeyListener(this);
 
 		frame.setResizable(false);
-		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		frame.pack();
 

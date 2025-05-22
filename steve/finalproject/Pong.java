@@ -20,6 +20,8 @@ import java.awt.geom.Ellipse2D;
 // import java.awt.geom.Ellipse2D;
 
 public class Pong extends JPanel implements ActionListener, KeyListener, MouseMotionListener {
+	private int maxScore = 3;
+
 	private static int screenWidth;
 	private static int origFrameRate = 60; // roughly frame rate per second
 	private static double scale; // scale frame to fill screen
@@ -41,7 +43,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	// private final int startLives = 3;
 	private int score1 = 0;
 	private int score2 = 0;
-	private int maxScore = 3;
 
 	private boolean up, down; // booleans that track which keys are currently pressed
 	private boolean up2, down2; // booleans that track which keys are currently pressed
@@ -97,7 +98,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 	private final int ballMiddle = ballSize / 2; // ballSize must be odd
 	private final int playerSegments = 30; // must be even
-	private final int playerH = 5 * (playerSegments - ballMiddle); // pick number divisible by playerSegments -
+	private final int playerH = 2 * (playerSegments - ballMiddle); // pick number divisible by playerSegments -
 																	// ballMiddle
 	private final int playerW = 10;
 
@@ -283,7 +284,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		// frame.removeMouseMotionListener(game);
 
 		frame.setResizable(false);
-		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		frame.pack();
 

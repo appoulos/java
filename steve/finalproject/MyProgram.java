@@ -52,7 +52,7 @@ public class MyProgram extends JPanel {
 
 		frame.add(box);
 		frame.setResizable(false);
-		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		frame.pack();
 		repaint();
@@ -77,8 +77,7 @@ public class MyProgram extends JPanel {
 		for (i = 0; i < 100000; i++) {
 			randomizeArr(arr);
 			long startTime = System.nanoTime();
-			// int[] newArr = StevenSort(arr);
-			int[] _ = StevenSort(arr);
+			int[] newArr = StevenSort(arr);
 			long endTime = System.nanoTime();
 			long elapsedTime = endTime - startTime;
 			list.add(elapsedTime);
