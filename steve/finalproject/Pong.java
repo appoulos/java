@@ -877,21 +877,25 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 				if (hit >= playerSegments) {
 					hit = playerSegments - 1;
 				}
-				vel.x = bounces[hit].x * ballVelocity;
-				vel.y = bounces[hit].y * ballVelocity;
-				// vel.x *= (1 + (level - 1) * 0.2f);
-				// vel.y *= (1 + (level - 1) * 0.2f);
-				System.out
-						.println("hit segment: " + hit + "/" + playerSegments + " vel: (" + vel.x + "," + vel.y + ")");
-				setSoundParameters();
-				// System.out.println("vel:" + velocity + ", hit:" + hit);
-				// velocity.y *= -1;
-				// newBall.x = 2 * player.x - newBall.x - 2 * ballSize;
-				playSound(paddleMsg, -1);
-				// newBall.y = player.y - size;
+
+				float dx = bounces[hit].x;
+				float dy = bounces[hit].y;
+
+				vel.x = dx * ballVelocity;
+				vel.y = dy * ballVelocity;
+
 				ball.y = hitY - ballMiddle;
 				ball.x = player.x - ballSize;
-				newBall.x = player.x - (newBall.x + leftEdge - player.x) - ballSize;
+
+				float dist = (float) Math.sqrt(Math.pow(newBall.x - ball.x, 2) + Math.pow(newBall.y - ball.y, 2));
+				newBall.x = ball.x + dx * dist;
+				newBall.y = ball.y + dy * dist;
+
+				// newBall.x = player.x - (newBall.x + leftEdge - player.x) - ballSize;
+
+				playSound(paddleMsg, -1);
+				System.out
+						.println("hit segment: " + hit + "/" + playerSegments + " vel: (" + vel.x + "," + vel.y + ")");
 			}
 		}
 
