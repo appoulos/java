@@ -43,7 +43,9 @@ public class MyProgram extends JPanel {
 		button.setFont(font);
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.exit(0);
+				frame.dispose();
+				Games game = new Games();
+				game.setVisible(true);
 			}
 		});
 		box.add(button);
@@ -53,6 +55,7 @@ public class MyProgram extends JPanel {
 		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		frame.pack();
+		repaint();
 
 		System.out.println("Running...");
 		int[] arr = new int[100];

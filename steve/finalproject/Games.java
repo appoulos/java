@@ -157,6 +157,7 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 	}
 
 	void startGame() {
+		frame.dispose();
 		switch (selection) {
 			case 0:
 				Pong pong = new Pong();
@@ -172,9 +173,7 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 				break;
 			case 3:
 				System.exit(0);
-				break;
 		}
-		frame.dispose();
 	}
 
 	// Called every time a key is pressed
