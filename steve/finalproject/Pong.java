@@ -99,14 +99,14 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	private final int ballMiddle = ballSize / 2; // ballSize must be odd
 	private final int playerSegments = 30; // must be even
 	private final int playerH = 2 * (playerSegments - ballMiddle); // pick number divisible by playerSegments -
-																	// ballMiddle
+	// ballMiddle
 	private final int playerW = 10;
 
 	// the width of the game area
 	private final int gameWidth = 600; // padCol + blockCols * (blockWidth + padCol);
 	// the height of the game area
 	private final int gameHeight = 400; // padTop + blockRows * (blockHeight + padRow) + padMiddle + playerH +
-										// padBottom;
+	// padBottom;
 
 	// private final int playerSegment = playerW / 2 / playerSegments;
 
@@ -212,8 +212,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		origFrameRate = device.getDisplayMode().getRefreshRate();
 		System.out.println("refresh rate: " + origFrameRate);
 		frameRate = origFrameRate;
-		startBallVelocity *= 60 / frameRate;
-		playerVelocity *= (int) 60 / frameRate;
+		startBallVelocity *= 60.0f / frameRate;
+		playerVelocity *= (int) 60.0f / frameRate;
 
 		int ignoreDeadCode = 0;
 
@@ -409,7 +409,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			timer = new Timer(1000 / frameRate, this); // roughly frameRate frames per second
 			timer.start();
 		} else if (keyCode == KeyEvent.VK_8) {
-			if (frameRate <= Integer.MAX_VALUE / 2) {
+			if (frameRate <= 1000 / 2) {
 				frameRate *= 2;
 				setSoundParameters();
 			}
