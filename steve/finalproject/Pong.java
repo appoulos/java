@@ -99,9 +99,10 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	private final int playerW = 10;
 
 	// the width of the game area
-	private final int gameWidth = padCol + blockCols * (blockWidth + padCol);
+	private final int gameWidth = 600; // padCol + blockCols * (blockWidth + padCol);
 	// the height of the game area
-	private final int gameHeight = padTop + blockRows * (blockHeight + padRow) + padMiddle + playerH + padBottom;
+	private final int gameHeight = 400; // padTop + blockRows * (blockHeight + padRow) + padMiddle + playerH +
+										// padBottom;
 
 	// private final int playerSegment = playerW / 2 / playerSegments;
 
@@ -900,7 +901,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		}
 
 		if (ball.x + leftEdge > player2.x + playerW - 1 && newBall.x + leftEdge <= player2.x + playerW - 1) {
-			int hitY = (int) (ball.y + (float) vel.y / vel.x * (player2.x + rightEdge - (ball.x + leftEdge))
+			int hitY = (int) (ball.y + (float) vel.y / vel.x * (player2.x + playerW - 1 - (ball.x + leftEdge))
 					+ ballMiddle);
 			if (hitY >= player2.y - ballMiddle && hitY <= player2.y + playerH - 1 + ballMiddle) {
 				int hit = (hitY - player2.y) * playerSegments / playerH;
@@ -968,7 +969,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		g.setFont(new Font("Algerian", Font.BOLD, 14));
 		g.setColor(Color.white);
 		// g.drawString("Level: " + level + "/" + highScore, 5, 15);
-		g.drawString(score2 + "      " + score1, gameWidth / 2 - 20, 15);
+		g.drawString("" + score1, gameWidth / 2 + 13, 15);
+		g.drawString("" + score2, gameWidth / 2 - 25, 15);
 
 		// Draw center line
 		for (int i = 0; i < (int) gameHeight; i += 15)
@@ -995,8 +997,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		// }
 		// }
 
-		g.setColor(Color.magenta);
-		g2.fill(prevball); // ball.x, ball.y, ball.width, ball.height);
+		// g.setColor(Color.magenta);
+		// g2.fill(prevball); // ball.x, ball.y, ball.width, ball.height);
 		g.setColor(Color.green);
 		g2.fill(ball); // ball.x, ball.y, ball.width, ball.height);
 
