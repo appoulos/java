@@ -996,14 +996,24 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				if (hit >= playerSegments) {
 					hit = playerSegments - 1;
 				}
-				vel.x = bounces[hit].x * ballVelocity;
-				vel.y = bounces[hit].y * ballVelocity;
-				System.out
-						.println("hit segment: " + hit + "/" + playerSegments + " vel: (" + vel.x + "," + vel.y + ")");
+
+				float dx = bounces[hit].x;
+				float dy = bounces[hit].y;
+
+				vel.x = dx * ballVelocity;
+				vel.y = dy * ballVelocity;
+
 				ball.x = hitX - ballMiddle;
 				ball.y = player.y - ballSize;
-				newBall.y = player.y - (newBall.y + lowerEdge - player.y) - lowerEdge;
+
+				float dist = (float) Math.sqrt(Math.pow(newBall.x - ball.x, 2) + Math.pow(newBall.y - ball.y, 2));
+				newBall.x = ball.x + dx * dist;
+				newBall.y = ball.y + dy * dist;
+				// newBall.y = player.y - (newBall.y + lowerEdge - player.y) - lowerEdge;
+
 				playSound(paddleMsg, -1);
+				System.out
+						.println("hit segment: " + hit + "/" + playerSegments + " vel: (" + vel.x + "," + vel.y + ")");
 			}
 		}
 
