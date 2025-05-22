@@ -56,7 +56,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	private static int frameRate = 60; // roughly frame rate per second
 
 	private float ballVelocity = 1f; // start velocity roughly frame rate per second
-	private static float startBallVelocity = 2f; // start velocity roughly frame rate per second
+	private static float startBallVelocity = 4f; // start velocity roughly frame rate per second
 	// private final float velStartX = 1f; // start velocity roughly frame rate per
 	// second
 	// private final float velStartY = 3f; // start velocity roughly frame rate per
@@ -291,7 +291,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		// System.out.println("refresh rate: " +
 		// device.getDisplayMode().getRefreshRate());
 		// frameRate = device.getDisplayMode().getRefreshRate();
-		startBallVelocity *= 60 / frameRate;
+		// startBallVelocity *= 60 / frameRate;
 		// playerVelocity *= (int) 60 / frameRate;
 		// player2Velocity *= (int) 60 / frameRate;
 
@@ -465,8 +465,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		System.out.println("dPhi: " + Math.toDegrees(dPhi));
 		for (int i = 0; i < bounces.length / 2; i++) {
 			System.out.println("angle: " + Math.toDegrees(i * dPhi + theta));
-			float dy = (float) (startBallVelocity * Math.cos(i * dPhi + theta));
-			float dx = (float) (startBallVelocity * Math.sin(i * dPhi + theta));
+			float dy = (float) Math.cos(i * dPhi + theta);
+			float dx = (float) Math.sin(i * dPhi + theta);
 			bounces[i] = new Point2D.Float(-dx, -dy);
 			bounces[bounces.length - i - 1] = new Point2D.Float(-dx, dy);
 		}
@@ -881,6 +881,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 				float dx = bounces[hit].x;
 				float dy = bounces[hit].y;
+
+				ballVelocity *= 1.1f;
 
 				vel.x = dx * ballVelocity;
 				vel.y = dy * ballVelocity;
