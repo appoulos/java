@@ -175,8 +175,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		origFrameRate = device.getDisplayMode().getRefreshRate();
 		System.out.println("refresh rate: " + origFrameRate);
 		frameRate = origFrameRate;
-		startBallVelocity *= 60 / frameRate;
-		playerVelocity *= (int) 60 / frameRate;
+		startBallVelocity *= 60.0f / frameRate;
+		playerVelocity *= (int) 60.0f / frameRate;
 
 		int ignoreDeadCode = 0;
 
@@ -338,7 +338,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				timer.start();
 			}
 		} else if (keyCode == KeyEvent.VK_8) {
-			if (frameRate <= Integer.MAX_VALUE / 2) {
+			if (frameRate <= 1000 / 2) {
 				frameRate *= 2;
 				setSoundParameters();
 				if (timer != null) {
