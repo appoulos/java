@@ -40,12 +40,13 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	// private final int startLives = 3;
 	private int score1 = 0;
 	private int score2 = 0;
-	private int highScore = 1;
+	private int maxScore = 3;
 
 	private boolean up, down; // booleans that track which keys are currently pressed
 	private boolean up2, down2; // booleans that track which keys are currently pressed
 	private Timer timer; // the update timer
 	private boolean paused; // the update timer
+	private boolean help; // help menu on pause
 	private boolean pauseTimerActive = false; // the update timer
 	private long pauseTimer = 0;
 	private String message = "";
@@ -90,7 +91,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	// padCol) + 1;
 
 	private final int ballStartX = 90;
-	private final int ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
+	// private final int ballStartY = padTop + blockRows * (blockHeight + padRow) +
+	// 10;
 
 	private final int ballMiddle = ballSize / 2; // ballSize must be odd
 	private final int playerSegments = 30; // must be even
@@ -367,6 +369,12 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 				}
 			}
 			paused = !paused;
+			help = false;
+		} else if (keyCode == KeyEvent.VK_H) {
+			help = !help;
+			if (help) {
+				paused = true;
+			}
 		} else if (keyCode == KeyEvent.VK_MINUS) {
 			if (playerVelocity > 1)
 				playerVelocity -= 1;
@@ -507,8 +515,17 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
 		player2 = new Rectangle(player2StartX, player2StartY, playerW, playerH);
-		ball = new Ellipse2D.Float(ballStartX, ballStartY, ballSize, ballSize);
-		prevball = new Ellipse2D.Float(ballStartX, ballStartY, ballSize, ballSize);
+		int ballx = ballStartX;
+		int bally = (int) (Math.random() * gameHeight - ballSize);
+		if ((int) (Math.random() * 2) == 1) {
+			vel.y *= -1;
+		}
+		if (score1 + score2 % 2 == 1) {
+			ballx = gameWidth / 2 + (gameWidth / 2 - ballx + rightEdge);
+			vel.x *= -1;
+		}
+		ball = new Ellipse2D.Float(ballx, bally, ballSize, ballSize);
+		prevball = new Ellipse2D.Float(ballx, bally, ballSize, ballSize);
 		// vel.x = velStartX * (1 + (level - 1) * 0.2f);
 		// vel.y = velStartY * (1 + (level - 1) * 0.2f);
 
@@ -748,12 +765,24 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 				if (boundaryX == 0) {
 					onLose(2);
 					System.out.println("Player 2 lost round");
-					return false;
 				} else {
 					onLose(1);
 					System.out.println("Player 1 lost round");
-					return false;
 				}
+				// checkWinner();
+				if (Math.abs(score2 - score1) >= 2 && (score2 > maxScore || score1 >= maxScore)) {
+					if (score2 > score1) {
+						startMessage("Player 2 won");
+						System.out.println("Player 2 won");
+					} else {
+						startMessage("Player 1 won");
+						System.out.println("Player 1 won");
+					}
+					score1 = 0;
+					score2 = 0;
+				}
+				return false;
+
 			}
 			if (wallHit) {
 				playSound(wallMsg, (int) (currDist / frameDist * frameTimeuSec));
@@ -1018,30 +1047,37 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 		} else if (paused) {
 			g.setColor(Color.white);
-			int startY = padTop + blockRows * (blockHeight + padRow) + 10;
-			final int leftPad = 50;
-			int height = 20;
-			g.drawString("Up/Down: move paddle1 up/down", leftPad, startY);
-			startY += height;
-			g.drawString("W/S: move paddle2 up/down", leftPad, startY);
-			startY += height;
-			g.drawString("R: Reset Level", leftPad, startY);
-			startY += height;
-			g.drawString("Q: Quit", leftPad, startY);
-			startY += height;
-			g.drawString("7/8: fps, 9/0: vel, -/+: paddle1", leftPad, startY);
-			startY += height;
-			g.drawString("-/+: paddle1, 1/2: paddle2", leftPad, startY);
+			int startY = gameHeight / 2 + 60;
+			final int leftPad = gameWidth / 2 - 160;
 
-			if (soundPossible) {
+			int height = 20;
+
+			if (!help) {
+				startY = gameHeight / 2 + 60;
+				g.drawString("Space to serve (h for help)", leftPad, startY);
+			} else {
+				startY = gameHeight / 2 - 60;
+				g.drawString("Up/Down: move paddle1 up/down", leftPad, startY);
 				startY += height;
-				g.drawString("M: Mute", leftPad, startY);
+				g.drawString("W/S: move paddle2 up/down", leftPad, startY);
+				startY += height;
+				g.drawString("R: Reset Level", leftPad, startY);
+				startY += height;
+				g.drawString("Q: Quit", leftPad, startY);
+				startY += height;
+				g.drawString("7/8: fps, 9/0: vel, -/+: paddle1", leftPad, startY);
+				startY += height;
+				g.drawString("-/+: paddle1, 1/2: paddle2", leftPad, startY);
+				startY += height;
+				g.drawString("K: toggle Mouse/Keyboard", leftPad, startY);
+				startY += height;
+				g.drawString("P or Space: toggle pause", leftPad, startY);
+				if (soundPossible) {
+					startY += height;
+					g.drawString("M: Mute", leftPad, startY);
+				}
 			}
 
-			startY += height;
-			g.drawString("K: toggle Mouse/Keyboard", leftPad, startY);
-			startY += height;
-			g.drawString("P or Space: toggle pause", leftPad, startY);
 		}
 	}
 
@@ -1052,12 +1088,12 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	public void onWin() {
 		// player.setRect(new Rectangle(50, 50, size, size));
 
-		level++;
-		// lives++;
-		if (level > highScore) {
-			highScore = level;
-			// System.out.println("HighScore: " + highScore);
-		}
+		// level++;
+		// // lives++;
+		// if (level > highScore) {
+		// highScore = level;
+		// // System.out.println("HighScore: " + highScore);
+		// }
 
 		System.out.println("Level: " + level);
 		// createDialog("You Won! Level: " + level, 1000);
@@ -1073,7 +1109,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		// if (count == 0) {
 		// count++;
 		// // onLose();
-		// // resetLevel();
 		// // return;
 		// }
 		// }

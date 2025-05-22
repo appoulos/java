@@ -303,6 +303,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				}
 			}
 			paused = !paused;
+			help = false;
 		} else if (keyCode == KeyEvent.VK_H) {
 			help = !help;
 			if (help) {
