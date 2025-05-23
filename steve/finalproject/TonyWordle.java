@@ -1,6 +1,8 @@
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 // import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
@@ -208,6 +210,7 @@ class TonyWordle extends JPanel {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		frame.pack();
+		// enterFullScreen();
 		jt.requestFocusInWindow();
 		// Demo begin
 		// Print wordle word
@@ -224,6 +227,16 @@ class TonyWordle extends JPanel {
 
 		// Game begin
 		System.out.println("Starting wordle...");
+	}
+
+	public void enterFullScreen() {
+		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		if (device.isFullScreenSupported()) {
+			device.setFullScreenWindow(frame);
+			// device.getDisplayModes();
+			frame.validate();
+		}
 	}
 
 	void guess(String guess) {

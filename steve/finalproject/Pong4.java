@@ -29,9 +29,20 @@ public class Pong4 extends JPanel implements ActionListener, KeyListener {
 		frame.add(this);
 		frame.addKeyListener(this);
 		frame.setVisible(true);
+		// enterFullScreen();
 
 		timer = new Timer(10, this);
 		timer.start();
+	}
+
+	public void enterFullScreen() {
+		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		if (device.isFullScreenSupported()) {
+			device.setFullScreenWindow(frame);
+			// device.getDisplayModes();
+			frame.validate();
+		}
 	}
 
 	public void paintComponent(Graphics g) {

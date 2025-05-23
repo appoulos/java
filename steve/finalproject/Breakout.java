@@ -239,6 +239,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		frame.pack();
+		enterFullScreen();
 
 		this.setUpGame();
 	}

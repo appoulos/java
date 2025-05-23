@@ -143,6 +143,7 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		frame.pack();
+		enterFullScreen();
 
 		this.setUpGame();
 	}
