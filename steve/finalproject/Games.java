@@ -41,7 +41,14 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 	// vars
 	int selection = 0;
 	String selectionMax = "";
-	String[] selections = { "Pong", "Breakout", "Arrays", "Quit" };
+	String[] selections = {
+			"1. Pong",
+			"2. Pong2",
+			"3. Breakout",
+			"4. Arrays",
+			"5. Wordle",
+			"6. Quit"
+	};
 
 	// NOTE: currently playing sounds immediately as update/paint is done right away
 	void playSound(ShortMessage msg, int time) {
@@ -69,9 +76,10 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
 		screenHeight = graphicsEnvironment.getMaximumWindowBounds().height;
 
-		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-		origFrameRate = device.getDisplayMode().getRefreshRate();
-		System.out.println("refresh rate: " + origFrameRate);
+		origFrameRate = 5;
+		// GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		// origFrameRate = device.getDisplayMode().getRefreshRate();
+		// System.out.println("refresh rate: " + origFrameRate);
 		frameRate = origFrameRate;
 
 		int ignoreDeadCode = 0;
@@ -164,14 +172,23 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 				pong.setVisible(true);
 				break;
 			case 1:
+				Pong4 pong4 = new Pong4();
+				pong4.setVisible(true);
+				break;
+			case 2:
 				Breakout breakout = new Breakout();
 				breakout.setVisible(true);
 				break;
-			case 2:
+			case 3:
 				MyProgram myprogram = new MyProgram();
 				myprogram.setVisible(true);
 				break;
-			case 3:
+			case 4:
+				TonyWordle wordle = new TonyWordle();
+				wordle.setVisible(true);
+				// TonyWordle.main(new String[0]);
+				break;
+			case 5:
 				System.exit(0);
 		}
 	}
@@ -188,17 +205,23 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 				selection++;
 		} else if (keyCode == KeyEvent.VK_ENTER) {
 			startGame();
-		} else if (keyCode == KeyEvent.VK_P) {
+		} else if (keyCode == KeyEvent.VK_P || keyCode == KeyEvent.VK_1) {
 			selection = 0;
 			startGame();
-		} else if (keyCode == KeyEvent.VK_B) {
+		} else if (keyCode == KeyEvent.VK_O || keyCode == KeyEvent.VK_2) {
 			selection = 1;
 			startGame();
-		} else if (keyCode == KeyEvent.VK_A) {
+		} else if (keyCode == KeyEvent.VK_B || keyCode == KeyEvent.VK_3) {
 			selection = 2;
 			startGame();
-		} else if (keyCode == KeyEvent.VK_Q) {
+		} else if (keyCode == KeyEvent.VK_A || keyCode == KeyEvent.VK_4) {
 			selection = 3;
+			startGame();
+		} else if (keyCode == KeyEvent.VK_W || keyCode == KeyEvent.VK_5) {
+			selection = 4;
+			startGame();
+		} else if (keyCode == KeyEvent.VK_Q || keyCode == KeyEvent.VK_6) {
+			selection = 5;
 			startGame();
 		} else if (keyCode == KeyEvent.VK_M) {
 			if (soundPossible)

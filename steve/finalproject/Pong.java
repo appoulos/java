@@ -274,7 +274,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 		box.add(Box.createVerticalGlue());
 		box.add(this);
-		box.add(Box.createVerticalGlue());
 		frame.add(box);
 
 		this.addKeyListener(this);
@@ -336,6 +335,9 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		} else if (keyCode == KeyEvent.VK_S) {
 			down2 = true;
 		} else if (keyCode == KeyEvent.VK_Q) {
+			if (timer != null) {
+				timer.stop();
+			}
 			frame.dispose();
 			Games game = new Games();
 			game.setVisible(true);
