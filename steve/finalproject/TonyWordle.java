@@ -1,6 +1,7 @@
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Rectangle;
 // import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,6 +25,8 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
 class TonyWordle extends JPanel {
+
+	Rectangle bounds;
 	JScrollPane scrollPane;
 	StringBuffer sb = new StringBuffer();
 	JTextPane textPane;
@@ -155,6 +158,7 @@ class TonyWordle extends JPanel {
 		textPane = new JTextPane();
 		textPane.setFont(font);
 		textPane.setEditable(false);
+		bounds = new Rectangle(0, 0, 600, 400);
 		textPane.setBounds(0, 0, 600, 400);
 		textPane.setContentType("text/html");
 		// textArea.setText("<b>R</b>unn<span
@@ -243,14 +247,14 @@ class TonyWordle extends JPanel {
 		}
 
 		if (guess.length() != word.length()) {
-			add("Guess must be " + word.length() + " letters, try again..." + "<br>");
-			System.out.println("Guess must be " + word.length() + " letters, try again...");
+			add("Guess must be " + word.length() + " letters" + "<br>");
+			System.out.println("Guess must be " + word.length() + " letters");
 			addEnd();
 			return;
 		}
 		if (!isValidWord(guess)) {
-			add("Invalid word, try again..." + "<br>");
-			System.out.println("Invalid word, try again...");
+			add("Invalid word" + "<br>");
+			System.out.println("Invalid word");
 			addEnd();
 			return;
 		}
@@ -316,7 +320,8 @@ class TonyWordle extends JPanel {
 		add("</tr></table>");
 
 		if (guesses >= 6) {
-			add("Too many guesses... the word was " + word + "<br>");
+			add("Too many guesses... the word was<br>");
+			addSolution(word);
 			System.out.println("Too many guesses... the word was " + word);
 			guesses = 1;
 			word = getRandomWord();
@@ -325,7 +330,7 @@ class TonyWordle extends JPanel {
 		}
 
 		addEnd();
-		System.out.println(sb.toString());
+		// System.out.println(sb.toString());
 	}
 
 	public static void delay(int m) {
@@ -335,24 +340,43 @@ class TonyWordle extends JPanel {
 		}
 	}
 
+	void addSolution(String guess) {
+		add("<table><tr>");
+		// Loop through each char in guess
+		for (int i = 0; i < guess.length(); i++) {
+			char c = guess.charAt(i);
+			addChar(c, "green");
+			System.out.print(c);
+		}
+		System.out.println();
+	}
+
 	void add(String str) {
 		sb.append(str);
 		// textPane.setText(sb.toString());
 		// textPane.setCaretPosition(textPane.getDocument().getLength());
 	}
 
+	void addTableEnd() {
+		textPane.setText(sb.toString() + "</tr></table></body></html>");
+		textPane.setCaretPosition(textPane.getDocument().getLength());
+		textPane.paintImmediately(bounds);
+	}
+
 	void addEnd() {
 		textPane.setText(sb.toString() + "<br></body></html>");
 		textPane.setCaretPosition(textPane.getDocument().getLength());
+		textPane.paintImmediately(bounds);
 	}
 
 	void addChar(char c, String color) {
 		if (color.length() > 0) {
-			add("<td><span style=background-color:yellow>" + c + "</span>");
+			add("<td style=background-color:" + color + ">" + c + "</td>");
 		} else {
 			add("<td>" + c + "</td>");
 		}
-		delay(1);
+		addTableEnd();
+		delay(400);
 	}
 
 }
