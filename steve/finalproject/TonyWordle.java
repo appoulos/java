@@ -26,7 +26,6 @@ import javax.swing.JTextPane;
 
 class TonyWordle extends JPanel {
 
-	// JLabel jlMsg;
 	Rectangle bounds;
 	JScrollPane scrollPane;
 	StringBuffer sb = new StringBuffer();
@@ -101,7 +100,7 @@ class TonyWordle extends JPanel {
 	}
 
 	void quit() {
-		System.exit(0);
+		// System.exit(0);
 		frame.dispose();
 		Games game = new Games();
 		game.setVisible(true);
@@ -176,14 +175,6 @@ class TonyWordle extends JPanel {
 		// box.add(jl);
 		frame.add(jl, BorderLayout.WEST);
 
-		// jlMsg = new JLabel();
-		// Dimension jldMsg = new Dimension(200, 20);
-		// jlMsg.setPreferredSize(jldMsg);
-		// jlMsg.setFont(font);
-		// message("hi");
-		// // box.add(jl);
-		// frame.add(jl, BorderLayout.SOUTH);
-
 		JTextField jt = new JTextField();
 		Dimension jtd = new Dimension(300, 20);
 		jt.setPreferredSize(jtd);
@@ -246,10 +237,6 @@ class TonyWordle extends JPanel {
 
 		if (guess.equals("q")) {
 			quit();
-			// System.exit(0);
-			// Games games = new Games();
-			// games.setVisible(true);
-			// System.exit(0);
 		}
 
 		if (guess.length() != word.length()) {
@@ -356,8 +343,6 @@ class TonyWordle extends JPanel {
 
 	void add(String str) {
 		sb.append(str);
-		// textPane.setText(sb.toString());
-		// textPane.setCaretPosition(textPane.getDocument().getLength());
 	}
 
 	void addTableEnd(String msg) {
@@ -381,8 +366,4 @@ class TonyWordle extends JPanel {
 		addTableEnd("");
 		delay(100);
 	}
-
-	// void message(String msg) {
-	// jlMsg.setText(msg);
-	// }
 }
