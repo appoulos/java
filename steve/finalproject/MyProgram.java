@@ -36,7 +36,8 @@ public class MyProgram extends JPanel {
 		JTextArea textarea = new JTextArea(24, 40);
 		textarea.setFont(font);
 		textarea.setEditable(false);
-		textarea.setText("Running...");
+		textarea.setText("Running tests\n\nPlease wait...");
+		textarea.paintImmediately(0, 0, 24, 40);
 		box.add(new JScrollPane(textarea));
 
 		JButton button = new JButton("Back to main menu...");
