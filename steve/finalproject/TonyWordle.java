@@ -26,6 +26,7 @@ import javax.swing.JTextPane;
 
 class TonyWordle extends JPanel {
 
+	// JLabel jlMsg;
 	Rectangle bounds;
 	JScrollPane scrollPane;
 	StringBuffer sb = new StringBuffer();
@@ -161,12 +162,6 @@ class TonyWordle extends JPanel {
 		bounds = new Rectangle(0, 0, 600, 400);
 		textPane.setBounds(0, 0, 600, 400);
 		textPane.setContentType("text/html");
-		// textArea.setText("<b>R</b>unn<span
-		// style=background-color:green>i</span>ng...");
-		sb.append(
-				"<html><head><style>body { font-family: 'Arial'; font-size: 24px; } td { text-align: center; width: 40px; height: 40px; border: 1.5px solid; } </style></head>"
-						+
-						"<body>");
 		// box.add(textArea);
 		textPane.setPreferredSize(new Dimension(600, 400));
 		textPane.setMinimumSize(new Dimension(600, 400));
@@ -181,18 +176,26 @@ class TonyWordle extends JPanel {
 		// box.add(jl);
 		frame.add(jl, BorderLayout.WEST);
 
+		// jlMsg = new JLabel();
+		// Dimension jldMsg = new Dimension(200, 20);
+		// jlMsg.setPreferredSize(jldMsg);
+		// jlMsg.setFont(font);
+		// message("hi");
+		// // box.add(jl);
+		// frame.add(jl, BorderLayout.SOUTH);
+
 		JTextField jt = new JTextField();
 		Dimension jtd = new Dimension(300, 20);
 		jt.setPreferredSize(jtd);
 		jt.setMaximumSize(jtd);
 		jt.setMinimumSize(jtd);
 		jt.setFont(font);
+		jt.setText("abbey");
 		jt.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				// guess = jt.getText();
 				guess(jt.getText());
-				jt.setText("");
-				// add("Enter guess " + guesses + " (q to quit): ");
+				// jt.setText("");
 			}
 		});
 
@@ -237,6 +240,13 @@ class TonyWordle extends JPanel {
 
 	void guess(String guess) {
 		// System.out.print("Enter guess " + guesses + " (q to quit): ");
+		if (guesses == 1) {
+			sb.setLength(0);
+			sb.append(
+					"<html><head><style>body { font-family: 'Arial'; font-size: 24px; } td { text-align: center; width: 40px; height: 40px; border: 1.5px solid; } </style></head>"
+							+
+							"<body>");
+		}
 
 		if (guess.equals("q")) {
 			quit();
@@ -247,23 +257,24 @@ class TonyWordle extends JPanel {
 		}
 
 		if (guess.length() != word.length()) {
-			add("Guess must be " + word.length() + " letters" + "<br>");
+			// add("Guess must be " + word.length() + " letters" + "<br>");
 			System.out.println("Guess must be " + word.length() + " letters");
-			addEnd();
+			addEnd("Guess must be " + word.length() + " letters");
 			return;
 		}
 		if (!isValidWord(guess)) {
-			add("Invalid word" + "<br>");
+			// add("Invalid word" + "<br>");
 			System.out.println("Invalid word");
-			addEnd();
+			addEnd("Invalid word");
 			return;
 		}
 
 		// User wins!
 		if (guess.equals(word)) {
-			add("Hooray! You got it in " + guesses + " tries" + "<br>");
+			// add("Hooray! You got it in " + guesses + " tries" + "<br>");
 			System.out.println("Hooray! You got it in " + guesses + " tries");
-			addEnd();
+			guesses = 1;
+			addEnd("Hooray! You got it in " + guesses + " tries");
 			return;
 		}
 
@@ -319,21 +330,23 @@ class TonyWordle extends JPanel {
 		System.out.println();
 		add("</tr></table>");
 
-		if (guesses >= 6) {
+		if (guesses >= 3) {
 			add("Too many guesses... the word was<br>");
 			addSolution(word);
 			System.out.println("Too many guesses... the word was " + word);
 			guesses = 1;
 			word = getRandomWord();
-			addEnd();
+			addEnd("");
+			// System.out.println(textPane.getText());
 			return;
 		}
 
-		addEnd();
+		addEnd("");
 		// System.out.println(sb.toString());
+		// System.out.println(textPane.getText());
 	}
 
-	public static void delay(int m) {
+	public void delay(int m) {
 		try {
 			Thread.sleep(m);
 		} catch (Exception e) {
@@ -348,6 +361,7 @@ class TonyWordle extends JPanel {
 			addChar(c, "green");
 			System.out.print(c);
 		}
+		add("</tr></table>");
 		System.out.println();
 	}
 
@@ -357,14 +371,14 @@ class TonyWordle extends JPanel {
 		// textPane.setCaretPosition(textPane.getDocument().getLength());
 	}
 
-	void addTableEnd() {
-		textPane.setText(sb.toString() + "</tr></table></body></html>");
+	void addTableEnd(String msg) {
+		textPane.setText(sb.toString() + "</tr></table><br>" + msg + "</body></html>");
 		textPane.setCaretPosition(textPane.getDocument().getLength());
 		textPane.paintImmediately(bounds);
 	}
 
-	void addEnd() {
-		textPane.setText(sb.toString() + "<br></body></html>");
+	void addEnd(String msg) {
+		textPane.setText(sb.toString() + "<br>" + msg + "</body></html>");
 		textPane.setCaretPosition(textPane.getDocument().getLength());
 		textPane.paintImmediately(bounds);
 	}
@@ -375,8 +389,11 @@ class TonyWordle extends JPanel {
 		} else {
 			add("<td>" + c + "</td>");
 		}
-		addTableEnd();
-		delay(400);
+		addTableEnd("");
+		delay(100);
 	}
 
+	// void message(String msg) {
+	// jlMsg.setText(msg);
+	// }
 }
