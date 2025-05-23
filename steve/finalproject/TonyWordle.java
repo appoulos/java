@@ -190,12 +190,11 @@ class TonyWordle extends JPanel {
 		jt.setMaximumSize(jtd);
 		jt.setMinimumSize(jtd);
 		jt.setFont(font);
-		jt.setText("abbey");
+		// jt.setText(word); // cheat
 		jt.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent event) {
-				// guess = jt.getText();
 				guess(jt.getText());
-				// jt.setText("");
+				jt.setText("");
 			}
 		});
 
@@ -233,13 +232,10 @@ class TonyWordle extends JPanel {
 		// Demo end
 
 		// Game begin
-		// textArea.setText("Starting wordle...");
 		System.out.println("Starting wordle...");
-		// add("Enter guess " + guesses + " (q to quit): ");
 	}
 
 	void guess(String guess) {
-		// System.out.print("Enter guess " + guesses + " (q to quit): ");
 		if (guesses == 1) {
 			sb.setLength(0);
 			sb.append(
@@ -257,13 +253,11 @@ class TonyWordle extends JPanel {
 		}
 
 		if (guess.length() != word.length()) {
-			// add("Guess must be " + word.length() + " letters" + "<br>");
 			System.out.println("Guess must be " + word.length() + " letters");
 			addEnd("Guess must be " + word.length() + " letters");
 			return;
 		}
 		if (!isValidWord(guess)) {
-			// add("Invalid word" + "<br>");
 			System.out.println("Invalid word");
 			addEnd("Invalid word");
 			return;
@@ -271,10 +265,10 @@ class TonyWordle extends JPanel {
 
 		// User wins!
 		if (guess.equals(word)) {
-			// add("Hooray! You got it in " + guesses + " tries" + "<br>");
 			System.out.println("Hooray! You got it in " + guesses + " tries");
-			guesses = 1;
+			addSolution(word);
 			addEnd("Hooray! You got it in " + guesses + " tries");
+			guesses = 1;
 			return;
 		}
 
@@ -293,7 +287,6 @@ class TonyWordle extends JPanel {
 			}
 		}
 
-		// String str = "";
 		add("<table><tr>");
 		// Loop through each char in guess
 		nextCh: for (int i = 0; i < guess.length(); i++) {
@@ -302,7 +295,6 @@ class TonyWordle extends JPanel {
 			// Mark correct char in correct place green
 			if (c == word.charAt(i)) {
 				System.out.print(green(c));
-				// str += "<span style=background-color:green>" + c + "</span>";
 				addChar(c, "green");
 				continue;
 			}
@@ -313,7 +305,6 @@ class TonyWordle extends JPanel {
 					used[j] = true;
 					System.out.print(yellow(c));
 
-					// str += "<span style=background-color:yellow>" + c + "</span>";
 					addChar(c, "yellow");
 
 					continue nextCh;
@@ -323,27 +314,25 @@ class TonyWordle extends JPanel {
 			// Mark incorrect char
 			addChar(c, "");
 
-			// str += c;
 			System.out.print(c);
 		}
 
 		System.out.println();
 		add("</tr></table>");
 
-		if (guesses >= 3) {
+		if (guesses > 5) {
 			add("Too many guesses... the word was<br>");
 			addSolution(word);
 			System.out.println("Too many guesses... the word was " + word);
 			guesses = 1;
 			word = getRandomWord();
 			addEnd("");
-			// System.out.println(textPane.getText());
 			return;
 		}
 
 		addEnd("");
 		// System.out.println(sb.toString());
-		// System.out.println(textPane.getText());
+		// System.out.println(textPane.getText()); // formatted html
 	}
 
 	public void delay(int m) {
