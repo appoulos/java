@@ -11,8 +11,8 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 
 	// gui
 	private static double scale; // scale frame to fill screen
-	private static int origFrameRate = 60; // roughly frame rate per second
-	private static int frameRate = 60; // roughly frame rate per second
+	// private static int origFrameRate = 60; // roughly frame rate per second
+	private static int frameRate = 20; // roughly frame rate per second
 	private Timer timer; // the update timer
 	private static JFrame frame;
 	private static int screenWidth;
@@ -83,11 +83,11 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
 		screenHeight = graphicsEnvironment.getMaximumWindowBounds().height;
 
-		origFrameRate = 5;
+		// origFrameRate = 5;
 		// GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
 		// origFrameRate = device.getDisplayMode().getRefreshRate();
 		// System.out.println("refresh rate: " + origFrameRate);
-		frameRate = origFrameRate;
+		// frameRate = origFrameRate;
 
 		int ignoreDeadCode = 0;
 
