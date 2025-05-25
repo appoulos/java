@@ -40,6 +40,10 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 	static float currDist = 0f;
 
 	// vars
+	int mouseX = 0;
+	int mouseY = 0;
+	int mouseClickedX = 0;
+	int mouseClickedY = 0;
 	int selection = 0;
 	String selectionMax = "";
 	int rectWidth = 0;
@@ -147,6 +151,9 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		frame.setVisible(true);
 		frame.pack();
 		enterFullScreen();
+
+		frame.addMouseMotionListener(this);
+		frame.addMouseListener(this);
 
 		this.setUpGame();
 	}
@@ -304,10 +311,25 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		int posY = gameHeight / 4;
 		int dy = (int) (rectHeight * 2);
 		int posX = gameWidth / 2 - rectWidth;
+		g.drawString(
+				"clicked: " + mouseClickedX + "," + mouseClickedY + " mouse: " + mouseX + "," + mouseY + " pos: " + posX
+						+ "," + posY + " rect: " + rectWidth + "," + rectHeight,
+				25, 25);
 		for (int i = 0; i < selections.length; i++) {
 			posY += dy;
 			g.drawString(selections[i], posX, posY);
-			if (selection == i) {
+			if (mouseX >= 0) {
+				if (// mouseX >= posX && mouseX <= posX + rectWidth &&
+				mouseY >= posY - rectHeight
+						&& mouseY <= posY + rectHeight / 2) {
+					g.drawRect(posX, posY - rectHeight, (int) rectWidth, (int) (rectHeight * 1.5));
+					if (mouseClickedX >= 0 && mouseClickedY == mouseY) {
+						selection = i;
+						startGame();
+					}
+				}
+			} else {
+				// if (selection == i) {
 				g.drawRect(posX, posY - rectHeight, (int) rectWidth, (int) (rectHeight * 1.5));
 			}
 			// int max = g.getFontMetrics().stringWidth(selectionMax);
@@ -334,33 +356,43 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		// label2.setText("mouse is moved to point "
 		// + e.getX() + " " + e.getY());
 		// player.x = mouseWidth * e.getX() / screenWidth;
+		mouseX = (int) (e.getX() / scale);
+		mouseY = (int) (e.getY() / scale);
 	}
 
 	public void mouseClicked(MouseEvent e) {
+		mouseClickedX = (int) (e.getX() / scale);
+		mouseClickedY = (int) (e.getY() / scale);
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'mouseEntered'");
+		// throw new UnsupportedOperationException("Unimplemented method
+		// 'mouseEntered'");
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'mouseExited'");
+		// throw new UnsupportedOperationException("Unimplemented method
+		// 'mouseExited'");
 	}
 
 	@Override
-	public void mousePressed(MouseEvent arg0) {
+	public void mousePressed(MouseEvent e) {
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'mousePressed'");
+		// throw new UnsupportedOperationException("Unimplemented method
+		// 'mousePressed'");
+		// mouseX = e.getX();
+		// mouseY = e.getY();
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'mouseReleased'");
+		// throw new UnsupportedOperationException("Unimplemented method
+		// 'mouseReleased'");
 	}
 
 }
