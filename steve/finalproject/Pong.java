@@ -408,11 +408,14 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	}
 
 	private void resetLevel() {
-		for (int i = 0; i < bounces.length; i++) {
-			System.out.println(bounces[i]);
-		}
-		vel.x = -bounces[playerSegments / 2].x;
-		vel.y = bounces[playerSegments / 2].y;
+		// for (int i = 0; i < bounces.length; i++) {
+		// System.out.println(bounces[i]);
+		// }
+		int startAngleSegment = (int) (Math.random() * (playerSegments / 2));
+		// vel.x = -bounces[playerSegments / 2].x;
+		// vel.y = bounces[playerSegments / 2].y;
+		vel.x = -bounces[startAngleSegment].x;
+		vel.y = bounces[startAngleSegment].y;
 		ballVelocity = startBallVelocity * (1 + (level - 1) * 0.2f);
 		vel.x *= ballVelocity;
 		vel.y *= -ballVelocity;
@@ -420,8 +423,10 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 		paused = true;
 
-		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
-		player2 = new Rectangle(player2StartX, player2StartY, playerW, playerH);
+		// player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
+		// player2 = new Rectangle(player2StartX, player2StartY, playerW, playerH);
+		player = new Rectangle(playerStartX, gameHeight / 2, playerW, playerH);
+		player2 = new Rectangle(player2StartX, gameHeight / 2, playerW, playerH);
 		int ballx = ballStartX;
 		int bally = (int) (Math.random() * gameHeight - ballSize);
 		if ((int) (Math.random() * 2) == 1) {
@@ -752,8 +757,12 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		g2.fill(ball); // ball.x, ball.y, ball.width, ball.height);
 
 		g.setColor(Color.white);
-		g.drawString("fps: " + frameRate + " vel: " + ballVelocity + " paddle1: " + playerVelocity + " paddle2: "
-				+ player2Velocity, 5, gameHeight);
+		// g.drawString("fps: " + frameRate + " vel: " + ballVelocity + " paddle1: " +
+		// playerVelocity + " paddle2: "
+		// + player2Velocity, gameWidth/2-50, gameHeight);
+		g.drawString(" speed: " + player2Velocity, gameWidth / 4 - 20, gameHeight - 10);
+		g.drawString(" speed: "
+				+ playerVelocity, gameWidth * 3 / 4 - 40, gameHeight - 10);
 		if (pauseTimerActive) {
 			long currTime = System.currentTimeMillis();
 			if (pauseTimerActive && currTime - pauseTimer > 2000) {
