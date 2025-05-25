@@ -94,17 +94,17 @@ public class Pong4 extends JPanel implements ActionListener, KeyListener {
 			player1Y -= 5;
 		if (sPressed && player1Y < getHeight() - paddleHeight)
 			player1Y += 5;
-		if (upPressed && player2Y > 0)
+		if (twoPlayerMode && upPressed && player2Y > 0)
 			player2Y -= 5;
-		if (downPressed && player2Y < getHeight() - paddleHeight)
+		if (twoPlayerMode && downPressed && player2Y < getHeight() - paddleHeight)
 			player2Y += 5;
 
 		// AI movement if not two-player
 		if (!twoPlayerMode) {
 			if (player2Y + paddleHeight / 2 < ballY)
-				player2Y += 3;
+				player2Y += 4;
 			else if (player2Y + paddleHeight / 2 > ballY)
-				player2Y -= 3;
+				player2Y -= 4;
 		}
 
 		// Ball movement
@@ -158,6 +158,9 @@ public class Pong4 extends JPanel implements ActionListener, KeyListener {
 			frame.dispose();
 			Games game = new Games();
 			game.setVisible(true);
+		}
+		if (key == KeyEvent.VK_T) {
+			twoPlayerMode = !twoPlayerMode;
 		}
 		if (key == KeyEvent.VK_UP)
 			upPressed = true;
