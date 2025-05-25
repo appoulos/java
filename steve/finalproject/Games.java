@@ -148,9 +148,9 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
 		frame.pack();
 		enterFullScreen();
+		frame.setVisible(true);
 
 		frame.addMouseMotionListener(this);
 		frame.addMouseListener(this);
@@ -317,10 +317,13 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		int posY = gameHeight / 4;
 		int dy = (int) (rectHeight * 2);
 		int posX = gameWidth / 2 - rectWidth;
-		g.drawString(
-				"clicked: " + mouseClickedX + "," + mouseClickedY + " mouse: " + mouseX + "," + mouseY + " pos: " + posX
-						+ "," + posY + " rect: " + rectWidth + "," + rectHeight,
-				25, 25);
+		g.drawString("Main Menu", posX, posY);
+		posY += dy;
+		// g.drawString(
+		// "clicked: " + mouseClickedX + "," + mouseClickedY + " mouse: " + mouseX + ","
+		// + mouseY + " pos: " + posX
+		// + "," + posY + " rect: " + rectWidth + "," + rectHeight,
+		// 25, 25);
 		for (int i = 0; i < selections.length; i++) {
 			posY += dy;
 			g.drawString(selections[i], posX, posY);
