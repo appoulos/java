@@ -7,16 +7,17 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 public class MyProgram extends JPanel {
-
+	private Dimension d;
 	private static JFrame frame;
 	private final StringBuilder sb = new StringBuilder();
+	private JTextArea textarea;
 
 	public static void main(String[] args) {
 		new MyProgram();
 	}
 
 	public MyProgram() {
-		Dimension d = new Dimension(600, 400);
+		d = new Dimension(600, 400);
 
 		frame = new JFrame();
 		frame.setPreferredSize(d);
@@ -26,35 +27,56 @@ public class MyProgram extends JPanel {
 		frame.setTitle("Arrays");
 		frame.setLayout(new BorderLayout());
 
+		JPanel jpButtons = new JPanel();
 		Font font = new Font("Sans", Font.PLAIN, 20);
 
-		JTextArea textarea = new JTextArea(24, 40);
+		textarea = new JTextArea(24, 40);
 		textarea.setFont(font);
 		textarea.setEditable(false);
-		textarea.setText("Running tests\n\nPlease wait...");
+		textarea.setText("Press `Run` button to start tests, `Quit` to exit");
+
 		frame.add(new JScrollPane(textarea), BorderLayout.CENTER);
 
-		JButton button = new JButton("Back to main menu...");
-		button.setFont(font);
-		button.addActionListener(new ActionListener() {
+		JButton buttonRun = new JButton("Run");
+		buttonRun.setFont(font);
+		buttonRun.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				run();
+			}
+		});
+		// frame.add(buttonRun, BorderLayout.SOUTH);
+		jpButtons.add(buttonRun); // , BorderLayout.SOUTH);
+
+		JButton buttonQuit = new JButton("Quit");
+		buttonQuit.setFont(font);
+		buttonQuit.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				frame.dispose();
 				Games game = new Games();
 				game.setVisible(true);
 			}
 		});
-		frame.add(button, BorderLayout.SOUTH);
+		// frame.add(buttonQuit, BorderLayout.SOUTH);
+		jpButtons.add(buttonQuit); // , BorderLayout.SOUTH);
+
+		frame.add(jpButtons, BorderLayout.SOUTH);
 
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
 		frame.pack();
-		textarea.paintImmediately(0, 0, d.width, d.height);
-		button.paintImmediately(0, 0, d.width, d.height);
-		frame.repaint();
-		this.repaint();
+		buttonRun.requestFocusInWindow();
+		frame.setVisible(true);
+		// textarea.paintImmediately(0, 0, d.width, d.height);
+		// buttonQuit.paintImmediately(0, 0, d.width, d.height);
+		// frame.repaint();
+		// this.repaint();
+	}
 
+	void run() {
 		System.out.println("Running...");
+		textarea.setText("Running...");
+		textarea.paintImmediately(0, 0, d.width, d.height);
+
 		int[] arr = new int[100];
 		// System.out.println(printArr(arr));
 		// randomizeArr(arr);
