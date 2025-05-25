@@ -216,8 +216,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
 		frame.pack();
+		frame.setVisible(true);
 		enterFullScreen();
 
 		this.setUpGame();

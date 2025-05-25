@@ -123,26 +123,26 @@ class TonyWordle extends JPanel {
 		textPane.setBounds(bounds);
 		textPane.setContentType("text/html");
 		textPane.setPreferredSize(new Dimension(bounds.width, bounds.height));
-		textPane.setMinimumSize(new Dimension(bounds.width, bounds.height));
-		textPane.setMaximumSize(new Dimension(bounds.width, bounds.height));
+		// textPane.setMinimumSize(new Dimension(bounds.width, bounds.height));
+		// textPane.setMaximumSize(new Dimension(bounds.width, bounds.height));
 		scrollPane = new JScrollPane(textPane);
-		frame.add(scrollPane, BorderLayout.NORTH);
+		frame.add(scrollPane, BorderLayout.CENTER);
 
+		JPanel inputPanel = new JPanel();
 		// label for input
 		JLabel jl = new JLabel();
 		Dimension jld = new Dimension(200, 20);
 		jl.setPreferredSize(jld);
 		jl.setFont(font);
 		jl.setText("Guess (q to quit):");
-		// box.add(jl);
-		frame.add(jl, BorderLayout.WEST);
+		inputPanel.add(jl);
 
 		// user input field
 		JTextField jt = new JTextField();
 		Dimension jtd = new Dimension(300, 20);
 		jt.setPreferredSize(jtd);
-		jt.setMaximumSize(jtd);
-		jt.setMinimumSize(jtd);
+		// jt.setMaximumSize(jtd);
+		// jt.setMinimumSize(jtd);
 		jt.setFont(font);
 		// jt.setText(word); // Show word for debugging
 		jt.addActionListener(new java.awt.event.ActionListener() {
@@ -151,24 +151,29 @@ class TonyWordle extends JPanel {
 				jt.setText("");
 			}
 		});
-		frame.add(jt, BorderLayout.CENTER);
+		inputPanel.add(jt);
 
 		// Exit button
-		JButton button = new JButton("Back to main menu...");
+		JButton button = new JButton("Quit");
 		button.setFont(font);
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				quit();
 			}
 		});
-		frame.add(button, BorderLayout.SOUTH);
+		inputPanel.add(button);
+		// inputPanel.setPreferredSize(jtd);
+		// inputPanel.setMaximumSize(jtd);
+		// inputPanel.setMinimumSize(jtd);
+
+		frame.add(inputPanel, BorderLayout.SOUTH);
 
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
 		frame.pack();
+		frame.setVisible(true);
 		// enterFullScreen();
-		exitFullScreen();
+		// exitFullScreen();
 		jt.requestFocusInWindow();
 
 		// Demo begin

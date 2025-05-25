@@ -64,12 +64,10 @@ public class MyProgram extends JPanel {
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
+
 		buttonRun.requestFocusInWindow();
+
 		frame.setVisible(true);
-		// textarea.paintImmediately(0, 0, d.width, d.height);
-		// buttonQuit.paintImmediately(0, 0, d.width, d.height);
-		// frame.repaint();
-		// this.repaint();
 	}
 
 	void run() {
