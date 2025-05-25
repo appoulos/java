@@ -26,19 +26,12 @@ public class MyProgram extends JPanel {
 		frame.setTitle("Arrays");
 		frame.setLayout(new BorderLayout());
 
-		// add box to keep game in center while resizing window. from:
-		// https://stackoverflow.com/questions/7223530/how-can-i-properly-center-a-jpanel-fixed-size-inside-a-jframe
-		// Box box = new Box(BoxLayout.Y_AXIS);
-		// box.add(Box.createVerticalGlue());
-
 		Font font = new Font("Sans", Font.PLAIN, 20);
 
 		JTextArea textarea = new JTextArea(24, 40);
 		textarea.setFont(font);
 		textarea.setEditable(false);
 		textarea.setText("Running tests\n\nPlease wait...");
-		textarea.paintImmediately(0, 0, 24, 40);
-		// box.add(new JScrollPane(textarea));
 		frame.add(new JScrollPane(textarea), BorderLayout.CENTER);
 
 		JButton button = new JButton("Back to main menu...");
@@ -50,23 +43,14 @@ public class MyProgram extends JPanel {
 				game.setVisible(true);
 			}
 		});
-		// box.add(button);
 		frame.add(button, BorderLayout.SOUTH);
 
-		// frame.add(box);
-		// frame.add(this);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		frame.pack();
-		textarea.paintImmediately(0, 0, 600, 400);
-		button.paintImmediately(0, 0, 600, 400);
-		frame.repaint();
-		// textarea.paintImmediately(0, 0, 24, 40);
-		// frame.repaint();
-		// box.repaint();
-		// textarea.repaint();
-		// repaint();
+		textarea.paintImmediately(0, 0, d.width, d.height);
+		button.paintImmediately(0, 0, d.width, d.height);
 
 		System.out.println("Running...");
 		int[] arr = new int[100];

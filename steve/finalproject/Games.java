@@ -5,8 +5,9 @@ import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
 import javax.swing.*;
 import java.awt.event.*;
+import java.awt.geom.Rectangle2D;
 
-public class Games extends JPanel implements ActionListener, KeyListener, MouseMotionListener {
+public class Games extends JPanel implements ActionListener, KeyListener, MouseMotionListener, MouseListener {
 
 	// gui
 	private static double scale; // scale frame to fill screen
@@ -41,6 +42,8 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 	// vars
 	int selection = 0;
 	String selectionMax = "";
+	int rectWidth = 0;
+	int rectHeight = 0;
 	String[] selections = {
 			"1. Pong",
 			"2. Pong2",
@@ -241,12 +244,26 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 
 	// Sets the initial state of the game
 	public void setUpGame() {
-		int max = 0;
+
+		Graphics g = frame.getGraphics();
+		FontMetrics metrics = getFontMetrics(font);
+		// String str = "asdf";
+		// Rectangle2D rect = metrics.getStringBounds(str, 0, str.length(), g);
+		// g.getFontMetrics(font).getStringBounds("abc", g);
+
+		// int max = 0;
 		for (int i = 0; i < selections.length; i++) {
-			if (selections[i].length() > max) {
-				max = selections[i].length();
+			Rectangle2D rect = metrics.getStringBounds(selections[i], 0, selections[i].length(), g);
+			if (rect.getWidth() > rectWidth) {
+				rectWidth = (int) rect.getWidth();
+				rectHeight = (int) rect.getHeight();
 				selectionMax = selections[i];
 			}
+
+			// if (selections[i].length() > max) {
+			// max = selections[i].length();
+			// selectionMax = selections[i];
+			// }
 		}
 
 		// start update loop
@@ -284,15 +301,19 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 
 		g.setFont(font);
 		g.setColor(Color.white);
-		int startY = 40;
-		int height = 20;
+		int posY = gameHeight / 4;
+		int dy = (int) (rectHeight * 2);
+		int posX = gameWidth / 2 - rectWidth;
 		for (int i = 0; i < selections.length; i++) {
-			startY += height;
-			g.drawString(selections[i], 20, startY);
-			int max = g.getFontMetrics().stringWidth(selectionMax);
+			posY += dy;
+			g.drawString(selections[i], posX, posY);
 			if (selection == i) {
-				g.drawRect(height, startY - g.getFontMetrics().getHeight(), max, height);
+				g.drawRect(posX, posY - rectHeight, (int) rectWidth, (int) (rectHeight * 1.5));
 			}
+			// int max = g.getFontMetrics().stringWidth(selectionMax);
+			// if (selection == i) {
+			// g.drawRect(height, startY - g.getFontMetrics().getHeight(), max, height);
+			// }
 		}
 
 		// startY += 2 * height;
@@ -313,6 +334,33 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		// label2.setText("mouse is moved to point "
 		// + e.getX() + " " + e.getY());
 		// player.x = mouseWidth * e.getX() / screenWidth;
+	}
+
+	public void mouseClicked(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'mouseEntered'");
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'mouseExited'");
+	}
+
+	@Override
+	public void mousePressed(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'mousePressed'");
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("Unimplemented method 'mouseReleased'");
 	}
 
 }
