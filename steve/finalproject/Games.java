@@ -176,6 +176,8 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 	}
 
 	void startGame() {
+		frame.removeMouseMotionListener(this);
+		frame.removeMouseListener(this);
 		frame.dispose();
 		switch (selection) {
 			case 0:
@@ -209,11 +211,15 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 	public void keyPressed(KeyEvent e) {
 		int keyCode = e.getKeyCode();
 		if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W) {
-			if (selection > 0)
+			if (selection > 0) {
 				selection--;
+				mouseX = -1;
+			}
 		} else if (keyCode == KeyEvent.VK_DOWN || keyCode == KeyEvent.VK_S) {
-			if (selection < selections.length - 1)
+			if (selection < selections.length - 1) {
 				selection++;
+				mouseX = -1;
+			}
 		} else if (keyCode == KeyEvent.VK_ENTER) {
 			startGame();
 		} else if (keyCode == KeyEvent.VK_P || keyCode == KeyEvent.VK_1) {
@@ -322,15 +328,19 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 				if (// mouseX >= posX && mouseX <= posX + rectWidth &&
 				mouseY >= posY - rectHeight
 						&& mouseY <= posY + rectHeight / 2) {
+					selection = i;
 					g.drawRect(posX, posY - rectHeight, (int) rectWidth, (int) (rectHeight * 1.5));
-					if (mouseClickedX >= 0 && mouseClickedY == mouseY) {
-						selection = i;
-						startGame();
+					if (mouseClickedX >= 0) {
+						mouseClickedX = -1;
+						if (mouseClickedY == mouseY) {
+							startGame();
+						}
 					}
 				}
 			} else {
-				// if (selection == i) {
-				g.drawRect(posX, posY - rectHeight, (int) rectWidth, (int) (rectHeight * 1.5));
+				if (selection == i) {
+					g.drawRect(posX, posY - rectHeight, (int) rectWidth, (int) (rectHeight * 1.5));
+				}
 			}
 			// int max = g.getFontMetrics().stringWidth(selectionMax);
 			// if (selection == i) {
@@ -393,6 +403,13 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		// TODO Auto-generated method stub
 		// throw new UnsupportedOperationException("Unimplemented method
 		// 'mouseReleased'");
+	}
+
+	public static void delay(int m) {
+		try {
+			Thread.sleep(m);
+		} catch (Exception e) {
+		}
 	}
 
 }

@@ -51,6 +51,8 @@ public class MyProgram extends JPanel {
 		frame.pack();
 		textarea.paintImmediately(0, 0, d.width, d.height);
 		button.paintImmediately(0, 0, d.width, d.height);
+		frame.repaint();
+		this.repaint();
 
 		System.out.println("Running...");
 		int[] arr = new int[100];
@@ -293,5 +295,12 @@ public class MyProgram extends JPanel {
 			}
 		}
 		return str + "]";
+	}
+
+	public static void delay(int m) {
+		try {
+			Thread.sleep(m);
+		} catch (Exception e) {
+		}
 	}
 }
