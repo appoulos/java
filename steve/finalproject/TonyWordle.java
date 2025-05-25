@@ -105,45 +105,30 @@ class TonyWordle extends JPanel {
 	TonyWordle() {
 		Dimension d = new Dimension(800, 600); // ((int) scale * gameWidth), (int) (scale * gameHeight));
 
-		setPreferredSize(d);
-		setMinimumSize(d);
-		setMaximumSize(d);
-
 		Font font = new Font("Arial", Font.BOLD, 18);
 
 		frame = new JFrame();
+		frame.setPreferredSize(d);
+		frame.setMinimumSize(d);
+		frame.setMaximumSize(d);
 
-		frame.setTitle("Games");
+		frame.setTitle("Wordle");
 		frame.setLayout(new BorderLayout());
-		// frame.setLayout(new BoxLayout(frame, BoxLayout.Y_AXIS));
-
-		// Games game = new Games();
-
-		// frame.add(game, BorderLayout.CENTER);
-		// add box to keep game in center while resizing window
-		// from:
-		// https://stackoverflow.com/questions/7223530/how-can-i-properly-center-a-jpanel-fixed-size-inside-a-jframe
-
-		// Box box = new Box(BoxLayout.Y_AXIS);
-		//
-		// box.add(Box.createVerticalGlue());
-		// box.add(this);
-
-		// this.addKeyListener(this);
-		// frame.addKeyListener(this);
-
 		textPane = new JTextPane();
+
+		// output pane
 		textPane.setFont(font);
 		textPane.setEditable(false);
 		bounds = new Rectangle(0, 0, 600, 400);
-		textPane.setBounds(0, 0, 600, 400);
+		textPane.setBounds(bounds);
 		textPane.setContentType("text/html");
-		// box.add(textArea);
-		textPane.setPreferredSize(new Dimension(600, 400));
-		textPane.setMinimumSize(new Dimension(600, 400));
+		textPane.setPreferredSize(new Dimension(bounds.width, bounds.height));
+		textPane.setMinimumSize(new Dimension(bounds.width, bounds.height));
+		textPane.setMaximumSize(new Dimension(bounds.width, bounds.height));
 		scrollPane = new JScrollPane(textPane);
 		frame.add(scrollPane, BorderLayout.NORTH);
 
+		// label for input
 		JLabel jl = new JLabel();
 		Dimension jld = new Dimension(200, 20);
 		jl.setPreferredSize(jld);
@@ -152,35 +137,32 @@ class TonyWordle extends JPanel {
 		// box.add(jl);
 		frame.add(jl, BorderLayout.WEST);
 
+		// user input field
 		JTextField jt = new JTextField();
 		Dimension jtd = new Dimension(300, 20);
 		jt.setPreferredSize(jtd);
 		jt.setMaximumSize(jtd);
 		jt.setMinimumSize(jtd);
 		jt.setFont(font);
-		// jt.setText(word); // cheat
+		// jt.setText(word); // Show word for debugging
 		jt.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent event) {
 				guess(jt.getText());
 				jt.setText("");
 			}
 		});
-
-		// box.add(jt);
 		frame.add(jt, BorderLayout.CENTER);
 
+		// Exit button
 		JButton button = new JButton("Back to main menu...");
 		button.setFont(font);
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// System.exit(0);
 				quit();
 			}
 		});
-		// box.add(button);
 		frame.add(button, BorderLayout.SOUTH);
 
-		// frame.add(box);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
@@ -188,6 +170,7 @@ class TonyWordle extends JPanel {
 		// enterFullScreen();
 		exitFullScreen();
 		jt.requestFocusInWindow();
+
 		// Demo begin
 		// Print wordle word
 		// System.out.println("Random word: " + getRandomWord());
@@ -210,7 +193,6 @@ class TonyWordle extends JPanel {
 		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
 		if (device.isFullScreenSupported()) {
 			device.setFullScreenWindow(frame);
-			// device.getDisplayModes();
 			frame.validate();
 		}
 	}
