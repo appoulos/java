@@ -292,7 +292,7 @@ class TonyWordle extends JPanel {
 		System.out.println();
 		add("</tr></table>");
 
-		if (guesses > 5) {
+		if (guesses > 6) {
 			add("Too many guesses... the word was<br>");
 			addSolution(word);
 			System.out.println("Too many guesses... the word was " + word);
