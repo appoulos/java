@@ -16,9 +16,6 @@ import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Ellipse2D;
 
-// import java.awt.Graphics2D;
-// import java.awt.geom.Ellipse2D;
-
 public class Pong extends JPanel implements ActionListener, KeyListener, MouseMotionListener {
 	private int maxScore = 3;
 
@@ -27,20 +24,12 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	private static double scale; // scale frame to fill screen
 	private static Font font; // scale frame to fill screen
 
-	private int count = 0;
-	private final Object countMutex = new Object();
-
 	private Rectangle player = new Rectangle(); // a rectangle that represents the player
 	private Rectangle player2 = new Rectangle(); // a rectangle that represents the player
-	// private Rectangle ball = new Rectangle(); // a rectangle that represents the
-	// ball
 	public Ellipse2D.Float ball = new Ellipse2D.Float(); // a rectangle that
 	public Ellipse2D.Float prevball = new Ellipse2D.Float(); // a rectangle that
-	// represents the ball
-	// private Point nextCalc = new Point();
 
 	private int level = 1;
-	// private final int startLives = 3;
 	private int score1 = 0;
 	private int score2 = 0;
 
@@ -53,20 +42,12 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	private long pauseTimer = 0;
 	private String message = "";
 
-	// private final int dialogDelay = 2000;
-	// private final int cheatLevels = 1; // Number of levels to have no game over
-
 	private static int frameRate = 60; // roughly frame rate per second
 
 	private float ballVelocity = 1f; // start velocity roughly frame rate per second
 	private static float startBallVelocity = 4f; // start velocity roughly frame rate per second
-	// private final float velStartX = 1f; // start velocity roughly frame rate per
-	// second
-	// private final float velStartY = 3f; // start velocity roughly frame rate per
-	// second
 	private Point2D.Float vel = new Point2D.Float(); // velocity of ball
 
-	// private Point velSign = new Point(); // velocity of ball
 	private Point2D.Float newBall = new Point2D.Float(); // ball.x + vel.x, ball.y + vel.y);
 
 	private final int ballSize = 7; // ODD ball size
@@ -76,25 +57,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	// private final int upperEdge = 0; // ball size
 	// private final int lowerEdge = ballSize - 1; // ball size
 
-	private final int blockRows = 4;
-	private final int blockCols = 10;
-	private final int blockWidth = 40;
-	private final int blockHeight = 20;
-	private final int padCol = 3; // padding between columns
-	private final int padRow = 3; // padding between rows
-	private final int padTop = 50; // padding above blocks
-	private final int padMiddle = 150; // padding between blocks and paddle
-	private final int padBottom = 20; // padding below paddle
-	private Block[][] blocks = new Block[blockRows][blockCols];
-	private int blockCnt = blockRows * blockCols;
-	// private final boolean blockColNeighbors = size > padCol + 2; // (blockWidth +
-	// padCol) + 1;
-	// private final boolean blockRowNeighbors = size > padRow + 2; // (blockWidth +
-	// padCol) + 1;
-
 	private final int ballStartX = 90;
-	// private final int ballStartY = padTop + blockRows * (blockHeight + padRow) +
-	// 10;
 
 	private final int ballMiddle = ballSize / 2; // ballSize must be odd
 	private final int playerSegments = 30; // must be even
@@ -103,33 +66,28 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	private final int playerW = 10;
 
 	// the width of the game area
-	private final int gameWidth = 600; // padCol + blockCols * (blockWidth + padCol);
+	private final int gameWidth = 600;
 	// the height of the game area
-	private final int gameHeight = 400; // padTop + blockRows * (blockHeight + padRow) + padMiddle + playerH +
+	private final int gameHeight = 400;
 	// padBottom;
 
-	// private final int playerSegment = playerW / 2 / playerSegments;
-
-	// private Point[] bounces = new Point[playerSegments];
 	private Point2D.Float[] bounces = new Point2D.Float[playerSegments];
 
 	private final int padEdge = 30;
 	private final int playerStartX = gameWidth - padEdge;
-	private final int playerStartY = gameHeight - padBottom - playerH;
+	private final int playerStartY = gameHeight - playerH;
 	private static float playerVelocity = 10.0f;
 
 	private final int player2StartX = 0 + padEdge;
-	private final int player2StartY = gameHeight - padBottom - playerH;
+	private final int player2StartY = gameHeight - playerH;
 	private static float player2Velocity = 10.0f;
 
 	private final int maxWidth = gameWidth - 1 - ballSize;
 	private final int maxHeight = gameHeight - 1 - ballSize;
-	// max player.x position
+	// max player.y position
 	private final int mouseHeight = gameHeight - playerH;
 
-	// private static JLabel dialogLabel;
 	private static JFrame frame;
-	// private static JDialog dialog;
 	private static int screenHeight;
 	private boolean keyboard = true;
 
@@ -145,10 +103,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	final static String[] distNames = {
 			"horzWall       ",
 			"vertWall       ",
-			"horzBlockLeft  ",
-			"horzBlockRight ",
-			"vertBlockBottom",
-			"vertBlockTop   ",
 	};
 	static Dist[] dists = new Dist[distNames.length];
 
@@ -158,10 +112,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	static ShortMessage paddleMsg = new ShortMessage();
 	static ShortMessage wallMsg = new ShortMessage();
 	static ShortMessage loseMsg = new ShortMessage();
-	static ShortMessage brickMsg = new ShortMessage();
 	static ShortMessage paddleOffMsg = new ShortMessage();
 	static ShortMessage wallOffMsg = new ShortMessage();
-	// static ShortMessage brickOffMsg = new ShortMessage();
 	static boolean soundPossible = false;
 	static boolean mute = true;
 	static float frameTimeuSec = 0f;
@@ -176,17 +128,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			rcvr.send(wallOffMsg, t + time); // time in microseconds
 		}
 	}
-
-	// private void blockRemove(int r, int c) {
-	// if (blocks[r][c].alive) {
-	// // playSound(brickMsg, (int) (currDist / frameDist * frameTimeuSec));
-	// blocks[r][c].hits--;
-	// if (blocks[r][c].hits <= 0) {
-	// blocks[r][c].alive = false;
-	// blockCnt--;
-	// }
-	// }
-	// }
 
 	String printBall() {
 		return "\nball: (" + ball.x + ", " + ball.y + ") newBall: (" + newBall.x + ", " + newBall.y + ")";
@@ -240,10 +181,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			paddleMsg.setMessage(ShortMessage.NOTE_ON, 0, 50, noteVelocity);
 			wallMsg.setMessage(ShortMessage.NOTE_ON, 0, 40, noteVelocity);
 			loseMsg.setMessage(ShortMessage.NOTE_ON, 0, 37, noteVelocity);
-			brickMsg.setMessage(ShortMessage.NOTE_ON, 0, 100, noteVelocity);
 			paddleOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 50, noteVelocity);
 			wallOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 40, noteVelocity);
-			// brickOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 100, noteVelocity);
 			rcvr = MidiSystem.getReceiver();
 			soundPossible = true;
 			mute = false;
@@ -252,13 +191,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			// System.exit(1);
 		}
 		frame = new JFrame();
-
-		// dialog = new JDialog(frame, "Status");
-		// dialogLabel = new JLabel("");
-		// dialogLabel.setHorizontalAlignment(JLabel.CENTER);
-		// dialog.add(dialogLabel);
-		// dialog.setBounds(125, 125, 200, 70);
-		// dialog.setVisible(false);
 
 		frame.setTitle("Pong Game");
 		frame.setLayout(new BorderLayout());
@@ -288,21 +220,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		frame.pack();
 		enterFullScreen();
 
-		// GraphicsEnvironment graphicsEnvironment =
-		// GraphicsEnvironment.getLocalGraphicsEnvironment();
-		// GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-		// System.out.println(graphicsEnvironment.getMaximumWindowBounds());
-		// screenHeight = graphicsEnvironment.getMaximumWindowBounds().height;
-
-		// System.out.println("refresh rate: " +
-		// device.getDisplayMode().getRefreshRate());
-		// frameRate = device.getDisplayMode().getRefreshRate();
-		// startBallVelocity *= 60 / frameRate;
-		// playerVelocity *= (int) 60 / frameRate;
-		// player2Velocity *= (int) 60 / frameRate;
-
 		this.setUpGame();
-		// game.enterFullScreen();
 	}
 
 	// Method that is called by the timer framerate times per second (roughly)
@@ -361,11 +279,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		} else if (keyCode == KeyEvent.VK_P || keyCode == KeyEvent.VK_SPACE) {
 			if (paused && pauseTimerActive) {
 				return;
-				// long currTime = System.currentTimeMillis();
-				// if (pauseTimerActive && currTime - pauseTimer > 2000) {
-				// paused = false;
-				// pauseTimerActive = false;
-				// }
 			}
 			if (!keyboard) {
 				if (paused) {
@@ -450,14 +363,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			dists[i] = new Dist();
 		}
 		int ignoreDeadCode = 0;
-		if (ballSize > blockWidth + 1 + ignoreDeadCode) {
-			System.out.println("ball size cannot exeed blockWidth + 1");
-			System.exit(1);
-		}
-		if (ballSize > blockHeight + 1 + ignoreDeadCode) {
-			System.out.println("ball size cannot exeed blockHeight + 1");
-			System.exit(1);
-		}
 		if (ballSize % 2 != 1 + ignoreDeadCode) {
 			System.out.println("ball size must be odd");
 			System.exit(1);
@@ -515,10 +420,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 		paused = true;
 
-		// if (level == 1) {
-		// lives = startLives;
-		// }
-
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
 		player2 = new Rectangle(player2StartX, player2StartY, playerW, playerH);
 		int ballx = ballStartX;
@@ -532,16 +433,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		}
 		ball = new Ellipse2D.Float(ballx, bally, ballSize, ballSize);
 		prevball = new Ellipse2D.Float(ballx, bally, ballSize, ballSize);
-		// vel.x = velStartX * (1 + (level - 1) * 0.2f);
-		// vel.y = velStartY * (1 + (level - 1) * 0.2f);
 
 		setSoundParameters();
-		// int framesTillNextCalc = (player.y - 1 - size - ball.y) / vel.y;
-		// nextCalc.x = ball.x + vel.x * framesTillNextCalc;
-		// nextCalc.y = ball.y + vel.y * framesTillNextCalc;
-		// System.out.println(nextCalc + ", " + framesTillNextCalc);
-
-		// System.out.println("Level: " + level + ", lives: " + lives);
 	}
 
 	public void enterFullScreen() {
@@ -549,7 +442,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
 		if (device.isFullScreenSupported()) {
 			device.setFullScreenWindow(frame);
-			// device.getDisplayModes();
 			frame.validate();
 		}
 	}
@@ -559,69 +451,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
 		if (device.isFullScreenSupported()) {
 			device.setFullScreenWindow(null);
-			// device.getDisplayModes();
 			frame.validate();
 		}
-	}
-
-	public int blockCol(int sign, float x) {
-		if (sign == 1)
-			return blockColPos(x);
-		else
-			return blockColNeg(x);
-	}
-
-	public int blockRow(int sign, float y) {
-		if (sign == 1)
-			return blockRowPos(y);
-		else
-			return blockRowNeg(y);
-	}
-
-	public int blockColPos(float x) {
-		x = (x - padCol);
-		if (x < 0)
-			return -1;
-		// make x = col
-		x /= (blockWidth + padCol);
-		if (x >= blockCols)
-			return blockCols - 1;
-		return (int) x;
-	}
-
-	public int blockColNeg(float x) {
-		x = (x - padCol - blockWidth);
-		if (x < 0)
-			return -1;
-		// make x = col
-		x /= (blockWidth + padCol);
-		if (x >= blockCols)
-			return blockCols - 1;
-		return (int) x;
-	}
-
-	// new Point(padCol + (padCol + blockWidth) * c, padTop + (padRow + blockHeight)
-	// * r),
-	public int blockRowPos(float y) {
-		y = (y - padTop);
-		if (y < 0)
-			return -1;
-		// make y = row
-		y /= (blockHeight + padRow);
-		if (y >= blockRows)
-			return blockRows - 1;
-		return (int) y;
-	}
-
-	public int blockRowNeg(float y) {
-		y = (y - padTop - blockHeight);
-		if (y < 0)
-			return -1;
-		// make y = row
-		y /= (blockHeight + padRow);
-		if (y >= blockRows)
-			return blockRows - 1;
-		return (int) y;
 	}
 
 	void debug(String msg, float hitX, float hitY, int r, int c, float dx, float dy, int edgeX, int edgeY) {
@@ -645,7 +476,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			if (cnt > 5) {
 				System.out.println("######################## error cnt: " + cnt);
 				paused = true;
-				// return false;
 			}
 
 			// NOTE: Setup variables
@@ -660,52 +490,26 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			foundHit = false;
 			float signX, signY;
 			int boundaryX, boundaryY;
-			// int blockEdgeX, blockEdgeY;
-			// int edgeX, edgeY;
-			// int rowBeg, rowEnd;
-			// int colBeg, colEnd;
-			// int revEdgeX, revEdgeY;
-			// Dist bd;
 			if (vel.x > 0) {
 				signX = 1;
 				boundaryX = maxWidth;
-				// edgeX = rightEdge;
-				// revEdgeX = leftEdge;
-				// blockEdgeX = 0;
-				// colBeg = blockColPos(ball.x + edgeX) + 1;
-				// colEnd = blockColPos(newBall.x + edgeX) + 1;
 			} else {
 				signX = -1;
 				boundaryX = 0;
-				// edgeX = leftEdge;
-				// revEdgeX = rightEdge;
-				// blockEdgeX = blockWidth; // TEST:
-				// colBeg = blockColNeg(ball.x + edgeX);
-				// colEnd = blockColNeg(newBall.x + edgeX);
 			}
 			if (vel.y > 0) {
 				signY = 1;
 				boundaryY = maxHeight;
-				// edgeY = lowerEdge;
-				// revEdgeY = upperEdge;
-				// rowBeg = blockRowPos(ball.y + edgeY) + 1;
-				// rowEnd = blockRowPos(newBall.y + edgeY) + 1;
-				// blockEdgeY = 0;
 			} else {
 				signY = -1;
 				boundaryY = 0;
-				// edgeY = upperEdge;
-				// revEdgeY = lowerEdge;
-				// rowBeg = blockRowNeg(ball.y + edgeY);
-				// rowEnd = blockRowNeg(newBall.y + edgeY);
-				// blockEdgeY = blockHeight; // TEST:
 			}
 
 			// NOTE: horizontal wall hit
 
 			if (newBall.y < 0 || newBall.y > maxHeight) {
 				float dy = boundaryY - ball.y;
-				float dx = dy / m; // * signX * signY;
+				float dx = dy / m;
 				float d = dx * dx + dy * dy;
 				if (d <= min) {
 					foundHit = true;
@@ -720,7 +524,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 			if (newBall.x < 0 || newBall.x > maxWidth) {
 				float dx = boundaryX - ball.x;
-				float dy = dx * m; // * signY * signX;
+				float dy = dx * m;
 				float d = dx * dx + dy * dy;
 				if (d <= min) {
 					foundHit = true;
@@ -755,11 +559,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 				ball.y = dists[horzWall].ballY;
 				vel.y *= -1;
 				newBall.y = 2 * ball.y - newBall.y;
-				// if (signY > 0 && level > cheatLevels) {
-				// onLose();
-				// retLose = true;
-				// break ret;
-				// }
 			}
 
 			if (foundHit) {
@@ -770,19 +569,19 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 				playSound(loseMsg, (int) (currDist / frameDist * frameTimeuSec));
 				if (boundaryX == 0) {
 					onLose(2);
-					System.out.println("Player 2 lost round");
+					System.out.println("Left player lost round");
 				} else {
 					onLose(1);
-					System.out.println("Player 1 lost round");
+					System.out.println("Right player lost round");
 				}
-				// checkWinner();
+				// checkWinner:
 				if (Math.abs(score2 - score1) >= 2 && (score2 > maxScore || score1 >= maxScore)) {
 					if (score2 > score1) {
-						startMessage("Player 2 won");
-						System.out.println("Player 2 won");
+						startMessage("Left player won");
+						System.out.println("Left player won");
 					} else {
-						startMessage("Player 1 won");
-						System.out.println("Player 1 won");
+						startMessage("Right player won");
+						System.out.println("Right player won");
 					}
 					score1 = 0;
 					score2 = 0;
@@ -814,40 +613,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		return retLose;
 	}
 
-	public boolean hitBlock() {
-		// return Rectangle.(ball.x, ball.y, ball2.x, ball2.y, block.x, block.x +
-		// block.width, block.y, block.y);
-		// int hitCnt = 0;
-		boolean found = false;
-		for (int r = 0; r < blockRows; r++) {
-			for (int c = 0; c < blockCols; c++) {
-				if (blocks[r][c].alive) {
-					if (ball.intersects(blocks[r][c].point.x, blocks[r][c].point.y, blockWidth, blockHeight)) {
-						// hitCnt++;
-						blocks[r][c].alive = false;
-						blockCnt--;
-						if (blockCnt <= 0) {
-							onWin();
-							return true;
-						}
-						found = true;
-					}
-				}
-			}
-		}
-		if (found) {
-			// ball.y += velocity.y;
-			// velocity.y *= -1;
-			vel.y = Math.abs(vel.y);
-		}
-		return found;
-	}
-
-	// The update method does 5 things
-	// 1 - it has the player move based on what key is currently being pressed
-	// 2 - it prevents the player from leaving the screen
-	// 3 - it checks if the player has reached the goal, and if so congratualtes
-	// them and restarts the game
 	public void update() {
 		currDist = 0;
 
@@ -879,25 +644,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			player2.y = gameHeight - player2.height;
 		}
 
-		// if (ball.x != nextCalc.x || ball.y != nextCalc.y)
-		// return;
-		// System.out.println(ball);
-
-		// if (ball.x == nextCalc.x && ball.y == nextCalc.y) {
-		// if (ball.y + size == player.y - 1) {
-		// // check player hit
-		// }
-		// int framesTillNextCalc = (player.y - 1 - size - ball.y) / velocity.y;
-		// nextCalc.x = ball.x + velocity.x * framesTillNextCalc;
-		// nextCalc.y = ball.y + velocity.y * framesTillNextCalc;
-		// System.out.println(nextCalc + ", " + framesTillNextCalc);
-		// paused = true;
-		// }
-
-		// if ((int) Math.random() == 0)
-		// return;
-
-		// newBall = new Point2D.Float(ball.x + vel.x, ball.y + vel.y);
 		newBall.x = ball.x + vel.x;
 		newBall.y = ball.y + vel.y;
 
@@ -928,8 +674,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 				float dist = (float) Math.sqrt(Math.pow(newBall.x - ball.x, 2) + Math.pow(newBall.y - ball.y, 2));
 				newBall.x = ball.x + dx * dist;
 				newBall.y = ball.y + dy * dist;
-
-				// newBall.x = player.x - (newBall.x + leftEdge - player.x) - ballSize;
 
 				playSound(paddleMsg, -1);
 				System.out
@@ -967,45 +711,26 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 						.println("hit segment: " + hit + "/" + playerSegments + " vel: (" + vel.x + "," + vel.y + ")");
 			}
 		}
-		// if (velocity.y > 0
-		// && Line2D.linesIntersect(ball.x, ball.y, newBall.x, newBall.y, player.x,
-		// player.y, player.x + playerW,
-		// player.y)) {
-		// velocity.y *= -1;
-		// newBall.y = 2 * player.y - newBall.y;
-		// }
 
 		if (nextHit()) { // return true when level lost
 			return;
 		}
 		// ball.x = newBall.x;
 		// ball.y = newBall.y;
-		if (blockCnt <= 0) {
-			synchronized (countMutex) {
-				if (count == 0) {
-					count++;
-					onWin();
-					resetLevel();
-				}
-			}
-		}
 	}
 
-	// The paint method does 3 things
-	// 1 - it draws a white background
-	// 2 - it draws the player in blue
-	// 3 - it draws the ball in green
-	// 4 - it draws all the blocks
 	public void paint(Graphics g) {
 
 		Graphics2D g2 = (Graphics2D) g;
 		g2.scale(scale, scale);
-		g2.setColor(Color.darkGray);
-		g2.fillRect(0, 0, (int) scale * gameWidth, (int) scale * gameHeight);
+		g2.setBackground(Color.darkGray);
+		g2.clearRect(0, 0, (int) gameWidth, (int) gameHeight);
+
+		// g2.setColor(Color.darkGray);
+		// g2.fillRect(0, 0, (int) scale * gameWidth, (int) scale * gameHeight);
 
 		g.setFont(font);
 		g.setColor(Color.white);
-		// g.drawString("Level: " + level + "/" + highScore, 5, 15);
 		g.drawString("" + score1, gameWidth / 2 + 13, 15);
 		g.drawString("" + score2, gameWidth / 2 - 25, 15);
 
@@ -1018,24 +743,11 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		g.setColor(Color.red);
 		g.fillRect(player2.x, player2.y, player2.width, player2.height);
 
-		// Blocks for breakout
-		// for (int r = 0; r < blockRows; r++) {
-		// for (int c = 0; c < blockCols; c++) {
-		// g.setColor(blocks[r][0].color);
-		// if (blocks[r][c].alive) {
-		// g.fillRect(blocks[r][c].point.x, blocks[r][c].point.y, blockWidth,
-		// blockHeight);
-		// if (blocks[r][c].hits > 1) {
-		// g.setColor(Color.black);
-		// g.drawString("" + blocks[r][c].hits, blocks[r][c].point.x + 5,
-		// blocks[r][c].point.y + 12);
-		// }
-		// }
-		// }
-		// }
-
+		// previous ball hit
 		// g.setColor(Color.magenta);
 		// g2.fill(prevball); // ball.x, ball.y, ball.width, ball.height);
+
+		// ball
 		g.setColor(Color.green);
 		g2.fill(ball); // ball.x, ball.y, ball.width, ball.height);
 
@@ -1048,7 +760,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 				// paused = false;
 				pauseTimerActive = false;
 			} else {
-				g.drawString(message, gameWidth / 2 - 80, gameHeight - (padMiddle + padBottom) / 2);
+				g.drawString(message, gameWidth / 2 - 80, gameHeight - 200);
 			}
 
 		} else if (paused) {
@@ -1091,35 +803,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		return gameHeight;
 	}
 
-	public void onWin() {
-		// player.setRect(new Rectangle(50, 50, size, size));
-
-		// level++;
-		// // lives++;
-		// if (level > highScore) {
-		// highScore = level;
-		// // System.out.println("HighScore: " + highScore);
-		// }
-
-		System.out.println("Level: " + level);
-		// createDialog("You Won! Level: " + level, 1000);
-		startMessage("Level completed!");
-
-		resetLevel();
-	}
-
 	public void onLose(int player) {
-		// player.setRect(new Rectangle(playerStartX, playerStartY, playerW, playerH));
-		// if (level > cheatLevels) {
-		// synchronized (countMutex) {
-		// if (count == 0) {
-		// count++;
-		// // onLose();
-		// // return;
-		// }
-		// }
-		// }
-
 		if (player == 2) {
 			score1++;
 		} else {
@@ -1135,38 +819,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		pauseTimer = System.currentTimeMillis();
 		paused = true;
 	}
-
-	// Sets visible a Pseudo-dialog that removes itself after a fixed time interval
-	// Uses a thread to not block the rest of the program
-	//
-	// @param: message: String -> The message that will appear on the dialog
-	// @param: delay: int -> How long (in milliseconds) that Dialog is visible
-	// private void createDialog(String message, int delay) {
-	// dialogLabel.setText(message);
-	// dialog.setVisible(true);
-	// frame.requestFocus();
-	//
-	// Thread thread = new Thread(() -> {
-	// try {
-	// // Show pop up for [delay] milliseconds
-	// Thread.sleep(delay);
-	// } catch (Exception e) {
-	// System.out.println("Thread failed :(");
-	// dialog.setVisible(false);
-	// frame.requestFocus();
-	// }
-	// // End of 3 seconds
-	// // Close the pop up
-	// dialog.setVisible(false);
-	// frame.requestFocus();
-	//
-	// synchronized (countMutex) {
-	// count--;
-	// // System.out.println("count: " + count);
-	// }
-	// });
-	// thread.start();
-	// }
 
 	public static void delay(int m) {
 		try {
@@ -1206,5 +858,4 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 		}
 	}
-
 }

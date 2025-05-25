@@ -4,7 +4,6 @@ import java.awt.Font;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
-// import java.awt.GraphicsEnvironment;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -12,15 +11,11 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-// import java.util.Scanner;
 import java.util.Set;
 
-// import javax.swing.Box;
-// import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-// import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -34,7 +29,7 @@ class TonyWordle extends JPanel {
 	JTextPane textPane;
 	String word = getRandomWord();
 	String guess = "";
-	int guesses = 1; // number of guesses
+	int guesses = 1;
 
 	public static String getRandomWord() {
 		if (wordBank.size() == 0) {
@@ -102,32 +97,12 @@ class TonyWordle extends JPanel {
 	}
 
 	void quit() {
-		// System.exit(0);
 		frame.dispose();
 		Games game = new Games();
 		game.setVisible(true);
 	}
 
 	TonyWordle() {
-		// GraphicsEnvironment graphicsEnvironment =
-		// GraphicsEnvironment.getLocalGraphicsEnvironment();
-		// int screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
-		// int screenHeight = graphicsEnvironment.getMaximumWindowBounds().height;
-
-		// GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-		// origFrameRate = device.getDisplayMode().getRefreshRate();
-		// System.out.println("refresh rate: " + origFrameRate);
-		// frameRate = origFrameRate;
-
-		// int ignoreDeadCode = 0;
-		//
-		// if ((double) gameWidth / gameHeight >= (double) screenWidth / screenHeight +
-		// ignoreDeadCode) {
-		// scale = (double) screenWidth / gameWidth;
-		// } else {
-		// scale = (double) screenHeight / gameHeight;
-		// }
-
 		Dimension d = new Dimension(800, 600); // ((int) scale * gameWidth), (int) (scale * gameHeight));
 
 		setPreferredSize(d);
@@ -211,6 +186,7 @@ class TonyWordle extends JPanel {
 		frame.setVisible(true);
 		frame.pack();
 		// enterFullScreen();
+		exitFullScreen();
 		jt.requestFocusInWindow();
 		// Demo begin
 		// Print wordle word
@@ -235,6 +211,15 @@ class TonyWordle extends JPanel {
 		if (device.isFullScreenSupported()) {
 			device.setFullScreenWindow(frame);
 			// device.getDisplayModes();
+			frame.validate();
+		}
+	}
+
+	public void exitFullScreen() {
+		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		if (device.isFullScreenSupported()) {
+			device.setFullScreenWindow(null);
 			frame.validate();
 		}
 	}

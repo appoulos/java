@@ -1034,45 +1034,60 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	}
 
 	public void paint(Graphics g) {
-
 		Graphics2D g2 = (Graphics2D) g;
-		g2.scale(scale, scale);
-		g2.setColor(Color.darkGray);
-		g2.fillRect(0, 0, (int) scale * gameWidth, (int) scale * gameHeight);
 
-		g.setFont(font);
-		g.setColor(Color.white);
-		g.drawString("Level: " + level + "/" + highScore, 5, 15);
+		g2.scale(scale, scale);
+
+		// set background
+		g2.setBackground(Color.darkGray);
+		// g2.clearRect(0, 0, (int) scale * gameWidth, (int) scale * gameHeight);
+		g2.clearRect(0, 0, (int) gameWidth, (int) gameHeight);
+
+		// g2.setColor(Color.darkGray);
+		// g2.fillRect(0, 0, (int) scale * gameWidth, (int) scale * gameHeight);
+
+		// upper left level
+		g2.setFont(font);
+		g2.setColor(Color.white);
+		g2.drawString("Level: " + level + "/" + highScore, 5, 15);
 		// g.drawString("Lives: " + lives, gameWidth - 70, 15);
 
-		g.setColor(Color.blue);
-		g.fillRect(player.x, player.y, player.width, player.height);
+		// player paddle
+		g2.setColor(Color.blue);
+		g2.fillRect(player.x, player.y, player.width, player.height);
 
+		// blocks
 		for (int r = 0; r < blockRows; r++) {
 			for (int c = 0; c < blockCols; c++) {
-				g.setColor(blocks[r][0].color);
+				g2.setColor(blocks[r][0].color);
 				if (blocks[r][c].alive) {
-					g.fillRect(blocks[r][c].point.x, blocks[r][c].point.y, blockWidth, blockHeight);
+					g2.fillRect(blocks[r][c].point.x, blocks[r][c].point.y, blockWidth, blockHeight);
 					if (blocks[r][c].hits > 1) {
-						g.setColor(Color.black);
-						g.drawString("" + blocks[r][c].hits, blocks[r][c].point.x + 5, blocks[r][c].point.y + 12);
+						g2.setColor(Color.black);
+						g2.drawString("" + blocks[r][c].hits, blocks[r][c].point.x + 5, blocks[r][c].point.y + 12);
 					}
 				}
 			}
 		}
+
+		// previous ball hit
 		// g.setColor(Color.magenta);
 		// g2.fill(prevball); // ball.x, ball.y, ball.width, ball.height);
-		g.setColor(Color.green);
+
+		// ball
+		g2.setColor(Color.green);
 		g2.fill(ball); // ball.x, ball.y, ball.width, ball.height);
+
+		// Extra lives
 		for (int i = 0; i < lives; i++) {
-			g.fillRect(gameWidth - (i + 1) * (ballSize / 2 + 5), 5, (int) ball.width / 2, (int) ball.height / 2);
+			g2.fillRect(gameWidth - (i + 1) * (ballSize / 2 + 5), 5, (int) ball.width / 2, (int) ball.height / 2);
 		}
 
-		g.setColor(Color.white);
+		g2.setColor(Color.white);
 		// g.drawString(
 		// " blocks: " + blockCnt,
 		// 5, gameHeight);
-		g.drawString("fps: " + frameRate + " vel: " + ballVelocity + " paddle: " + playerVelocity
+		g2.drawString("fps: " + frameRate + " vel: " + ballVelocity + " paddle: " + playerVelocity
 				+ " blocks: " + blockCnt, 5, gameHeight - 2);
 		if (pauseTimerActive) {
 			long currTime = System.currentTimeMillis();
@@ -1080,34 +1095,34 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				// paused = false;
 				pauseTimerActive = false;
 			} else {
-				g.drawString(message, gameWidth / 2 - 80, gameHeight - (padMiddle + padBottom) / 2);
+				g2.drawString(message, gameWidth / 2 - 80, gameHeight - (padMiddle + padBottom) / 2);
 			}
 
 		} else if (paused) {
 			if (!help) {
-				g.drawString("Press space to start (h for help)", 20,
+				g2.drawString("Press space to start (h for help)", 20,
 						gameHeight - (padMiddle + padBottom) / 2);
 			} else {
-				g.setColor(Color.white);
+				g2.setColor(Color.white);
 				int startY = padTop + blockRows * (blockHeight + padRow) + 10;
 				int height = 20;
-				g.drawString("Left/Right Arrows or A/D: move paddle", 20, startY);
+				g2.drawString("Left/Right Arrows or A/D: move paddle", 20, startY);
 				startY += height;
-				g.drawString("R: Reset Level", 20, startY);
+				g2.drawString("R: Reset Level", 20, startY);
 				startY += height;
-				g.drawString("Q: Quit", 20, startY);
+				g2.drawString("Q: Quit", 20, startY);
 				startY += height;
-				g.drawString("7/8: fps, 9/0: vel, -/+: paddle", 20, startY);
+				g2.drawString("7/8: fps, 9/0: vel, -/+: paddle", 20, startY);
 
 				if (soundPossible) {
 					startY += height;
-					g.drawString("M: Mute", 20, startY);
+					g2.drawString("M: Mute", 20, startY);
 				}
 
 				startY += height;
-				g.drawString("K: toggle Mouse/Keyboard", 20, startY);
+				g2.drawString("K: toggle Mouse/Keyboard", 20, startY);
 				startY += height;
-				g.drawString("P or Space: toggle pause", 20, startY);
+				g2.drawString("P or Space: toggle pause", 20, startY);
 			}
 		}
 	}
