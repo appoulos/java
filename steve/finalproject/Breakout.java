@@ -185,6 +185,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		} else {
 			scale = (double) screenHeight / gameHeight;
 		}
+		scale *= 0.9;
 
 		Dimension d = new Dimension((int) (scale * gameWidth), (int) (scale * gameHeight));
 
@@ -239,7 +240,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
 		frame.setVisible(true);
-		enterFullScreen();
+		// enterFullScreen();
 
 		this.setUpGame();
 	}

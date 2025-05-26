@@ -1,28 +1,45 @@
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.geom.Rectangle2D;
+
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.geom.Rectangle2D;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.Timer;
 
+/**
+ * Games is the main menu for the final project. The corresponding program is
+ * loaded when a button is selected.
+ */
 public class Games extends JPanel implements ActionListener, KeyListener, MouseMotionListener, MouseListener {
 
 	// gui
-	private static double scale; // scale frame to fill screen
-	// private static int origFrameRate = 60; // roughly frame rate per second
+	private static double scale = 1.0; // scale frame to fill screen
 	private static int frameRate = 20; // roughly frame rate per second
 	private Timer timer; // the update timer
 	private static JFrame frame;
 	private static int screenWidth;
 	private static int screenHeight;
-	// the width of the game area
-	private static final int gameWidth = 600; // padCol + blockCols * (blockWidth + padCol);
-	// the height of the game area
-	private final int gameHeight = 400; // padTop + blockRows * (blockHeight + padRow) + padMiddle + playerH +
-										// padBottom;
-	private static Font font; // scale frame to fill screen
+	private static final int gameWidth = 600; // the width of the game area
+	private final int gameHeight = 400; // the height of the game area
+	private static Font font;
 
 	// sound
 	static Receiver rcvr;
@@ -57,8 +74,13 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 			"6. Quit"
 	};
 
-	// NOTE: currently playing sounds immediately as update/paint is done right away
+	/**
+	 * @param msg  MIDI message to pass to the <code>Synthesizer</code>.
+	 * @param time hint to the <code>Synthesizer</code> as to when in microseconds
+	 *             from now to play the note. <code>-1</code> means asap.
+	 */
 	void playSound(ShortMessage msg, int time) {
+		// NOTE: currently playing sounds immediately as update/paint is done right away
 		if (!mute) {
 			long t = synth.getMicrosecondPosition(); // time in microseconds
 			if (time == -1) {
@@ -73,29 +95,30 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		}
 	}
 
+	/**
+	 * Instantiate a new <code>Games</code> object which starts a new
+	 * <code>JFrame</code>.
+	 * 
+	 * @param args not used.
+	 */
 	public static void main(String[] args) {
 		new Games();
 	}
 
-	// Constructor for the game panel
+	/**
+	 * Setup the GUI and prepare the MIDI.
+	 */
 	public Games() {
 		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
 		screenHeight = graphicsEnvironment.getMaximumWindowBounds().height;
 
-		// origFrameRate = 5;
-		// GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-		// origFrameRate = device.getDisplayMode().getRefreshRate();
-		// System.out.println("refresh rate: " + origFrameRate);
-		// frameRate = origFrameRate;
-
-		int ignoreDeadCode = 0;
-
-		if ((double) gameWidth / gameHeight >= (double) screenWidth / screenHeight + ignoreDeadCode) {
+		if ((double) gameWidth / gameHeight >= (double) screenWidth / screenHeight) {
 			scale = (double) screenWidth / gameWidth;
 		} else {
 			scale = (double) screenHeight / gameHeight;
 		}
+		scale *= 0.9;
 
 		Dimension d = new Dimension((int) (scale * gameWidth), (int) (scale * gameHeight));
 
@@ -137,11 +160,12 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		// add box to keep game in center while resizing window
 		// from:
 		// https://stackoverflow.com/questions/7223530/how-can-i-properly-center-a-jpanel-fixed-size-inside-a-jframe
-		Box box = new Box(BoxLayout.Y_AXIS);
-
-		box.add(Box.createVerticalGlue());
-		box.add(this);
-		frame.add(box);
+		// Box box = new Box(BoxLayout.Y_AXIS);
+		//
+		// box.add(Box.createVerticalGlue());
+		// box.add(this);
+		// frame.add(box);
+		frame.add(this);
 
 		this.addKeyListener(this);
 		frame.addKeyListener(this);
@@ -149,7 +173,7 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.pack();
-		enterFullScreen();
+		// enterFullScreen();
 		frame.setVisible(true);
 
 		frame.addMouseMotionListener(this);
@@ -158,24 +182,17 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		this.setUpGame();
 	}
 
-	// Method that is called by the timer framerate times per second (roughly)
+	/**
+	 * Method that is called by the timer framerate times per second (roughly)
+	 */
 	public void actionPerformed(ActionEvent e) {
-		// long st = System.currentTimeMillis();
-		// long st = System.nanoTime();
-		// update();
-		// long st2 = System.currentTimeMillis();
-		// long st2 = System.nanoTime();
 		repaint();
-		// long st3 = System.currentTimeMillis();
-		// long st3 = System.nanoTime();
-		// long t1 = st2 - st;
-		// long t2 = st3 - st2;
-		// if (t1 != 0 || t2 != 0) {
-		// System.out.println("update: " + t1 + ", paint: " + t2);
-		// }
 	}
 
-	void startGame() {
+	/**
+	 * Close the current menu frame and bring a new game to life.
+	 */
+	private void startGame() {
 		frame.removeMouseMotionListener(this);
 		frame.removeMouseListener(this);
 		frame.dispose();
@@ -206,8 +223,9 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		}
 	}
 
-	// Called every time a key is pressed
-	// Stores the down state for use in the update method
+	/**
+	 * Called when a key is pressed and performs the requested action.
+	 */
 	public void keyPressed(KeyEvent e) {
 		int keyCode = e.getKeyCode();
 		if (keyCode == KeyEvent.VK_UP || keyCode == KeyEvent.VK_W) {
@@ -246,16 +264,21 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		}
 	}
 
-	// Called every time a key is released
-	// Stores the down state for use in the update method
+	/**
+	 * Called every time a key is released.
+	 */
 	public void keyReleased(KeyEvent e) {
 	}
 
-	// Called every time a key is typed
+	/**
+	 * Called every time a key is typed.
+	 */
 	public void keyTyped(KeyEvent e) {
 	}
 
-	// Sets the initial state of the game
+	/**
+	 * Sets the initial state of the menu.
+	 */
 	public void setUpGame() {
 
 		Graphics g = frame.getGraphics();
@@ -287,6 +310,9 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		timer.start();
 	}
 
+	/**
+	 * Enter fullscreen if it is supported.
+	 */
 	public void enterFullScreen() {
 		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
@@ -297,6 +323,9 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		}
 	}
 
+	/**
+	 * Exit fullscreen if it is supported.
+	 */
 	public void exitFullScreen() {
 		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
@@ -306,6 +335,9 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		}
 	}
 
+	/**
+	 * Draw the GUI elements.
+	 */
 	public void paint(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 		g2.scale(scale, scale);
@@ -359,12 +391,11 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 	}
 
 	public void mouseDragged(MouseEvent e) {
-		// label1.setText("mouse is dragged through point "
-		// + e.getX() + " " + e.getY());
 	}
 
-	// invoked when the cursor is moved from
-	// one point to another within the component
+	/**
+	 * Store the current mouse pointer position.
+	 */
 	public void mouseMoved(MouseEvent e) {
 		// label2.setText("mouse is moved to point "
 		// + e.getX() + " " + e.getY());
@@ -373,6 +404,9 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 		mouseY = (int) (e.getY() / scale);
 	}
 
+	/**
+	 * Store the pointer click location.
+	 */
 	public void mouseClicked(MouseEvent e) {
 		mouseClickedX = (int) (e.getX() / scale);
 		mouseClickedY = (int) (e.getY() / scale);
@@ -380,39 +414,17 @@ public class Games extends JPanel implements ActionListener, KeyListener, MouseM
 
 	@Override
 	public void mouseEntered(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		// throw new UnsupportedOperationException("Unimplemented method
-		// 'mouseEntered'");
 	}
 
 	@Override
 	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		// throw new UnsupportedOperationException("Unimplemented method
-		// 'mouseExited'");
 	}
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		// throw new UnsupportedOperationException("Unimplemented method
-		// 'mousePressed'");
-		// mouseX = e.getX();
-		// mouseY = e.getY();
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		// throw new UnsupportedOperationException("Unimplemented method
-		// 'mouseReleased'");
 	}
-
-	public static void delay(int m) {
-		try {
-			Thread.sleep(m);
-		} catch (Exception e) {
-		}
-	}
-
 }

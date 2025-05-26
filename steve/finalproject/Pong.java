@@ -1,21 +1,34 @@
-import java.awt.*;
-// NOTE:
-// large paddle to begin with
-// serve hits paddle at start
-// 144 fps has to be slower on level 1
-// +/- only on level 1
-// advance the sound
-// add lives
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+import java.awt.geom.Ellipse2D;
+import java.awt.geom.Point2D;
 
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
 import javax.sound.midi.Synthesizer;
-import javax.swing.*;
-import java.awt.event.*;
-import java.awt.geom.Point2D;
-import java.awt.geom.Ellipse2D;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.Timer;
 
+/**
+ * Pong game.
+ */
 public class Pong extends JPanel implements ActionListener, KeyListener, MouseMotionListener {
 	private int maxScore = 3;
 
@@ -51,11 +64,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	private Point2D.Float newBall = new Point2D.Float(); // ball.x + vel.x, ball.y + vel.y);
 
 	private final int ballSize = 7; // ODD ball size
-	// private final int otherEdge = ballSize - 1; // ball size
 	private final int leftEdge = 0; // ball size
 	private final int rightEdge = ballSize - 1; // ball size
-	// private final int upperEdge = 0; // ball size
-	// private final int lowerEdge = ballSize - 1; // ball size
 
 	private final int ballStartX = 90;
 
@@ -65,21 +75,18 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	// ballMiddle
 	private final int playerW = 10;
 
-	// the width of the game area
-	private final int gameWidth = 600;
-	// the height of the game area
-	private final int gameHeight = 400;
-	// padBottom;
+	private final int gameWidth = 600; // the width of the game area
+	private final int gameHeight = 400; // the height of the game area
 
 	private Point2D.Float[] bounces = new Point2D.Float[playerSegments];
 
 	private final int padEdge = 30;
 	private final int playerStartX = gameWidth - padEdge;
-	private final int playerStartY = gameHeight - playerH;
+	private final int playerStartY = gameHeight / 2;
 	private static float playerVelocity = 10.0f;
 
 	private final int player2StartX = 0 + padEdge;
-	private final int player2StartY = gameHeight - playerH;
+	private final int player2StartY = gameHeight / 2;
 	private static float player2Velocity = 10.0f;
 
 	private final int maxWidth = gameWidth - 1 - ballSize;
@@ -163,6 +170,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		} else {
 			scale = (double) screenHeight / gameHeight;
 		}
+		scale *= 0.9;
 
 		Dimension d = new Dimension((int) (scale * gameWidth), (int) (scale * gameHeight));
 
@@ -425,8 +433,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 		// player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
 		// player2 = new Rectangle(player2StartX, player2StartY, playerW, playerH);
-		player = new Rectangle(playerStartX, gameHeight / 2, playerW, playerH);
-		player2 = new Rectangle(player2StartX, gameHeight / 2, playerW, playerH);
+		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
+		player2 = new Rectangle(player2StartX, player2StartY, playerW, playerH);
 		int ballx = ballStartX;
 		int bally = (int) (Math.random() * gameHeight - ballSize);
 		if ((int) (Math.random() * 2) == 1) {
