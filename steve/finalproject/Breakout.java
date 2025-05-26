@@ -276,7 +276,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// frame.add(box);
 		frame.add(this);
 
-		this.addKeyListener(this);
+		// this.addKeyListener(this);
 		frame.addKeyListener(this);
 
 		frame.setResizable(false);
@@ -333,11 +333,11 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			if (keyboard) {
 				enterFullScreen();
 				if (!paused) {
-					frame.addMouseMotionListener(this);
+					this.addMouseMotionListener(this);
 				}
 			} else {
 				exitFullScreen();
-				frame.removeMouseMotionListener(this);
+				this.removeMouseMotionListener(this);
 			}
 			keyboard = !keyboard;
 		} else if (keyCode == KeyEvent.VK_M) {
@@ -349,9 +349,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			}
 			if (!keyboard) {
 				if (paused) {
-					frame.addMouseMotionListener(this);
+					this.addMouseMotionListener(this);
 				} else {
-					frame.removeMouseMotionListener(this);
+					this.removeMouseMotionListener(this);
 				}
 			}
 			paused = !paused;
