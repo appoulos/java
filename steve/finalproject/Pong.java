@@ -91,8 +91,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 	private final int maxWidth = gameWidth - 1 - ballSize;
 	private final int maxHeight = gameHeight - 1 - ballSize;
-	// max player.y position
-	private final int mouseHeight = gameHeight - playerH;
+	private final int mouseHeight = gameHeight - playerH; // max player.y position
 
 	private static JFrame frame;
 	private static int screenHeight;
@@ -127,6 +126,11 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	static float frameDist = 0f;
 	static float currDist = 0f;
 
+	/**
+	 * @param msg  MIDI message to pass to the <code>Synthesizer</code>.
+	 * @param time hint to the <code>Synthesizer</code> as to when in microseconds
+	 *             from now to play the note. <code>-1</code> means asap.
+	 */
 	void playSound(ShortMessage msg, int time) {
 		if (!mute) {
 			long t = synth.getMicrosecondPosition();
@@ -136,21 +140,19 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		}
 	}
 
-	String printBall() {
-		return "\nball: (" + ball.x + ", " + ball.y + ") newBall: (" + newBall.x + ", " + newBall.y + ")";
-	}
-
-	void setSoundParameters() {
-		frameDist = vel.x * vel.x + vel.y * vel.y;
-		frameTimeuSec = 1_000_000 / frameRate;
-	}
-
-	// Sets up the basic GUI for the game
+	/**
+	 * Instantiate a new <code>Pong</code> object which starts a new
+	 * <code>JFrame</code>.
+	 * 
+	 * @param args not used.
+	 */
 	public static void main(String[] args) {
 		new Pong();
 	}
 
-	// Constructor for the game panel
+	/**
+	 * Setup the GUI and prepare the MIDI.
+	 */
 	public Pong() {
 		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
@@ -231,8 +233,9 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		this.setUpGame();
 	}
 
-	// Method that is called by the timer framerate times per second (roughly)
-	// Most games go through states - updating objects, then drawing them
+	/**
+	 * Method that is called by the timer framerate times per second (roughly)
+	 */
 	public void actionPerformed(ActionEvent e) {
 		// long st = System.currentTimeMillis();
 		// long st = System.nanoTime();
@@ -249,8 +252,9 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		// }
 	}
 
-	// Called every time a key is pressed
-	// Stores the down state for use in the update method
+	/**
+	 * Called when a key is pressed and performs the requested action.
+	 */
 	public void keyPressed(KeyEvent e) {
 		int keyCode = e.getKeyCode();
 		if (keyCode == KeyEvent.VK_UP) {
@@ -325,7 +329,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		} else if (keyCode == KeyEvent.VK_7) {
 			if (frameRate >= 2) {
 				frameRate /= 2;
-				setSoundParameters();
 			}
 			if (timer != null) {
 				timer.stop();
@@ -335,7 +338,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		} else if (keyCode == KeyEvent.VK_8) {
 			if (frameRate <= 1000 / 2) {
 				frameRate *= 2;
-				setSoundParameters();
 			}
 			if (timer != null) {
 				timer.stop();
@@ -345,8 +347,12 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		}
 	}
 
-	// Called every time a key is released
-	// Stores the down state for use in the update method
+	/**
+	 * Called every time a key is released.
+	 * Stores the down state for use in the update method.
+	 * 
+	 * @param e KeyEvent
+	 */
 	public void keyReleased(KeyEvent e) {
 		int keyCode = e.getKeyCode();
 		if (keyCode == KeyEvent.VK_UP) {
@@ -364,8 +370,9 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	public void keyTyped(KeyEvent e) {
 	}
 
-	// Sets the initial state of the game
-	// Could be modified to allow for multiple levels
+	/**
+	 * Sets the initial state of the menu.
+	 */
 	public void setUpGame() {
 		for (int i = 0; i < dists.length; i++) {
 			dists[i] = new Dist();
@@ -415,13 +422,16 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		resetLevel();
 	}
 
+	/**
+	 * Set starting positions of ball and players for a new round.
+	 */
 	private void resetLevel() {
-		// for (int i = 0; i < bounces.length; i++) {
-		// System.out.println(bounces[i]);
-		// }
-		int startAngleSegment = (int) (Math.random() * (playerSegments / 2));
+		// fixed starting angle
 		// vel.x = -bounces[playerSegments / 2].x;
 		// vel.y = bounces[playerSegments / 2].y;
+
+		// random starting angle
+		int startAngleSegment = (int) (Math.random() * (playerSegments / 2));
 		vel.x = -bounces[startAngleSegment].x;
 		vel.y = bounces[startAngleSegment].y;
 		ballVelocity = startBallVelocity * (1 + (level - 1) * 0.2f);
@@ -431,8 +441,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 		paused = true;
 
-		// player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
-		// player2 = new Rectangle(player2StartX, player2StartY, playerW, playerH);
 		player = new Rectangle(playerStartX, playerStartY, playerW, playerH);
 		player2 = new Rectangle(player2StartX, player2StartY, playerW, playerH);
 		int ballx = ballStartX;
@@ -446,39 +454,12 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		}
 		ball = new Ellipse2D.Float(ballx, bally, ballSize, ballSize);
 		prevball = new Ellipse2D.Float(ballx, bally, ballSize, ballSize);
-
-		setSoundParameters();
 	}
 
-	public void enterFullScreen() {
-		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-		if (device.isFullScreenSupported()) {
-			device.setFullScreenWindow(frame);
-			frame.validate();
-		}
-	}
-
-	public void exitFullScreen() {
-		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-		if (device.isFullScreenSupported()) {
-			device.setFullScreenWindow(null);
-			frame.validate();
-		}
-	}
-
-	void debug(String msg, float hitX, float hitY, int r, int c, float dx, float dy, int edgeX, int edgeY) {
-		System.out.println("*****************");
-		System.out.println(msg);
-		System.out.println("vel    : " + vel.x + "," + vel.y);
-		System.out.println("ball   : " + ball.x + "," + ball.y);
-		System.out.println("newBall: " + newBall.x + "," + newBall.y);
-		System.out.println("hitX,Y: " + hitX + "," + hitY + " r,c: " + r + "," + c + " dx,dy: " + dx + "," + dy
-				+ " edgeX,Y: " + edgeX + "," + edgeY);
-		System.out.println("*****************");
-	}
-
+	/**
+	 * Calculate new position of ball taking into account collisions. Requires
+	 * <code>ball</code> and <code>newBall</code> to be set.
+	 */
 	public boolean nextHit() { // assumes ball and newBall are set
 		boolean retLose = false; // return true if game over
 		boolean foundHit; // found collision in next ball step
@@ -626,6 +607,9 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		return retLose;
 	}
 
+	/**
+	 * Process paddle and ball movements for each frame.
+	 */
 	public void update() {
 		currDist = 0;
 
@@ -728,10 +712,11 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		if (nextHit()) { // return true when level lost
 			return;
 		}
-		// ball.x = newBall.x;
-		// ball.y = newBall.y;
 	}
 
+	/**
+	 * Draw the GUI elements.
+	 */
 	public void paint(Graphics g) {
 
 		Graphics2D g2 = (Graphics2D) g;
@@ -816,10 +801,9 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		}
 	}
 
-	public int getGameHeight() {
-		return gameHeight;
-	}
-
+	/**
+	 * Keep score when a player loses a point.
+	 */
 	public void onLose(int player) {
 		if (player == 2) {
 			score1++;
@@ -830,6 +814,11 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		resetLevel();
 	}
 
+	/**
+	 * Allow for a message to stay on the screen and pause the game.
+	 * 
+	 * @param m message to display.
+	 */
 	private void startMessage(String m) {
 		message = m; // "Lost level! Now at level: " + level + ", lives: " + lives;
 		pauseTimerActive = true;
@@ -837,29 +826,19 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		paused = true;
 	}
 
-	public static void delay(int m) {
-		try {
-			Thread.sleep(m);
-		} catch (Exception e) {
-		}
-	}
-
 	public void mouseDragged(MouseEvent e) {
-		// update the label to show the point
-		// through which point mouse is dragged
-		// label1.setText("mouse is dragged through point "
-		// + e.getX() + " " + e.getY());
 	}
 
-	// invoked when the cursor is moved from
-	// one point to another within the component
+	/**
+	 * Store the current mouse pointer position.
+	 */
 	public void mouseMoved(MouseEvent e) {
-		// update the label to show the point to which the cursor moved
-		// label2.setText("mouse is moved to point "
-		// + e.getX() + " " + e.getY());
 		player.y = mouseHeight * e.getY() / screenHeight;
 	}
 
+	/**
+	 * Debug output for ball collisions.
+	 */
 	public void printDist() {
 		for (int i = 0; i < dists.length; i++) {
 			if (dists[i].dist < Float.POSITIVE_INFINITY) {
@@ -872,7 +851,6 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 				}
 				System.out.println();
 			}
-
 		}
 	}
 }
