@@ -14,6 +14,9 @@ import java.awt.event.*;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+/**
+ * Breakout plays a brick breaking game.
+ */
 public class Breakout extends JPanel implements ActionListener, KeyListener, MouseMotionListener {
 
 	// ball
@@ -70,7 +73,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private Point2D.Float[] bounces = new Point2D.Float[playerSegments];
 	private static float playerVelocity = 10.0f;
 
-	// gui
+	// GUI
 	private static Font font; // scale frame to fill screen
 	private static double scale; // scale frame to fill screen
 	private static int origFrameRate = 60; // roughly frame rate per second
@@ -125,13 +128,25 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	static float frameDist = 0f;
 	static float currDist = 0f;
 
-	void setSoundParameters() {
-		frameDist = ballVelocity * ballVelocity; // no sqrt to match nextHit min calculations
-		frameTimeuSec = 1_000_000 / frameRate;
-	}
+	// /**
+	// * Setup frame distance and timing so multiple hits during one frame will be
+	// * played at the correct time.
+	// */
+	// void setSoundParameters() {
+	// frameDist = ballVelocity * ballVelocity; // no sqrt to match nextHit min
+	// calculations
+	// frameTimeuSec = 1_000_000 / frameRate;
+	// }
 
-	// NOTE: currently playing sounds immediately as update/paint is done right away
+	/**
+	 * Play a note on the synthesizer and shorten paddle and wall notes.
+	 * 
+	 * @param msg  MIDI message to pass to the <code>Synthesizer</code>.
+	 * @param time hint to the <code>Synthesizer</code> as to when in microseconds
+	 *             from now to play the note. <code>-1</code> means asap.
+	 */
 	void playSound(ShortMessage msg, int time) {
+		// NOTE: currently playing sounds immediately as update/paint is done right away
 		if (!mute) {
 			long t = synth.getMicrosecondPosition(); // time in microseconds
 			if (time == -1) {
@@ -146,6 +161,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		}
 	}
 
+	/**
+	 * Remove a block if it is alive.
+	 * 
+	 * @param r block row.
+	 * @param c block column.
+	 */
 	private void blockRemove(int r, int c) {
 		if (blocks[r][c].alive) {
 			// playSound(brickMsg, (int) (currDist / frameDist * frameTimeuSec));
@@ -157,15 +178,26 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		}
 	}
 
+	/**
+	 * Debug print some info about ball and newBall positions.
+	 */
 	String printBall() {
 		return "\nball: (" + ball.x + ", " + ball.y + ") newBall: (" + newBall.x + ", " + newBall.y + ")";
 	}
 
+	/**
+	 * Instantiate a new <code>Pong</code> object which starts a new
+	 * <code>JFrame</code>.
+	 * 
+	 * @param args not used.
+	 */
 	public static void main(String[] args) {
 		new Breakout();
 	}
 
-	// Constructor for the game panel
+	/**
+	 * Setup the GUI and prepare the MIDI.
+	 */
 	public Breakout() {
 		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		screenWidth = graphicsEnvironment.getMaximumWindowBounds().width;
@@ -245,7 +277,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		this.setUpGame();
 	}
 
-	// Method that is called by the timer framerate times per second (roughly)
+	/**
+	 * Method that is called by the timer framerate times per second (roughly)
+	 */
 	public void actionPerformed(ActionEvent e) {
 		// long st = System.currentTimeMillis();
 		// long st = System.nanoTime();
@@ -262,8 +296,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// }
 	}
 
-	// Called every time a key is pressed
-	// Stores the down state for use in the update method
+	/**
+	 * Called when a key is pressed and performs the requested action.
+	 */
 	public void keyPressed(KeyEvent e) {
 		int keyCode = e.getKeyCode();
 		if (keyCode == KeyEvent.VK_LEFT) {
@@ -324,18 +359,18 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			ballVelocity /= 2;
 			vel.x /= 2;
 			vel.y /= 2;
-			setSoundParameters();
+			// setSoundParameters();
 			System.out.println("ballVelocity: " + ballVelocity);
 		} else if (keyCode == KeyEvent.VK_0) {
 			ballVelocity *= 2;
 			vel.x *= 2;
 			vel.y *= 2;
-			setSoundParameters();
+			// setSoundParameters();
 			System.out.println("ballVelocity: " + ballVelocity);
 		} else if (keyCode == KeyEvent.VK_7) {
 			if (frameRate >= 2) {
 				frameRate /= 2;
-				setSoundParameters();
+				// setSoundParameters();
 				if (timer != null) {
 					timer.stop();
 				}
@@ -345,7 +380,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		} else if (keyCode == KeyEvent.VK_8) {
 			if (frameRate <= 1000 / 2) {
 				frameRate *= 2;
-				setSoundParameters();
+				// setSoundParameters();
 				if (timer != null) {
 					timer.stop();
 				}
@@ -355,8 +390,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		}
 	}
 
-	// Called every time a key is released
-	// Stores the down state for use in the update method
+	/**
+	 * Called every time a key is released.
+	 * Stores the down state for use in the update method.
+	 * 
+	 * @param e KeyEvent
+	 */
 	public void keyReleased(KeyEvent e) {
 		int keyCode = e.getKeyCode();
 		if (keyCode == KeyEvent.VK_LEFT) {
@@ -370,11 +409,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		}
 	}
 
-	// Called every time a key is typed
 	public void keyTyped(KeyEvent e) {
 	}
 
-	// Sets the initial state of the game
+	/**
+	 * Sets the initial state of the game.
+	 */
 	public void setUpGame() {
 		int ignoreDeadCode = 0;
 
@@ -432,6 +472,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		resetLevel();
 	}
 
+	/**
+	 * Set starting positions of ball a new round.
+	 */
 	private void resetBall() {
 		paused = true;
 		for (int i = 0; i < bounces.length; i++) {
@@ -449,9 +492,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		ball = new Rectangle2D.Float(ballStartX, ballStartY, ballSize, ballSize);
 		prevball = new Rectangle2D.Float(ballStartX, ballStartY, ballSize, ballSize);
 
-		setSoundParameters();
+		// setSoundParameters();
 	}
 
+	/**
+	 * Set starting positions of ball and players for a new round.
+	 */
 	private void resetLevel() {
 		ballStartY = padTop + blockRows * (blockHeight + padRow) + 10;
 		playerStartX = (int) ((playerStartY - ballStartY) / 3.0f + ballStartX - playerW / 2);
@@ -493,6 +539,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		System.out.println("Level: " + level + ", lives: " + lives);
 	}
 
+	/**
+	 * Enter fullscreen if it is supported.
+	 */
 	public void enterFullScreen() {
 		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
@@ -503,6 +552,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		}
 	}
 
+	/**
+	 * Exit fullscreen if it is supported.
+	 */
 	public void exitFullScreen() {
 		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
@@ -512,20 +564,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		}
 	}
 
-	public int blockCol(int sign, float x) {
-		if (sign == 1)
-			return blockColPos(x);
-		else
-			return blockColNeg(x);
-	}
-
-	public int blockRow(int sign, float y) {
-		if (sign == 1)
-			return blockRowPos(y);
-		else
-			return blockRowNeg(y);
-	}
-
+	/**
+	 * Find block column based on ball moving to the right.
+	 * 
+	 * @param x ball position
+	 * @return block column
+	 */
 	public int blockColPos(float x) {
 		x = (x - padCol);
 		if (x < 0)
@@ -537,6 +581,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		return (int) x;
 	}
 
+	/**
+	 * Find block column based on ball moving to the left.
+	 * 
+	 * @param x ball position
+	 * @return block column
+	 */
 	public int blockColNeg(float x) {
 		x = (x - padCol - blockWidth);
 		if (x < 0)
@@ -548,6 +598,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		return (int) x;
 	}
 
+	/**
+	 * Find block row based on ball moving to the right.
+	 * 
+	 * @param x ball position
+	 * @return block row
+	 */
 	public int blockRowPos(float y) {
 		y = (y - padTop);
 		if (y < 0)
@@ -559,6 +615,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		return (int) y;
 	}
 
+	/**
+	 * Find block row based on ball moving to the left.
+	 * 
+	 * @param x ball position
+	 * @return block row
+	 */
 	public int blockRowNeg(float y) {
 		y = (y - padTop - blockHeight);
 		if (y < 0)
@@ -570,6 +632,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		return (int) y;
 	}
 
+	/**
+	 * Print debug calculations for ball collisions.
+	 */
 	void debug(String msg, float hitX, float hitY, int r, int c, float dx, float dy, int edgeX, int edgeY) {
 		System.out.println("*****************");
 		System.out.println(msg);
@@ -581,6 +646,10 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		System.out.println("*****************");
 	}
 
+	/**
+	 * Calculate new position of ball taking into account collisions. Requires
+	 * <code>ball</code> and <code>newBall</code> to be set.
+	 */
 	public boolean nextHit() { // assumes ball and newBall are set
 		boolean retLose = false; // return true if game over
 		boolean foundHit; // found collision in next ball step
@@ -971,6 +1040,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		return retLose;
 	}
 
+	/**
+	 * Process paddle and ball movements for each frame.
+	 */
 	public void update() {
 		currDist = 0;
 
@@ -1034,6 +1106,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		}
 	}
 
+	/**
+	 * Draw the GUI elements.
+	 */
 	public void paint(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 
@@ -1128,10 +1203,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		}
 	}
 
-	public int getGameHeight() {
-		return gameHeight;
-	}
-
+	/**
+	 * Process a level completion.
+	 */
 	public void onWin() {
 		// player.setRect(new Rectangle(50, 50, size, size));
 
@@ -1149,6 +1223,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		resetLevel();
 	}
 
+	/**
+	 * Inform user that the game is over and reset the level.
+	 */
 	private void gameOver() {
 		level = 1;
 		startMessage("Game Over");
@@ -1156,6 +1233,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		resetLevel();
 	}
 
+	/**
+	 * Process a life lost and reset the ball.
+	 */
 	public void onLose() {
 		lives--;
 		if (lives < 0) {
@@ -1166,33 +1246,31 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		resetBall();
 	}
 
+	/**
+	 * Allow for a message to stay on the screen and pause the game.
+	 * 
+	 * @param m message to display.
+	 */
 	private void startMessage(String m) {
-		message = m; // "Lost level! Now at level: " + level + ", lives: " + lives;
+		message = m;
 		pauseTimerActive = true;
 		pauseTimer = System.currentTimeMillis();
 		paused = true;
 	}
 
-	public static void delay(int m) {
-		try {
-			Thread.sleep(m);
-		} catch (Exception e) {
-		}
-	}
-
 	public void mouseDragged(MouseEvent e) {
-		// label1.setText("mouse is dragged through point "
-		// + e.getX() + " " + e.getY());
 	}
 
-	// invoked when the cursor is moved from
-	// one point to another within the component
+	/**
+	 * Store the current mouse pointer position.
+	 */
 	public void mouseMoved(MouseEvent e) {
-		// label2.setText("mouse is moved to point "
-		// + e.getX() + " " + e.getY());
 		player.x = mouseWidth * e.getX() / screenWidth;
 	}
 
+	/**
+	 * Print distance calculations for ball collisions.
+	 */
 	public void printDist() {
 		for (int i = 0; i < dists.length; i++) {
 			if (dists[i].dist < Float.POSITIVE_INFINITY) {
@@ -1205,7 +1283,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				}
 				System.out.println();
 			}
-
 		}
 	}
 }

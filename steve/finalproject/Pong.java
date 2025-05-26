@@ -127,6 +127,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	static float currDist = 0f;
 
 	/**
+	 * Play a note on the synthesizer and shorten paddle and wall notes.
+	 * 
 	 * @param msg  MIDI message to pass to the <code>Synthesizer</code>.
 	 * @param time hint to the <code>Synthesizer</code> as to when in microseconds
 	 *             from now to play the note. <code>-1</code> means asap.
@@ -212,11 +214,12 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		// add box to keep game in center while resizing window
 		// from:
 		// https://stackoverflow.com/questions/7223530/how-can-i-properly-center-a-jpanel-fixed-size-inside-a-jframe
-		Box box = new Box(BoxLayout.Y_AXIS);
-
-		box.add(Box.createVerticalGlue());
-		box.add(this);
-		frame.add(box);
+		// Box box = new Box(BoxLayout.Y_AXIS);
+		//
+		// box.add(Box.createVerticalGlue());
+		// box.add(this);
+		// frame.add(box);
+		frame.add(this);
 
 		this.addKeyListener(this);
 		frame.addKeyListener(this);
@@ -371,7 +374,32 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	}
 
 	/**
-	 * Sets the initial state of the menu.
+	 * Enter fullscreen if it is supported.
+	 */
+	public void enterFullScreen() {
+		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		if (device.isFullScreenSupported()) {
+			device.setFullScreenWindow(frame);
+			// device.getDisplayModes();
+			frame.validate();
+		}
+	}
+
+	/**
+	 * Exit fullscreen if it is supported.
+	 */
+	public void exitFullScreen() {
+		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
+		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
+		if (device.isFullScreenSupported()) {
+			device.setFullScreenWindow(null);
+			frame.validate();
+		}
+	}
+
+	/**
+	 * Sets the initial state of the game.
 	 */
 	public void setUpGame() {
 		for (int i = 0; i < dists.length; i++) {
@@ -837,7 +865,7 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	}
 
 	/**
-	 * Debug output for ball collisions.
+	 * Print distance calculations for ball collisions.
 	 */
 	public void printDist() {
 		for (int i = 0; i < dists.length; i++) {
