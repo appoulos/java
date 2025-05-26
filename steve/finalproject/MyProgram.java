@@ -4,18 +4,36 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import javax.swing.*;
 
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+
+/**
+ * MyProgram runs tests to time the performance of selection sort, merge sort,
+ * insertion sort and a custom sort method.
+ */
 public class MyProgram extends JPanel {
 	private Dimension d;
 	private static JFrame frame;
 	private final StringBuilder sb = new StringBuilder();
 	private JTextArea textarea;
 
+	/**
+	 * Instantiate a new <code>MyProgram</code> object which starts a new
+	 * <code>JFrame</code>.
+	 * 
+	 * @param args not used.
+	 */
 	public static void main(String[] args) {
 		new MyProgram();
 	}
 
+	/**
+	 * Setup the GUI.
+	 */
 	public MyProgram() {
 		d = new Dimension(600, 400);
 
@@ -70,6 +88,9 @@ public class MyProgram extends JPanel {
 		frame.setVisible(true);
 	}
 
+	/**
+	 * Run tests and output results to the terminal and the GUI.
+	 */
 	void run() {
 		System.out.println("Running...");
 		textarea.setText("Running...");
@@ -153,15 +174,18 @@ public class MyProgram extends JPanel {
 		avg2 /= (double) k;
 		avg3 /= (double) x;
 
-		System.out.println("Steven Sort's Elapsed time (nanoseconds): " + (int) avg + "\n");
 		sb.append("Steven Sort's Elapsed time (nanoseconds): " + (int) avg + "\n");
 		sb.append("Insertion Sort's Elapsed time (nanoseconds): " + (int) avg1 + "\n");
 		sb.append("Selection Sort's Elapsed time (nanoseconds): " + (int) avg2 + "\n");
 		sb.append("Merge Sort's Elapsed time (nanoseconds): " + (int) avg3 + "\n");
+		sb.append("\n");
+		textarea.setText(sb.toString());
+
+		System.out.println("Steven Sort's Elapsed time (nanoseconds): " + (int) avg + "\n");
 		System.out.println("Insertion Sort's Elapsed time (nanoseconds): " + (int) avg1);
 		System.out.println("Selection Sort's Elapsed time (nanoseconds): " + (int) avg2);
 		System.out.println("Merge Sort's Elapsed time (nanoseconds): " + (int) avg3);
-		textarea.setText(sb.toString());
+		System.out.println();
 	}
 
 	public static String printArr(int[] arr) {

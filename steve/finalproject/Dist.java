@@ -1,4 +1,7 @@
-
+/**
+ * Dist used in Pong.java and Breakout.java games for ball collision
+ * calculations.
+ */
 class Dist {
 	float dist = Float.POSITIVE_INFINITY;
 	int blockRow = -1;
