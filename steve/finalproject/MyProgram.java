@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -97,11 +98,11 @@ public class MyProgram extends JPanel {
 		textarea.paintImmediately(0, 0, d.width, d.height);
 
 		int[] arr = new int[100];
-		// System.out.println(printArr(arr));
+		// System.out.println(Arrays.toString(arr));
 		// randomizeArr(arr);
-		// System.out.println(printArr(arr));
+		// System.out.println(Arrays.toString(arr));
 		// int[] newArr = StevenSort(arr);
-		// System.out.println(printArr(newArr));
+		// System.out.println(Arrays.toString(newArr));
 		// System.out.println(printSortedSpecialArr(newArr));
 		int i = 0;
 		int j = 0;
@@ -188,26 +189,22 @@ public class MyProgram extends JPanel {
 		System.out.println();
 	}
 
-	public static String printArr(int[] arr) {
-		String str = "";
-		str += "[";
-		for (int i = 0; i < arr.length; i++) {
-			if (i != arr.length - 1) {
-				str += arr[i] + ", ";
-			} else {
-				str += arr[i];
-			}
-		}
-		str += "]";
-		return str;
-	}
-
+	/**
+	 * Fill array with random numbers from 0-10.
+	 * 
+	 * @param arr array to be filled.
+	 */
 	public static void randomizeArr(int[] arr) {
 		for (int i = 0; i < arr.length; i++) {
 			arr[i] = (int) (Math.random() * 10);
 		}
 	}
 
+	/**
+	 * Use selection sort to sort array.
+	 * 
+	 * @param arr array to be sorted.
+	 */
 	public static void selectionSort(int[] arr) {
 		int n = arr.length;
 
@@ -228,6 +225,11 @@ public class MyProgram extends JPanel {
 		}
 	}
 
+	/**
+	 * Use insertion sort to sort array.
+	 * 
+	 * @param arr array to be sorted.
+	 */
 	public static void insertionSort(int[] arr) {
 		int n = arr.length;
 
@@ -246,6 +248,14 @@ public class MyProgram extends JPanel {
 		}
 	}
 
+	/**
+	 * Merge sort helper to merge two sub arrays.
+	 * 
+	 * @param arr array to be sorted.
+	 * @param l   left index.
+	 * @param m   middle index.
+	 * @param r   right index.
+	 */
 	static void merge(int arr[], int l, int m, int r) {
 		// Find sizes of two subarrays to be merged
 		int n1 = m - l + 1;
@@ -294,7 +304,14 @@ public class MyProgram extends JPanel {
 		}
 	}
 
-	// Main function that sorts arr[l..r] using
+	/**
+	 * Merge sort to sort array. Call with l==0 and r==length-1 to sort entire
+	 * array.
+	 * 
+	 * @param arr array to be sorted.
+	 * @param l   left index.
+	 * @param r   right index.
+	 */
 	public static void mergeSort(int arr[], int l, int r) {
 		if (l < r) {
 
@@ -310,6 +327,11 @@ public class MyProgram extends JPanel {
 		}
 	}
 
+	/**
+	 * Use Steven sort to sort array.
+	 * 
+	 * @param arr array to be sorted.
+	 */
 	public static int[] StevenSort(int[] arr) {
 		int number = findLargestNumber(arr);
 		int[] newArr = new int[number + 1];
@@ -319,6 +341,12 @@ public class MyProgram extends JPanel {
 		return newArr;
 	}
 
+	/**
+	 * Find largest number in array.
+	 * 
+	 * @param arr array to be searched.
+	 * @return max value in array.
+	 */
 	public static int findLargestNumber(int[] arr) {
 		int max = 0;
 		for (int i = 0; i < arr.length; i++) {
@@ -329,6 +357,12 @@ public class MyProgram extends JPanel {
 		return max;
 	}
 
+	/**
+	 * Assemble sorted array from a Steven sort special array.
+	 * 
+	 * @param arr special array to print.
+	 * @return sorted array.
+	 */
 	public static String printSortedSpecialArr(int[] arr) {
 		String str = "[";
 		String separator = "";
@@ -339,12 +373,5 @@ public class MyProgram extends JPanel {
 			}
 		}
 		return str + "]";
-	}
-
-	public static void delay(int m) {
-		try {
-			Thread.sleep(m);
-		} catch (Exception e) {
-		}
 	}
 }
