@@ -2,6 +2,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * Pong4 game.
+ */
 public class Pong4 extends JPanel implements ActionListener, KeyListener {
 	static JFrame frame = new JFrame();
 	private int paddleWidth = 10, paddleHeight = 100;
@@ -20,6 +23,9 @@ public class Pong4 extends JPanel implements ActionListener, KeyListener {
 
 	double scale;
 
+	/**
+	 * Setup the GUI.
+	 */
 	public Pong4() {
 		int gameWidth = 800, gameHeight = 600;
 		frame = new JFrame("Welcome to a game of Pong - First to 10");
@@ -35,16 +41,9 @@ public class Pong4 extends JPanel implements ActionListener, KeyListener {
 		timer.start();
 	}
 
-	public void enterFullScreen() {
-		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-		if (device.isFullScreenSupported()) {
-			device.setFullScreenWindow(frame);
-			// device.getDisplayModes();
-			frame.validate();
-		}
-	}
-
+	/**
+	 * Draw the GUI elements.
+	 */
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
@@ -84,6 +83,11 @@ public class Pong4 extends JPanel implements ActionListener, KeyListener {
 		}
 	}
 
+	/**
+	 * Update the player and ball positions and call <code>repaint()</code>.
+	 * 
+	 * @param e ignored.
+	 */
 	public void actionPerformed(ActionEvent e) {
 
 		if (gameOver || paused)
@@ -142,6 +146,9 @@ public class Pong4 extends JPanel implements ActionListener, KeyListener {
 		repaint();
 	}
 
+	/**
+	 * Set the initial position and speed of the ball.
+	 */
 	private void resetBall() {
 		ballX = 390;
 		ballY = 290;
@@ -149,6 +156,9 @@ public class Pong4 extends JPanel implements ActionListener, KeyListener {
 		ballYSpeed = 4;
 	}
 
+	/**
+	 * Called when a key is pressed and performs the requested action.
+	 */
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
 		if (key == KeyEvent.VK_Q) {
@@ -188,6 +198,13 @@ public class Pong4 extends JPanel implements ActionListener, KeyListener {
 		}
 	}
 
+	/**
+	 * Called every time a key is released.
+	 * Stores the down state for use in the update method
+	 * <code>actionPerformed</code>.
+	 * 
+	 * @param e KeyEvent
+	 */
 	public void keyReleased(KeyEvent e) {
 		int key = e.getKeyCode();
 
@@ -204,6 +221,12 @@ public class Pong4 extends JPanel implements ActionListener, KeyListener {
 	public void keyTyped(KeyEvent e) {
 	}
 
+	/**
+	 * Instantiate a new <code>Pong4</code> object which starts a new
+	 * <code>JFrame</code>.
+	 * 
+	 * @param args not used.
+	 */
 	public static void main(String[] args) {
 		new Pong4();
 	}

@@ -1,8 +1,6 @@
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -21,9 +19,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 
+/**
+ * Play a wordle game.
+ */
 class TonyWordle extends JPanel {
 
 	Rectangle bounds;
+	Rectangle totalBounds;
 	JScrollPane scrollPane;
 	StringBuffer sb = new StringBuffer();
 	JTextPane textPane;
@@ -31,12 +33,16 @@ class TonyWordle extends JPanel {
 	String guess = "";
 	int guesses = 1;
 
+	/**
+	 * Set the <code>word</code> to a random word from a list in the
+	 * <code>wordBankFile</code>
+	 */
 	public static String getRandomWord() {
 		if (wordBank.size() == 0) {
 			String word = "";
 
 			// Open the words_file for reading by line
-			try (BufferedReader reader = new BufferedReader(new FileReader(word_bank_file))) {
+			try (BufferedReader reader = new BufferedReader(new FileReader(wordBankFile))) {
 
 				// fill the dictionary with words
 				while ((word = reader.readLine()) != null) {
@@ -52,12 +58,18 @@ class TonyWordle extends JPanel {
 		return wordBank.get(n);
 	}
 
+	/**
+	 * Verify a word from a list in the
+	 * <code>validWordsFile</code>
+	 *
+	 * @param s word to validate.
+	 */
 	public static boolean isValidWord(String s) {
 		if (validWords.size() == 0) {
 			String word = "";
 
 			// Open the words_file for reading by line
-			try (BufferedReader reader = new BufferedReader(new FileReader(valid_words_file))) {
+			try (BufferedReader reader = new BufferedReader(new FileReader(validWordsFile))) {
 
 				// fill the dictionary with words
 				while ((word = reader.readLine()) != null) {
@@ -72,36 +84,63 @@ class TonyWordle extends JPanel {
 		return validWords.contains(s);
 	}
 
-	// "valid-words.csv" and "word-bank.csv" are from:
-	// https://github.com/seanpatlan/wordle-words
-	// These lists are accurate as of 2/7/22, but probably won't be once NYT
-	// officially takes over the game.
-	public static final String valid_words_file = "valid-words.csv"; // Possible guesses
-	public static final String word_bank_file = "word-bank.csv"; // Possible solutions
+	/**
+	 * validWordsFile (possible guesses) and wordBankFile (possible solutions) store
+	 * the word lists obtained from a github repo.
+	 * "valid-words.csv" and "word-bank.csv" are from:
+	 * https://github.com/seanpatlan/wordle-words These lists are accurate as of
+	 * 2/7/22, but probably won't be once NYT officially takes over the game.
+	 */
+	public static final String validWordsFile = "valid-words.csv"; // Possible guesses
+	public static final String wordBankFile = "word-bank.csv"; // Possible solutions
 
 	public static Set<String> validWords = new HashSet<>();
 	public static List<String> wordBank = new ArrayList<>();
 
+	static JFrame frame;
+
+	/**
+	 * Color for terminal a green character.
+	 * 
+	 * @param c character to be colored.
+	 * @return green character.
+	 */
 	public static String green(char c) {
 		return "\u001b[1;102m" + c + "\u001b[m";
 	}
 
+	/**
+	 * Color for terminal a yellow character.
+	 * 
+	 * @param c character to be colored.
+	 * @return yellow character.
+	 */
 	public static String yellow(char c) {
 		return "\u001B[0;43m" + c + "\u001b[m";
 	}
 
-	static JFrame frame;
-
+	/**
+	 * Instantiate a new <code>TonyWordle</code> object which starts a new
+	 * <code>JFrame</code>.
+	 * 
+	 * @param args not used.
+	 */
 	public static void main(String[] args) {
 		new TonyWordle();
 	}
 
+	/**
+	 * Close the current GUI and open the main menu.
+	 */
 	void quit() {
 		frame.dispose();
 		Games game = new Games();
 		game.setVisible(true);
 	}
 
+	/**
+	 * Setup the GUI.
+	 */
 	TonyWordle() {
 		Dimension d = new Dimension(800, 600); // ((int) scale * gameWidth), (int) (scale * gameHeight));
 
@@ -120,6 +159,7 @@ class TonyWordle extends JPanel {
 		textPane.setFont(font);
 		textPane.setEditable(false);
 		bounds = new Rectangle(0, 0, 600, 400);
+		totalBounds = new Rectangle(0, 0, d.width, d.height);
 		textPane.setBounds(bounds);
 		textPane.setContentType("text/html");
 		textPane.setPreferredSize(new Dimension(bounds.width, bounds.height));
@@ -193,24 +233,11 @@ class TonyWordle extends JPanel {
 		System.out.println("Starting wordle...");
 	}
 
-	public void enterFullScreen() {
-		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-		if (device.isFullScreenSupported()) {
-			device.setFullScreenWindow(frame);
-			frame.validate();
-		}
-	}
-
-	public void exitFullScreen() {
-		GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment();
-		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
-		if (device.isFullScreenSupported()) {
-			device.setFullScreenWindow(null);
-			frame.validate();
-		}
-	}
-
+	/**
+	 * Process the users guess and update the output.
+	 * 
+	 * @param guess
+	 */
 	void guess(String guess) {
 		if (guesses == 1) {
 			sb.setLength(0);
@@ -238,7 +265,7 @@ class TonyWordle extends JPanel {
 		// User wins!
 		if (guess.equals(word)) {
 			System.out.println("Hooray! You got it in " + guesses + " tries");
-			addSolution(word);
+			addSolution();
 			addEnd("Hooray! You got it in " + guesses + " tries");
 			guesses = 1;
 			return;
@@ -294,7 +321,7 @@ class TonyWordle extends JPanel {
 
 		if (guesses > 6) {
 			add("Too many guesses... the word was<br>");
-			addSolution(word);
+			addSolution();
 			System.out.println("Too many guesses... the word was " + word);
 			guesses = 1;
 			word = getRandomWord();
@@ -307,6 +334,11 @@ class TonyWordle extends JPanel {
 		// System.out.println(textPane.getText()); // formatted html
 	}
 
+	/**
+	 * Create a delay in code execution.
+	 * 
+	 * @param m delay in milliseconds.
+	 */
 	public void delay(int m) {
 		try {
 			Thread.sleep(m);
@@ -314,11 +346,14 @@ class TonyWordle extends JPanel {
 		}
 	}
 
-	void addSolution(String guess) {
+	/**
+	 * Display the correct word to the output.
+	 */
+	void addSolution() {
 		add("<table><tr>");
 		// Loop through each char in guess
-		for (int i = 0; i < guess.length(); i++) {
-			char c = guess.charAt(i);
+		for (int i = 0; i < word.length(); i++) {
+			char c = word.charAt(i);
 			addChar(c, "green");
 			System.out.print(c);
 		}
@@ -326,22 +361,43 @@ class TonyWordle extends JPanel {
 		System.out.println();
 	}
 
+	/**
+	 * Add text to the string buffer in charge of the output text area.
+	 * 
+	 * @param str string to append.
+	 */
 	void add(String str) {
 		sb.append(str);
 	}
 
+	/**
+	 * Close all the html tags with a table.
+	 * 
+	 * @param msg a message to display at the end of the html document.
+	 */
 	void addTableEnd(String msg) {
 		textPane.setText(sb.toString() + "</tr></table><br>" + msg + "</body></html>");
 		textPane.setCaretPosition(textPane.getDocument().getLength());
-		textPane.paintImmediately(bounds);
+		textPane.paintImmediately(totalBounds);
 	}
 
+	/**
+	 * Close all the html tags.
+	 * 
+	 * @param msg a message to display at the end of the html document.
+	 */
 	void addEnd(String msg) {
 		textPane.setText(sb.toString() + "<br>" + msg + "</body></html>");
 		textPane.setCaretPosition(textPane.getDocument().getLength());
-		textPane.paintImmediately(bounds);
+		textPane.paintImmediately(totalBounds);
 	}
 
+	/**
+	 * Add another character to the output with a dramatic delay at the end.
+	 *
+	 * @param c     char to add.
+	 * @param color color of character to add.
+	 */
 	void addChar(char c, String color) {
 		if (color.length() > 0) {
 			add("<td style=background-color:" + color + ">" + c + "</td>");
