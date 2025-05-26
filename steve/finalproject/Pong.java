@@ -279,11 +279,11 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			if (keyboard) {
 				enterFullScreen();
 				if (!paused) {
-					frame.addMouseMotionListener(this);
+					this.addMouseMotionListener(this);
 				}
 			} else {
 				exitFullScreen();
-				frame.removeMouseMotionListener(this);
+				this.removeMouseMotionListener(this);
 			}
 			keyboard = !keyboard;
 		} else if (keyCode == KeyEvent.VK_M) {
@@ -295,9 +295,9 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			}
 			if (!keyboard) {
 				if (paused) {
-					frame.addMouseMotionListener(this);
+					this.addMouseMotionListener(this);
 				} else {
-					frame.removeMouseMotionListener(this);
+					this.removeMouseMotionListener(this);
 				}
 			}
 			paused = !paused;
