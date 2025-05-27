@@ -183,22 +183,21 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	void playHit(hitType hit) {
 		// note Middle C = 60,
 		// moderately loud (velocity = 93).
-		final int noteVelocity = 83;
 		switch (hit) {
 			case brick:
-				chan[curChan].noteOn(100, noteVelocity);
+				chan[curChan].noteOn(100, 90);
 				shortenNote(curChan, 100);
 				break;
 			case paddle:
-				chan[curChan].noteOn(50, noteVelocity);
+				chan[curChan].noteOn(50, 40);
 				shortenNote(curChan, 50);
 				break;
 			case wall:
-				chan[curChan].noteOn(40, noteVelocity);
+				chan[curChan].noteOn(40, 35);
 				shortenNote(curChan, 40);
 				break;
 			case lose:
-				chan[curChan].noteOn(37, noteVelocity);
+				chan[curChan].noteOn(37, 50);
 				break;
 		}
 		curChan = (curChan + 1) % maxChan;
