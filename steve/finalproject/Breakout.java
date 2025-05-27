@@ -189,18 +189,18 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				shortenNote(curChan, 100);
 				break;
 			case paddle:
-				chan[curChan].noteOn(50, 40);
+				chan[curChan].noteOn(50, 60);
 				shortenNote(curChan, 50);
 				break;
 			case wall:
-				chan[curChan].noteOn(40, 35);
+				chan[curChan].noteOn(40, 55);
 				shortenNote(curChan, 40);
 				break;
 			case lose:
-				chan[curChan].noteOn(37, 50);
+				chan[curChan].noteOn(37, 60);
 				break;
 		}
-		// curChan = (curChan + 1) % maxChan; // maybe not needed
+		curChan = (curChan + 1) % maxChan;
 	}
 
 	/**
@@ -302,7 +302,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					}
 				}
 			}
-			chan[0].noteOn(50, 0); // get chan ready
+			chan[0].noteOff(50, 0); // get MIDI ready
 		} catch (Exception e) {
 			System.out.println("Warning: cound not initialize the MIDI system for audio. Sound disabled");
 		}
