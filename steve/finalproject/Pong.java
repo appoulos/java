@@ -134,11 +134,17 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		lose,
 	}
 
-	void shortenNote(int c) {
+	/**
+	 * Turn off a MIDI note in the future.
+	 * 
+	 * @param c    channel to turn off.
+	 * @param note note to turn off.
+	 */
+	void shortenNote(int c, int note) {
 		new Thread(new Runnable() {
 			public void run() {
 				delay(100);
-				chan[c].noteOff(50, 0);
+				chan[c].noteOff(note, 0);
 			}
 		}).start();
 	}
@@ -149,26 +155,17 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	 * @param hit type of hit sound to play
 	 */
 	void playHit(hitType hit) {
+		// note Middle C = 60,
+		// moderately loud (velocity = 93).
 		final int noteVelocity = 83;
 		switch (hit) {
 			case paddle:
 				chan[curChan].noteOn(50, noteVelocity);
-				chan[curChan].noteOff(50, noteVelocity);
-				// new Thread(new Runnable() {
-				// public void run() {
-				// delay(100);
-				// chan[curChan].noteOff(50, noteVelocity);
-				// }
-				// }).start();
+				shortenNote(curChan, 50);
 				break;
 			case wall:
 				chan[curChan].noteOn(40, noteVelocity);
-				new Thread(new Runnable() {
-					public void run() {
-						delay(100);
-						chan[curChan].noteOff(40, noteVelocity);
-					}
-				}).start();
+				shortenNote(curChan, 40);
 				break;
 			case lose:
 				chan[curChan].noteOn(37, noteVelocity);
@@ -184,21 +181,21 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	 * @param time hint to the <code>Synthesizer</code> as to when in microseconds
 	 *             from now to play the note. <code>-1</code> means asap.
 	 */
-	void playSound(ShortMessage msg, int time) {
-		if (!mute) {
-			long t = synth.getMicrosecondPosition();
-			if (time == -1) {
-				rcvr.send(msg, -1);
-				rcvr.send(paddleOffMsg, t + 5_000);
-				rcvr.send(wallOffMsg, t + 5_000);
-				System.out.println("sound: " + t);
-			} else {
-				rcvr.send(msg, t + time);
-				rcvr.send(paddleOffMsg, t + time + 5_000);
-				rcvr.send(wallOffMsg, t + time + 5_000);
-			}
-		}
-	}
+	// void playSound(ShortMessage msg, int time) {
+	// if (!mute) {
+	// long t = synth.getMicrosecondPosition();
+	// if (time == -1) {
+	// rcvr.send(msg, -1);
+	// rcvr.send(paddleOffMsg, t + 5_000);
+	// rcvr.send(wallOffMsg, t + 5_000);
+	// System.out.println("sound: " + t);
+	// } else {
+	// rcvr.send(msg, t + time);
+	// rcvr.send(paddleOffMsg, t + time + 5_000);
+	// rcvr.send(wallOffMsg, t + time + 5_000);
+	// }
+	// }
+	// }
 
 	/**
 	 * Instantiate a new <code>Pong</code> object which starts a new
@@ -245,26 +242,24 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 		try {
 			synth = MidiSystem.getSynthesizer();
 			synth.open();
-			// note Middle C = 60,
-			// moderately loud (velocity = 93).
-			final int noteVelocity = 83;
-			paddleMsg.setMessage(ShortMessage.NOTE_ON, 0, 50, noteVelocity);
-			wallMsg.setMessage(ShortMessage.NOTE_ON, 0, 40, noteVelocity);
-			loseMsg.setMessage(ShortMessage.NOTE_ON, 0, 37, noteVelocity);
-			paddleOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 50, noteVelocity);
-			wallOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 40, noteVelocity);
-			rcvr = MidiSystem.getReceiver();
+			// rcvr = MidiSystem.getReceiver(); // too slow on windows
 			soundPossible = true;
 			mute = false;
-			maxChan = synth.getMaxPolyphony();
 			chan = synth.getChannels();
+			maxChan = chan.length;
 			if (maxChan == 0) {
 				System.out.println("No polyphony, disabling MIDI");
 				soundPossible = false;
 			} else {
-				System.out.println("MIDI latency: " + synth.getLatency() + ", max polyphony: " + maxChan);
+				maxChan = 8; // chan 9 is not piano
+				System.out.println("MIDI latency: " + synth.getLatency());
+				System.out.println("max polyphony: " + synth.getMaxPolyphony());
 				// verify channels in chan
 				for (int i = 0; i < chan.length; i++) {
+					// System.out.println("playing MIDI channel " + i);
+					// chan[i].noteOn(50, 70);
+					// delay(500);
+					// chan[i].noteOff(50, 70);
 					if (chan[i] == null) {
 						System.out.println("MIDI channel " + i + " is null");
 						if (i == 0) {
