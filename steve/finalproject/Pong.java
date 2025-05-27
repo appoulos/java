@@ -157,18 +157,17 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	void playHit(hitType hit) {
 		// note Middle C = 60,
 		// moderately loud (velocity = 93).
-		final int noteVelocity = 83;
 		switch (hit) {
 			case paddle:
-				chan[curChan].noteOn(50, noteVelocity);
+				chan[curChan].noteOn(50, 40);
 				shortenNote(curChan, 50);
 				break;
 			case wall:
-				chan[curChan].noteOn(40, noteVelocity);
+				chan[curChan].noteOn(40, 35);
 				shortenNote(curChan, 40);
 				break;
 			case lose:
-				chan[curChan].noteOn(37, noteVelocity);
+				chan[curChan].noteOn(37, 50);
 				break;
 		}
 		curChan = (curChan + 1) % maxChan;
@@ -273,9 +272,9 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 					}
 				}
 			}
+			chan[0].noteOn(50, 0); // get chan ready
 		} catch (Exception e) {
 			System.out.println("Warning: cound not initialize the MIDI system for audio. Sound disabled");
-			// System.exit(1);
 		}
 
 		frame = new JFrame();

@@ -302,7 +302,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					}
 				}
 			}
-			chan[0].noteOn(50, 0);
+			chan[0].noteOn(50, 0); // get chan ready
 		} catch (Exception e) {
 			System.out.println("Warning: cound not initialize the MIDI system for audio. Sound disabled");
 		}
