@@ -16,6 +16,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
 
+import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
@@ -123,6 +124,58 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	static float frameTimeuSec = 0f;
 	static float frameDist = 0f;
 	static float currDist = 0f;
+	static int maxChan = 1;
+	static int curChan = 0;
+	static MidiChannel chan[];
+
+	enum hitType {
+		paddle,
+		wall,
+		lose,
+	}
+
+	void shortenNote(int c) {
+		new Thread(new Runnable() {
+			public void run() {
+				delay(100);
+				chan[c].noteOff(50, 0);
+			}
+		}).start();
+	}
+
+	/**
+	 * Play a note on the synthesizer and shorten paddle and wall notes.
+	 * 
+	 * @param hit type of hit sound to play
+	 */
+	void playHit(hitType hit) {
+		final int noteVelocity = 83;
+		switch (hit) {
+			case paddle:
+				chan[curChan].noteOn(50, noteVelocity);
+				chan[curChan].noteOff(50, noteVelocity);
+				// new Thread(new Runnable() {
+				// public void run() {
+				// delay(100);
+				// chan[curChan].noteOff(50, noteVelocity);
+				// }
+				// }).start();
+				break;
+			case wall:
+				chan[curChan].noteOn(40, noteVelocity);
+				new Thread(new Runnable() {
+					public void run() {
+						delay(100);
+						chan[curChan].noteOff(40, noteVelocity);
+					}
+				}).start();
+				break;
+			case lose:
+				chan[curChan].noteOn(37, noteVelocity);
+				break;
+		}
+		curChan = (curChan + 1) % maxChan;
+	}
 
 	/**
 	 * Play a note on the synthesizer and shorten paddle and wall notes.
@@ -134,9 +187,16 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 	void playSound(ShortMessage msg, int time) {
 		if (!mute) {
 			long t = synth.getMicrosecondPosition();
-			rcvr.send(msg, -1); // time in microseconds
-			rcvr.send(paddleOffMsg, t + time); // time in microseconds
-			rcvr.send(wallOffMsg, t + time); // time in microseconds
+			if (time == -1) {
+				rcvr.send(msg, -1);
+				rcvr.send(paddleOffMsg, t + 5_000);
+				rcvr.send(wallOffMsg, t + 5_000);
+				System.out.println("sound: " + t);
+			} else {
+				rcvr.send(msg, t + time);
+				rcvr.send(paddleOffMsg, t + time + 5_000);
+				rcvr.send(wallOffMsg, t + time + 5_000);
+			}
 		}
 	}
 
@@ -196,10 +256,33 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			rcvr = MidiSystem.getReceiver();
 			soundPossible = true;
 			mute = false;
+			maxChan = synth.getMaxPolyphony();
+			chan = synth.getChannels();
+			if (maxChan == 0) {
+				System.out.println("No polyphony, disabling MIDI");
+				soundPossible = false;
+			} else {
+				System.out.println("MIDI latency: " + synth.getLatency() + ", max polyphony: " + maxChan);
+				// verify channels in chan
+				for (int i = 0; i < chan.length; i++) {
+					if (chan[i] == null) {
+						System.out.println("MIDI channel " + i + " is null");
+						if (i == 0) {
+							System.out.println("MIDI channel 0 is null. Disabling MIDI");
+							soundPossible = false;
+							break;
+						}
+						maxChan = i;
+						System.out.println("MIDI max channels: " + i);
+						break;
+					}
+				}
+			}
 		} catch (Exception e) {
 			System.out.println("Warning: cound not initialize the MIDI system for audio. Sound disabled");
 			// System.exit(1);
 		}
+
 		frame = new JFrame();
 
 		frame.setTitle("Pong Game");
@@ -586,7 +669,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			}
 
 			if (dists[vertWall].dist == min) {
-				playSound(loseMsg, (int) (currDist / frameDist * frameTimeuSec));
+				// playSound(loseMsg, (int) (currDist / frameDist * frameTimeuSec));
+				playHit(hitType.lose);
 				if (boundaryX == 0) {
 					onLose(2);
 					System.out.println("Left player lost round");
@@ -610,7 +694,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 			}
 			if (wallHit) {
-				playSound(wallMsg, (int) (currDist / frameDist * frameTimeuSec));
+				// playSound(wallMsg, (int) (currDist / frameDist * frameTimeuSec));
+				playHit(hitType.wall);
 			}
 			// printBall();
 
@@ -628,7 +713,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 			ball.x = newBall.x;
 			ball.y = newBall.y;
 		} else {
-			playSound(loseMsg, (int) (currDist / frameDist * frameTimeuSec));
+			// playSound(loseMsg, (int) (currDist / frameDist * frameTimeuSec));
+			playHit(hitType.lose);
 		}
 		return retLose;
 	}
@@ -698,7 +784,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 				newBall.x = ball.x + dx * dist;
 				newBall.y = ball.y + dy * dist;
 
-				playSound(paddleMsg, -1);
+				// playSound(paddleMsg, -1);
+				playHit(hitType.paddle);
 				System.out
 						.println("hit segment: " + hit + "/" + playerSegments + " vel: (" + vel.x + "," + vel.y + ")");
 			}
@@ -729,7 +816,8 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 				newBall.x = ball.x + dx * dist;
 				newBall.y = ball.y + dy * dist;
 
-				playSound(paddleMsg, -1);
+				// playSound(paddleMsg, -1);
+				playHit(hitType.paddle);
 				System.out
 						.println("hit segment: " + hit + "/" + playerSegments + " vel: (" + vel.x + "," + vel.y + ")");
 			}
@@ -877,6 +965,18 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 				}
 				System.out.println();
 			}
+		}
+	}
+
+	/**
+	 * Add delay.
+	 * 
+	 * @param m delay in milliseconds.
+	 */
+	public void delay(int m) {
+		try {
+			Thread.sleep(m);
+		} catch (Exception e) {
 		}
 	}
 }

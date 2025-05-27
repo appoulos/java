@@ -17,6 +17,7 @@ import java.awt.event.MouseMotionListener;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
+import javax.sound.midi.MidiChannel;
 import javax.sound.midi.MidiSystem;
 import javax.sound.midi.Receiver;
 import javax.sound.midi.ShortMessage;
@@ -138,6 +139,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	static float frameTimeuSec = 0f;
 	static float frameDist = 0f;
 	static float currDist = 0f;
+	static int maxChan = 1;
+	static int curChan = 0;
+	static MidiChannel chan[];
 
 	// /**
 	// * Setup frame distance and timing so multiple hits during one frame will be
@@ -149,27 +153,55 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	// frameTimeuSec = 1_000_000 / frameRate;
 	// }
 
+	enum hitType {
+		brick,
+		paddle,
+		wall,
+		lose,
+	}
+
+	/**
+	 * Turn off a MIDI note in the future.
+	 * 
+	 * @param c    channel to turn off.
+	 * @param note note to turn off.
+	 */
+	void shortenNote(int c, int note) {
+		new Thread(new Runnable() {
+			public void run() {
+				delay(100);
+				chan[c].noteOff(note, 0);
+			}
+		}).start();
+	}
+
 	/**
 	 * Play a note on the synthesizer and shorten paddle and wall notes.
 	 * 
-	 * @param msg  MIDI message to pass to the <code>Synthesizer</code>.
-	 * @param time hint to the <code>Synthesizer</code> as to when in microseconds
-	 *             from now to play the note. <code>-1</code> means asap.
+	 * @param hit type of hit sound to play
 	 */
-	void playSound(ShortMessage msg, int time) {
-		// NOTE: currently playing sounds immediately as update/paint is done right away
-		if (!mute) {
-			long t = synth.getMicrosecondPosition(); // time in microseconds
-			if (time == -1) {
-				rcvr.send(msg, -1);
-				rcvr.send(paddleOffMsg, t + 5_000);
-				rcvr.send(wallOffMsg, t + 5_000);
-			} else {
-				rcvr.send(msg, t + time);
-				rcvr.send(paddleOffMsg, t + time + 5_000);
-				rcvr.send(wallOffMsg, t + time + 5_000);
-			}
+	void playHit(hitType hit) {
+		// note Middle C = 60,
+		// moderately loud (velocity = 93).
+		final int noteVelocity = 83;
+		switch (hit) {
+			case brick:
+				chan[curChan].noteOn(100, noteVelocity);
+				shortenNote(curChan, 100);
+				break;
+			case paddle:
+				chan[curChan].noteOn(50, noteVelocity);
+				shortenNote(curChan, 50);
+				break;
+			case wall:
+				chan[curChan].noteOn(40, noteVelocity);
+				shortenNote(curChan, 40);
+				break;
+			case lose:
+				chan[curChan].noteOn(37, noteVelocity);
+				break;
 		}
+		curChan = (curChan + 1) % maxChan;
 	}
 
 	/**
@@ -180,7 +212,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	 */
 	private void blockRemove(int r, int c) {
 		if (blocks[r][c].alive) {
-			// playSound(brickMsg, (int) (currDist / frameDist * frameTimeuSec));
 			blocks[r][c].hits--;
 			if (blocks[r][c].hits <= 0) {
 				blocks[r][c].alive = false;
@@ -241,19 +272,37 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		try {
 			synth = MidiSystem.getSynthesizer();
 			synth.open();
-			// note Middle C = 60,
-			// moderately loud (velocity = 93).
-			final int noteVelocity = 83;
-			paddleMsg.setMessage(ShortMessage.NOTE_ON, 0, 50, noteVelocity);
-			wallMsg.setMessage(ShortMessage.NOTE_ON, 0, 40, noteVelocity);
-			loseMsg.setMessage(ShortMessage.NOTE_ON, 0, 37, noteVelocity);
-			brickMsg.setMessage(ShortMessage.NOTE_ON, 0, 100, noteVelocity);
-			paddleOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 50, noteVelocity);
-			wallOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 40, noteVelocity);
-			// brickOffMsg.setMessage(ShortMessage.NOTE_OFF, 0, 100, noteVelocity);
-			rcvr = MidiSystem.getReceiver();
+			// rcvr = MidiSystem.getReceiver(); // too slow on windows
 			soundPossible = true;
 			mute = false;
+			chan = synth.getChannels();
+			maxChan = chan.length;
+			if (maxChan == 0) {
+				System.out.println("No polyphony, disabling MIDI");
+				soundPossible = false;
+			} else {
+				maxChan = 8; // chan 9 is not piano
+				System.out.println("MIDI latency: " + synth.getLatency());
+				System.out.println("max polyphony: " + synth.getMaxPolyphony());
+				// verify channels in chan
+				for (int i = 0; i < chan.length; i++) {
+					// System.out.println("playing MIDI channel " + i);
+					// chan[i].noteOn(50, 70);
+					// delay(500);
+					// chan[i].noteOff(50, 70);
+					if (chan[i] == null) {
+						System.out.println("MIDI channel " + i + " is null");
+						if (i == 0) {
+							System.out.println("MIDI channel 0 is null. Disabling MIDI");
+							soundPossible = false;
+							break;
+						}
+						maxChan = i;
+						System.out.println("MIDI max channels: " + i);
+						break;
+					}
+				}
+			}
 		} catch (Exception e) {
 			System.out.println("Warning: cound not initialize the MIDI system for audio. Sound disabled");
 		}
@@ -460,7 +509,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		System.out.println("theta: " + Math.toDegrees(theta));
 		System.out.println("dPhi: " + Math.toDegrees(dPhi));
 		for (int i = 0; i < bounces.length / 2; i++) {
-			System.out.println("angle: " + Math.toDegrees(i * dPhi + theta));
+			// System.out.println("angle: " + Math.toDegrees(i * dPhi + theta));
 			float dx = (float) (Math.cos(i * dPhi + theta));
 			float dy = (float) (Math.sin(i * dPhi + theta));
 			bounces[i] = new Point2D.Float(-dx, -dy);
@@ -488,9 +537,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	 */
 	private void resetBall() {
 		paused = true;
-		for (int i = 0; i < bounces.length; i++) {
-			System.out.println(bounces[i]);
-		}
+		// for (int i = 0; i < bounces.length; i++) {
+		// System.out.println(bounces[i]);
+		// }
 		vel.x = bounces[playerSegments / 2].x;
 		vel.y = bounces[playerSegments / 2].y;
 		ballVelocity = startBallVelocity * (1 + (level - 1) * 0.2f);
@@ -1020,13 +1069,15 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			if (foundHit) {
 				currDist += min;
 				if (wallHit) {
-					playSound(wallMsg, -1); //
+					// playSound(wallMsg, -1); //
 					// playSound(brickMsg, (int) (frameTimeuSec * currDist / frameDist));
+					playHit(hitType.wall);
 					// System.out.println("frame time: " + frameTimeuSec);
 					// System.out.println("pcnt: " + (currDist / frameDist));
 				}
 				if (blockHit) {
-					playSound(brickMsg, -1); // (int) (currDist / frameDist * frameTimeuSec));
+					// playSound(brickMsg, -1); // (int) (currDist / frameDist * frameTimeuSec));
+					playHit(hitType.brick);
 				}
 			}
 
@@ -1046,7 +1097,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			ball.x = newBall.x;
 			ball.y = newBall.y;
 		} else {
-			playSound(loseMsg, (int) (currDist / frameDist * frameTimeuSec));
+			// playSound(loseMsg, (int) (currDist / frameDist * frameTimeuSec));
+			playHit(hitType.lose);
 		}
 		return retLose;
 	}
@@ -1101,7 +1153,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				newBall.y = ball.y + dy * dist;
 				// newBall.y = player.y - (newBall.y + lowerEdge - player.y) - lowerEdge;
 
-				playSound(paddleMsg, -1);
+				// playSound(paddleMsg, -1);
+				playHit(hitType.paddle);
 				System.out
 						.println("hit segment: " + hit + "/" + playerSegments + " vel: (" + vel.x + "," + vel.y + ")");
 			}
@@ -1294,6 +1347,18 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				}
 				System.out.println();
 			}
+		}
+	}
+
+	/**
+	 * Add delay.
+	 * 
+	 * @param m delay in milliseconds.
+	 */
+	public void delay(int m) {
+		try {
+			Thread.sleep(m);
+		} catch (Exception e) {
 		}
 	}
 }
