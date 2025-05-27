@@ -200,7 +200,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				chan[curChan].noteOn(37, 50);
 				break;
 		}
-		curChan = (curChan + 1) % maxChan;
+		// curChan = (curChan + 1) % maxChan; // maybe not needed
 	}
 
 	/**
@@ -302,6 +302,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					}
 				}
 			}
+			chan[0].noteOn(50, 0);
 		} catch (Exception e) {
 			System.out.println("Warning: cound not initialize the MIDI system for audio. Sound disabled");
 		}
