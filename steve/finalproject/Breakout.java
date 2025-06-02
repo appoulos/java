@@ -247,6 +247,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
 		origFrameRate = device.getDisplayMode().getRefreshRate();
 		if (origFrameRate == 0) {
+			System.out.println("Warning: refresh rate was 0 so setting it to 60");
 			origFrameRate = 60;
 		}
 		System.out.println("refresh rate: " + origFrameRate);

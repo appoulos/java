@@ -216,6 +216,10 @@ public class Pong extends JPanel implements ActionListener, KeyListener, MouseMo
 
 		GraphicsDevice device = graphicsEnvironment.getDefaultScreenDevice();
 		origFrameRate = device.getDisplayMode().getRefreshRate();
+		if (origFrameRate == 0) {
+			System.out.println("Warning: refresh rate was 0 so setting it to 60");
+			origFrameRate = 60;
+		}
 		System.out.println("refresh rate: " + origFrameRate);
 		frameRate = origFrameRate;
 		startBallVelocity *= 60.0f / frameRate;
