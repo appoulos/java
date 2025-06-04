@@ -892,75 +892,48 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				float dx = hitX - (ball.x + edgeX);
 				// debug("1. vert block check", hitX, -1, -1, c, -1, -1, edgeX, edgeY);
 				float dy = (hitX - (ball.x + edgeX)) * m;
-				float hitY = dx * m + (ball.y + edgeY);
-				float d = -1;
-				boolean hit = false;
-				float foo = hitY - padTop;
-				float bar = blockHeight + padRow;
-				int br = (int) (foo / bar);
-				// if (dx*dx+dy*dy <= maxDist) {
-				if (dx * dx + dy * dy <= maxDist && foo >= 0 && foo < bar * (blockRows - padRow)
-						&& blocks[br][c].alive) {
-					// float remainder = foo % bar;
-					if (foo % bar < blockHeight && blocks[br][c].alive) {
-						// if (remainder < blockHeight && br >= 0 && br < blockRows &&
-						// blocks[br][c].alive) {
-						// int br = blockRowPos(hitY);
-						// if (signY > 0 && hitY >= ball.y + edgeY && hitY <= newBall.y + edgeY ||
-						// signY < 0 && hitY <= ball.y + edgeY && hitY >= newBall.y + edgeY) {
-						// if (br > -1 && hitY > blocks[br][c].point.y
-						// && hitY < blocks[br][c].point.y + blockHeight
-						// && blocks[br][c].alive) {
-						// float dx = hitX - (ball.x + edgeX);
-						// float dy = hitY - (ball.y + edgeY);
-						d = dx * dx + dy * dy;
-						if (d > vel.x * vel.x + vel.y * vel.y) {
-							System.out.println("######################## error d too big: " + d);
-							debug("1. vert block check", hitX, hitY, br, c, dx, dy, edgeX, edgeY);
-							paused = true;
-							// return false;
-						}
-						if (d <= min) {
-							foundHit = true;
-							hit = true;
-							min = d;
-							bd = signY > 0 ? dists[vertBlockBottom] : dists[vertBlockTop];
-							bd.dist = d;
-							bd.blockRow = br;
-							bd.blockCol = c;
-							bd.ballX = hitX - (edgeX == leftEdge ? 0 : otherEdge);
-							bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge);
-						}
-					}
-				}
-
-				hitY -= signY * otherEdge;
-				if (hitY - 0 > padTop && (signY > 0 && hitY >= ball.y + revEdgeY && hitY <= newBall.y + revEdgeY ||
-						signY < 0 && hitY <= ball.y + revEdgeY && hitY >= newBall.y + revEdgeY)) {
-					int br2 = blockRowPos(hitY);
-					if (!(hit && br2 == br) && br2 > -1 && hitY >= blocks[br2][c].point.y
-							&& hitY < blocks[br2][c].point.y + blockHeight
-							&& blocks[br2][c].alive) { // br != br2 &&
-						if (d == -1) {
-							// float dx = hitX - (ball.x + edgeX);
-							// float dy = hitY - (ball.y + revEdgeY);
-							d = dx * dx + dy * dy;
-							if (d > vel.x * vel.x + vel.y * vel.y) {
-								System.out.println("######################## error d too big: " + d);
-								debug("2. vert block check", hitX, hitY, br2, c, dx, dy, edgeX, edgeY);
-								paused = true;
-								// return false;
+				float d = dx * dx + dy * dy;
+				if (d <= maxDist) {
+					float hitY = dx * m + (ball.y + edgeY);
+					boolean hit = false;
+					float foo = hitY - padTop;
+					float bar = blockHeight + padRow;
+					int br = (int) (foo / bar);
+					if (foo >= 0 && foo < bar * blockRows - padRow
+							&& blocks[br][c].alive) {
+						// float remainder = foo % bar;
+						if (foo % bar < blockHeight) {
+							if (d <= min) {
+								foundHit = true;
+								hit = true;
+								min = d;
+								bd = signY > 0 ? dists[vertBlockBottom] : dists[vertBlockTop];
+								bd.dist = d;
+								bd.blockRow = br;
+								bd.blockCol = c;
+								bd.ballX = hitX - (edgeX == leftEdge ? 0 : otherEdge);
+								bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge);
 							}
 						}
-						if (d <= min) {
-							foundHit = true;
-							min = d;
-							bd = signY > 0 ? dists[vertBlockTop] : dists[vertBlockBottom]; // reversed
-							bd.dist = d;
-							bd.blockRow = br2;
-							bd.blockCol = c;
-							bd.ballX = hitX - (edgeX == leftEdge ? 0 : otherEdge);
-							bd.ballY = hitY - (revEdgeY == upperEdge ? 0 : otherEdge);
+					}
+
+					hitY -= signY * otherEdge;
+					foo = hitY - padTop;
+					int br2 = (int) (foo / bar);
+					if (!(hit && br2 == br) && foo >= 0 && foo < bar * blockRows - padRow
+							&& blocks[br2][c].alive) {
+						// float remainder = foo % bar;
+						if (foo % bar < blockHeight) {
+							if (d <= min) {
+								foundHit = true;
+								min = d;
+								bd = signY > 0 ? dists[vertBlockTop] : dists[vertBlockBottom]; // reversed
+								bd.dist = d;
+								bd.blockRow = br2;
+								bd.blockCol = c;
+								bd.ballX = hitX - (edgeX == leftEdge ? 0 : otherEdge);
+								bd.ballY = hitY - (revEdgeY == upperEdge ? 0 : otherEdge);
+							}
 						}
 					}
 				}
