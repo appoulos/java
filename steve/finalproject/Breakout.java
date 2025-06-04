@@ -72,6 +72,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private final int blockHeight = 20;
 	private static final int padCol = 3; // padding between columns
 	private final int padRow = 3; // padding between rows
+	private final float rowHeight = blockHeight + padRow;
 	private final int padTop = 50; // padding above blocks
 	private final int padMiddle = 150; // padding between blocks and paddle
 	private final int padBottom = 20; // padding below paddle
@@ -896,13 +897,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				if (d <= maxDist) {
 					float hitY = dx * m + (ball.y + edgeY);
 					boolean hit = false;
-					float foo = hitY - padTop;
-					float bar = blockHeight + padRow;
-					int br = (int) (foo / bar);
-					if (foo >= 0 && foo < bar * blockRows - padRow
+					float rowHitY = hitY - padTop;
+					int br = (int) (rowHitY / rowHeight);
+					if (rowHitY >= 0 && rowHitY < rowHeight * blockRows - padRow
 							&& blocks[br][c].alive) {
 						// float remainder = foo % bar;
-						if (foo % bar < blockHeight) {
+						if (rowHitY % rowHeight < blockHeight) {
 							if (d <= min) {
 								foundHit = true;
 								hit = true;
@@ -917,13 +917,12 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						}
 					}
 
-					hitY -= signY * otherEdge;
-					foo = hitY - padTop;
-					int br2 = (int) (foo / bar);
-					if (!(hit && br2 == br) && foo >= 0 && foo < bar * blockRows - padRow
+					rowHitY -= signY * otherEdge;
+					int br2 = (int) (rowHitY / rowHeight);
+					if (!(hit && br2 == br) && rowHitY >= 0 && rowHitY < rowHeight * blockRows - padRow
 							&& blocks[br2][c].alive) {
 						// float remainder = foo % bar;
-						if (foo % bar < blockHeight) {
+						if (rowHitY % rowHeight < blockHeight) {
 							if (d <= min) {
 								foundHit = true;
 								min = d;
