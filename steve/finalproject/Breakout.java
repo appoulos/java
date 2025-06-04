@@ -51,7 +51,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 	// scoring
 	private int level = 1;
-	private final int cheatLevels = 0; // Number of levels to have no game over
+	private final int cheatLevels = 1; // Number of levels to have no game over
 	private int lives;
 	private final int startLives = 3;
 	private int highScore = 1;
@@ -812,6 +812,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 			// NOTE: hit horizontal block check
 
+			float maxDist = vel.x * vel.x + vel.y * vel.y;
 			int r = rowBeg;
 			while (r != rowEnd && r < blockRows && r != -1) {
 				// System.out.println("&&&&&&&&&&&&&&&&&&&&&&& checking r: " + r);
@@ -888,14 +889,18 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			while (c != colEnd && c < blockCols && c != -1) {
 				// System.out.println("&&&&&&&&&&&&&&&&&&&&&&& checking c: " + c);
 				float hitX = blocks[0][c].point.x + blockEdgeX;
+				float dx = hitX - (ball.x + edgeX);
 				// debug("1. vert block check", hitX, -1, -1, c, -1, -1, edgeX, edgeY);
-				float hitY = (hitX - (ball.x + edgeX)) * m + (ball.y + edgeY);
+				float dy = (hitX - (ball.x + edgeX)) * m;
+				float hitY = dx * m + (ball.y + edgeY);
 				float d = -1;
 				boolean hit = false;
 				float foo = hitY - padTop;
 				float bar = blockHeight + padRow;
 				int br = (int) (foo / bar);
-				if (foo >= 0 && foo < bar * (blockRows - padRow)) {
+				// if (dx*dx+dy*dy <= maxDist) {
+				if (dx * dx + dy * dy <= maxDist && foo >= 0 && foo < bar * (blockRows - padRow)
+						&& blocks[br][c].alive) {
 					// float remainder = foo % bar;
 					if (foo % bar < blockHeight && blocks[br][c].alive) {
 						// if (remainder < blockHeight && br >= 0 && br < blockRows &&
@@ -906,8 +911,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 						// if (br > -1 && hitY > blocks[br][c].point.y
 						// && hitY < blocks[br][c].point.y + blockHeight
 						// && blocks[br][c].alive) {
-						float dx = hitX - (ball.x + edgeX);
-						float dy = hitY - (ball.y + edgeY);
+						// float dx = hitX - (ball.x + edgeX);
+						// float dy = hitY - (ball.y + edgeY);
 						d = dx * dx + dy * dy;
 						if (d > vel.x * vel.x + vel.y * vel.y) {
 							System.out.println("######################## error d too big: " + d);
@@ -937,8 +942,8 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 							&& hitY < blocks[br2][c].point.y + blockHeight
 							&& blocks[br2][c].alive) { // br != br2 &&
 						if (d == -1) {
-							float dx = hitX - (ball.x + edgeX);
-							float dy = hitY - (ball.y + revEdgeY);
+							// float dx = hitX - (ball.x + edgeX);
+							// float dy = hitY - (ball.y + revEdgeY);
 							d = dx * dx + dy * dy;
 							if (d > vel.x * vel.x + vel.y * vel.y) {
 								System.out.println("######################## error d too big: " + d);
