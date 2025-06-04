@@ -641,7 +641,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// make x = col
 		x /= (blockWidth + padCol);
 		if (x >= blockCols)
-			return blockCols - 1;
+			return -1;
 		return (int) x;
 	}
 
@@ -658,7 +658,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// make x = col
 		x /= (blockWidth + padCol);
 		if (x >= blockCols)
-			return blockCols - 1;
+			return -1;
 		return (int) x;
 	}
 
@@ -675,7 +675,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// make y = row
 		y /= (blockHeight + padRow);
 		if (y >= blockRows)
-			return blockRows - 1;
+			return -1;
 		return (int) y;
 	}
 
@@ -692,7 +692,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 		// make y = row
 		y /= (blockHeight + padRow);
 		if (y >= blockRows)
-			return blockRows - 1;
+			return -1;
 		return (int) y;
 	}
 
@@ -892,12 +892,20 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 				float hitY = (hitX - (ball.x + edgeX)) * m + (ball.y + edgeY);
 				float d = -1;
 				boolean hit = false;
-				int br = blockRowPos(hitY);
-				if (signY > 0 && hitY >= ball.y + edgeY && hitY <= newBall.y + edgeY ||
-						signY < 0 && hitY <= ball.y + edgeY && hitY >= newBall.y + edgeY) {
-					if (br > -1 && hitY > blocks[br][c].point.y
-							&& hitY < blocks[br][c].point.y + blockHeight
-							&& blocks[br][c].alive) {
+				float foo = hitY - padTop;
+				float bar = blockHeight + padRow;
+				int br = (int) (foo / bar);
+				if (foo >= 0 && foo < bar * (blockRows - padRow)) {
+					// float remainder = foo % bar;
+					if (foo % bar < blockHeight && blocks[br][c].alive) {
+						// if (remainder < blockHeight && br >= 0 && br < blockRows &&
+						// blocks[br][c].alive) {
+						// int br = blockRowPos(hitY);
+						// if (signY > 0 && hitY >= ball.y + edgeY && hitY <= newBall.y + edgeY ||
+						// signY < 0 && hitY <= ball.y + edgeY && hitY >= newBall.y + edgeY) {
+						// if (br > -1 && hitY > blocks[br][c].point.y
+						// && hitY < blocks[br][c].point.y + blockHeight
+						// && blocks[br][c].alive) {
 						float dx = hitX - (ball.x + edgeX);
 						float dy = hitY - (ball.y + edgeY);
 						d = dx * dx + dy * dy;
@@ -1095,7 +1103,9 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 
 		} while (foundHit);
 
-		if (!retLose) {
+		if (!retLose)
+
+		{
 			prevball.x = ball.x;
 			prevball.y = ball.y;
 			ball.x = newBall.x;
