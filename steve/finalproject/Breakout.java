@@ -73,6 +73,7 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 	private static final int padCol = 3; // padding between columns
 	private final int padRow = 3; // padding between rows
 	private final float rowHeight = blockHeight + padRow;
+	private final float rowWidth = blockWidth + padCol;
 	private final int padTop = 50; // padding above blocks
 	private final int padMiddle = 150; // padding between blocks and paddle
 	private final int padBottom = 20; // padding below paddle
@@ -817,67 +818,47 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 			int r = rowBeg;
 			while (r != rowEnd && r < blockRows && r != -1) {
 				// System.out.println("&&&&&&&&&&&&&&&&&&&&&&& checking r: " + r);
-
 				float hitY = blocks[r][0].point.y + blockEdgeY;
-				float hitX = (hitY - (ball.y + edgeY)) / m + (ball.x + edgeX);
-				// debug("1. horiz block check", hitX, hitY, r, -1, -1, -1, edgeX, edgeY);
-				int bc = blockColPos(hitX);
-				float d = -1;
-				boolean hit = false;
-				if (signX > 0 && hitX >= ball.x + edgeX && hitX <= newBall.x + edgeX ||
-						signX < 0 && hitX <= ball.x + edgeX && hitX >= newBall.x + edgeX) {
-					if (bc > -1 && hitX >= blocks[r][bc].point.x
-							&& hitX < blocks[r][bc].point.x + blockWidth
+				float dy = hitY - (ball.y + edgeY);
+				float dx = (hitY - (ball.y + edgeY)) / m;
+				float d = dx * dx + dy * dy;
+				if (d <= maxDist) {
+					float hitX = dy / m + (ball.x + edgeX);
+					boolean hit = false;
+					float rowHitX = hitX - padCol;
+					int bc = (int) (rowHitX / rowWidth);
+					if (rowHitX >= 0 && rowHitX < rowWidth * blockCols - padCol
 							&& blocks[r][bc].alive) {
-						float dx = hitX - (ball.x + edgeX);
-						float dy = hitY - (ball.y + edgeY);
-						d = dx * dx + dy * dy;
-						if (d > vel.x * vel.x + vel.y * vel.y) {
-							System.out.println("######################## error d too big: " + d);
-							debug("1. horiz block check", hitX, hitY, r, bc, dx, dy, edgeX, edgeY);
-							paused = true;
-						}
-						if (d <= min) {
-							foundHit = true;
-							hit = true;
-							min = d;
-
-							bd = signX > 0 ? dists[horzBlockRight] : dists[horzBlockLeft];
-							bd.dist = d;
-							bd.blockRow = r;
-							bd.blockCol = bc;
-							bd.ballX = hitX - (edgeX == leftEdge ? 0 : otherEdge);
-							bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge) - signY;
-						}
-					}
-				}
-
-				hitX -= signX * otherEdge;
-				if (hitX > padCol && (signX > 0 && hitX >= ball.x + revEdgeX && hitX <= newBall.x + revEdgeX ||
-						signX < 0 && hitX <= ball.x + revEdgeX && hitX >= newBall.x + revEdgeX)) {
-					int bc2 = blockColPos(hitX - 0);
-					if (!(hit && bc2 == bc) && bc2 > -1 && hitX >= blocks[r][bc2].point.x
-							&& hitX < blocks[r][bc2].point.x + blockWidth
-							&& blocks[r][bc2].alive) {
-						if (d == -1) {
-							float dx = hitX - (ball.x + revEdgeX);
-							float dy = hitY - (ball.y + edgeY);
-							d = dx * dx + dy * dy;
-							if (d > vel.x * vel.x + vel.y * vel.y) {
-								System.out.println("######################## error d too big: " + d);
-								debug("2. horiz block check", hitX, hitY, r, bc2, dx, dy, edgeX, edgeY);
-								paused = true;
+						if (rowHitX % rowWidth < blockWidth) {
+							if (d <= min) {
+								foundHit = true;
+								hit = true;
+								min = d;
+								bd = signX > 0 ? dists[horzBlockRight] : dists[horzBlockLeft];
+								bd.dist = d;
+								bd.blockRow = r;
+								bd.blockCol = bc;
+								bd.ballX = hitX - (edgeX == leftEdge ? 0 : otherEdge);
+								bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge) - signY;
 							}
 						}
-						if (d <= min) {
-							foundHit = true;
-							min = d;
-							bd = signX > 0 ? dists[horzBlockLeft] : dists[horzBlockRight]; // reversed
-							bd.dist = d;
-							bd.blockRow = r;
-							bd.blockCol = bc2;
-							bd.ballX = hitX - (revEdgeX == leftEdge ? 0 : otherEdge);
-							bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge) - signY;
+					}
+
+					rowHitX -= signX * otherEdge;
+					int bc2 = (int) (rowHitX / rowWidth);
+					if (!(hit && bc2 == bc) && rowHitX >= 0 && rowHitX < rowWidth * blockCols - padCol
+							&& blocks[r][bc2].alive) {
+						if (rowHitX % rowWidth < blockWidth) {
+							if (d <= min) {
+								foundHit = true;
+								min = d;
+								bd = signX > 0 ? dists[horzBlockLeft] : dists[horzBlockRight]; // reversed
+								bd.dist = d;
+								bd.blockRow = r;
+								bd.blockCol = bc2;
+								bd.ballX = hitX - (revEdgeX == leftEdge ? 0 : otherEdge);
+								bd.ballY = hitY - (edgeY == upperEdge ? 0 : otherEdge) - signY;
+							}
 						}
 					}
 				}
@@ -901,7 +882,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					int br = (int) (rowHitY / rowHeight);
 					if (rowHitY >= 0 && rowHitY < rowHeight * blockRows - padRow
 							&& blocks[br][c].alive) {
-						// float remainder = foo % bar;
 						if (rowHitY % rowHeight < blockHeight) {
 							if (d <= min) {
 								foundHit = true;
@@ -921,7 +901,6 @@ public class Breakout extends JPanel implements ActionListener, KeyListener, Mou
 					int br2 = (int) (rowHitY / rowHeight);
 					if (!(hit && br2 == br) && rowHitY >= 0 && rowHitY < rowHeight * blockRows - padRow
 							&& blocks[br2][c].alive) {
-						// float remainder = foo % bar;
 						if (rowHitY % rowHeight < blockHeight) {
 							if (d <= min) {
 								foundHit = true;
